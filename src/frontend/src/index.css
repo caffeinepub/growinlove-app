@@ -1,0 +1,225 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --radius: 1.25rem;
+        
+        /* Soft blush-pink romantic palette with warm peach and cream accents */
+        --background: 0.97 0.02 15;
+        --foreground: 0.25 0.03 15;
+        
+        --card: 0.99 0.015 15;
+        --card-foreground: 0.25 0.03 15;
+        
+        --popover: 0.99 0.015 15;
+        --popover-foreground: 0.25 0.03 15;
+        
+        /* Primary: Deep rose */
+        --primary: 0.55 0.18 15;
+        --primary-foreground: 0.99 0.01 15;
+        
+        /* Secondary: Soft pink */
+        --secondary: 0.92 0.04 15;
+        --secondary-foreground: 0.35 0.03 15;
+        
+        /* Muted: Light blush */
+        --muted: 0.95 0.025 15;
+        --muted-foreground: 0.50 0.02 15;
+        
+        /* Accent: Warm coral-pink */
+        --accent: 0.85 0.08 25;
+        --accent-foreground: 0.30 0.03 15;
+        
+        /* Peach: Warm peach tone */
+        --peach: 0.88 0.10 45;
+        --peach-foreground: 0.30 0.03 15;
+        
+        /* Cream: Soft cream tone */
+        --cream: 0.96 0.03 65;
+        --cream-foreground: 0.35 0.03 15;
+        
+        /* Destructive: Soft red */
+        --destructive: 0.577 0.245 27.325;
+        --destructive-foreground: 0.985 0 0;
+        
+        --border: 0.90 0.03 15;
+        --input: 0.90 0.03 15;
+        --ring: 0.65 0.15 15;
+        
+        /* Chart colors - romantic palette */
+        --chart-1: 0.65 0.15 15;
+        --chart-2: 0.70 0.12 340;
+        --chart-3: 0.75 0.10 30;
+        --chart-4: 0.68 0.14 350;
+        --chart-5: 0.72 0.11 20;
+    }
+
+    .dark {
+        --background: 0.20 0.03 15;
+        --foreground: 0.95 0.02 15;
+        
+        --card: 0.25 0.03 15;
+        --card-foreground: 0.95 0.02 15;
+        
+        --popover: 0.22 0.03 15;
+        --popover-foreground: 0.95 0.02 15;
+        
+        /* Primary: Bright rose */
+        --primary: 0.75 0.15 15;
+        --primary-foreground: 0.20 0.03 15;
+        
+        /* Secondary: Muted pink */
+        --secondary: 0.35 0.04 15;
+        --secondary-foreground: 0.95 0.02 15;
+        
+        --muted: 0.30 0.03 15;
+        --muted-foreground: 0.65 0.02 15;
+        
+        --accent: 0.45 0.08 25;
+        --accent-foreground: 0.95 0.02 15;
+        
+        --peach: 0.50 0.10 45;
+        --peach-foreground: 0.95 0.02 15;
+        
+        --cream: 0.40 0.03 65;
+        --cream-foreground: 0.95 0.02 15;
+        
+        --destructive: 0.65 0.20 27;
+        --destructive-foreground: 0.95 0.01 15;
+        
+        --border: 0.35 0.03 15;
+        --input: 0.35 0.03 15;
+        --ring: 0.70 0.12 15;
+        
+        --chart-1: 0.70 0.15 15;
+        --chart-2: 0.75 0.12 340;
+        --chart-3: 0.80 0.10 30;
+        --chart-4: 0.73 0.14 350;
+        --chart-5: 0.77 0.11 20;
+    }
+
+    * {
+        @apply border-border;
+    }
+    
+    body {
+        @apply bg-background text-foreground;
+        font-family: 'Nunito', 'Quicksand', 'Comfortaa', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+        font-size: 18px;
+        line-height: 1.6;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }
+}
+
+/* Smooth fade transition */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Glow effect for active nav items */
+.nav-glow {
+    filter: drop-shadow(0 0 8px oklch(var(--primary) / 0.4));
+}
+
+/* Floating hearts animation */
+@keyframes floatHeart {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 0.6;
+    }
+    50% {
+        transform: translateY(-10px) scale(1.05);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.6;
+    }
+}
+
+.float-heart {
+    animation: floatHeart 3s ease-in-out infinite;
+}
+
+.float-heart-delayed {
+    animation: floatHeart 3s ease-in-out infinite;
+    animation-delay: 1.5s;
+}
+
+/* Glow pulse animation */
+@keyframes glowPulse {
+    0%, 100% {
+        filter: drop-shadow(0 0 4px oklch(var(--primary) / 0.3));
+    }
+    50% {
+        filter: drop-shadow(0 0 12px oklch(var(--primary) / 0.6));
+    }
+}
+
+.glow-pulse {
+    animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* Gentle entrance animation */
+@keyframes gentleEntrance {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.gentle-entrance {
+    animation: gentleEntrance 0.6s ease-out;
+}
+
+/* Staggered entrance for children */
+.stagger-entrance > * {
+    animation: gentleEntrance 0.6s ease-out;
+    animation-fill-mode: both;
+}
+
+.stagger-entrance > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger-entrance > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger-entrance > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger-entrance > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger-entrance > *:nth-child(5) { animation-delay: 0.5s; }
+
+/* Floating hearts animation for completion */
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh) scale(1);
+        opacity: 0;
+    }
+}
+
+.animate-float-up {
+    animation: floatUp 3s ease-out forwards;
+}

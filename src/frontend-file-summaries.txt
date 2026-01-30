@@ -1,0 +1,16 @@
+{
+  "frontend/src/index.css": "Global styles with OKLCH color system, romantic design tokens, and animations including floating hearts, glow pulses, gentle entrances, and completion float-up effects.",
+  "frontend/src/App.tsx": "Main application component with React Query provider, authentication flow, profile setup handling with navigation callback, tab navigation, and top bar with login button.",
+  "frontend/src/components/BottomNav.tsx": "Fixed bottom navigation bar component with 5 tabs featuring icons, labels, active state highlighting with glow effects, and smooth transitions.",
+  "frontend/src/pages/Home.tsx": "Home page with daily ritual card showing three states (input form, waiting for partner, both completed), dynamic streak counter, harmony meter, pairing requirement check, and completion animations with real backend data integration.",
+  "frontend/src/pages/Insights.tsx": "Insights page placeholder component displaying a centered lightbulb icon with the page title and description.",
+  "frontend/src/pages/LoveLanguages.tsx": "Love Languages introductory screen with header, welcoming card featuring two curious doges illustration, quiz description, prominent \"Start the Quiz\" button, pairing requirement check, and supporting notes about separate answers with instant sync.",
+  "frontend/src/pages/Activities.tsx": "Activities page placeholder component displaying a centered sparkles icon with the page title and description.",
+  "frontend/src/pages/Us.tsx": "Us page component implementing couple pairing feature with code generation/sharing, code entry interface, pairing success state with celebration animation, and already-paired state showing connection status and partner information.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for backend integration including user profile management with new useInitializeUserProfile hook, pairing operations, daily ritual data fetching with stats, ritual response submission, and ritual status checking with automatic polling.",
+  "frontend/index.html": "HTML entry point with mobile-optimized viewport settings and theme color for the GrowInLove app.",
+  "frontend/tailwind.config.js": "Tailwind configuration extended with peach and cream color tokens, rounded sans-serif font family (Nunito, Quicksand, Comfortaa), and 18-20pt base font sizes for the romantic design system.",
+  "frontend/src/components/LoginButton.tsx": "Login/logout button component with Internet Identity integration, loading states, and query cache clearing on logout.",
+  "frontend/src/components/ProfileSetup.tsx": "Profile setup modal that prompts new users to enter their name on first login with validation, error handling, loading states, and callback to navigate to Us tab on successful initialization.",
+  "frontend/src/components/CompletionAnimation.tsx": "Animated floating hearts component that displays when both partners complete their daily ritual."
+}
