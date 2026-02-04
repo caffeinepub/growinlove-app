@@ -1,0 +1,28 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-update-the-frontend-data-flow-react-query-any-consuming-ui-to-match-the-backend-s-multi-entry-ritual-history-behavior-ensuring-the-home-and-memories-pages-correctly-display-multiple-days-and-still-treat-ritualhistory-0-as-the-latest-entry-because-results-are-sorted-newest-first-and-limited",
+      "featureTitle": "Update the frontend data flow (React Query + any consuming UI) to match the backend’s multi-entry ritual history behavior, ensuring the Home and Memories pages correctly display multiple days and still treat ritualHistory[0] as the latest entry because results are sorted newest-first and limited.",
+      "files": [
+        "frontend/QA_ACCEPTANCE_CHECKLIST.md",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/Home.tsx",
+        "frontend/src/pages/Memories.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

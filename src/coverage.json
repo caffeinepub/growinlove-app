@@ -1,0 +1,64 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-04T21:10:27.903Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 3,
+    "implemented": 1,
+    "items": [
+      {
+        "id": "REQ-3",
+        "summary": "Update the backend ritual storage model so ritual entries are stored append-only per coupleId AND per day (e.g., a unique key derived from coupleId + day number), instead of overwriting a single entry per coupleId. Ensure that submitting a ritual response for the same couple on the same day updates the same day’s entry (merging responses by userId), and submitting on a different day creates a new entry without affecting prior days.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Update backend endpoints that currently assume a single ritual entry per couple so they work with the new per-day storage: (1) getRitualStatus must reflect today’s ritual completion status for the couple (based on today’s day key), and (2) getRitualHistory(limit) must return a list of RitualEntryView across multiple days, sorted reliably by date (newest first) and respecting the provided limit argument.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Update the frontend data flow (React Query + any consuming UI) to match the backend’s multi-entry ritual history behavior, ensuring the Home and Memories pages correctly display multiple days and still treat ritualHistory[0] as the latest entry because results are sorted newest-first and limited.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/Home.tsx",
+          "frontend/src/pages/Memories.tsx",
+          "frontend/QA_ACCEPTANCE_CHECKLIST.md"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/Home.tsx",
+          "frontend/src/pages/Memories.tsx",
+          "frontend/QA_ACCEPTANCE_CHECKLIST.md"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/QA_ACCEPTANCE_CHECKLIST.md",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/Home.tsx",
+    "frontend/src/pages/Memories.tsx",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

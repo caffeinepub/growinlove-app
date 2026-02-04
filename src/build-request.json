@@ -1,0 +1,77 @@
+{
+  "kind": "build_request",
+  "title": "Step 2A: Make ritual history truly multi-day (append-only per couple per day)",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-3",
+      "text": "Update the backend ritual storage model so ritual entries are stored append-only per coupleId AND per day (e.g., a unique key derived from coupleId + day number), instead of overwriting a single entry per coupleId. Ensure that submitting a ritual response for the same couple on the same day updates the same day’s entry (merging responses by userId), and submitting on a different day creates a new entry without affecting prior days.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "please proceed with implementing the updated step 2A."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Two different calendar days for the same couple produce two distinct stored ritual entries (prior day is not overwritten).",
+        "Two submissions on the same day (caller + partner) both appear in the same day’s stored entry under that couple.",
+        "Ritual response merging remains keyed by userId so a user re-submitting updates only their own response for that day."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Update backend endpoints that currently assume a single ritual entry per couple so they work with the new per-day storage: (1) getRitualStatus must reflect today’s ritual completion status for the couple (based on today’s day key), and (2) getRitualHistory(limit) must return a list of RitualEntryView across multiple days, sorted reliably by date (newest first) and respecting the provided limit argument.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "Add per-day keys: store ritual entries under coupleId + date instead of overwriting.",
+          "Update getRitualHistory to return all entries, sorted, respecting limit."
+        ]
+      },
+      "acceptanceCriteria": [
+        "getRitualStatus returns completion for the current day only (not a previous day) and remains correct for partnerA/partnerB canonical attribution.",
+        "getRitualHistory(limit) returns at most `limit` entries when more exist.",
+        "getRitualHistory(limit) returns entries sorted newest-first using the entry.date field.",
+        "Existing behavior for unpaired users remains unchanged (traps/authorization as before)."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Update the frontend data flow (React Query + any consuming UI) to match the backend’s multi-entry ritual history behavior, ensuring the Home and Memories pages correctly display multiple days and still treat ritualHistory[0] as the latest entry because results are sorted newest-first and limited.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "Update frontend hook to match new response shape."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Home page ‘Ritual History’ section can show multiple entries across different days without regressions.",
+        "Memories page ‘Load More’ continues to work by increasing the limit and receiving more (older) entries from getRitualHistory(limit).",
+        "Home page ‘Both completed!’ section uses the latest entry (index 0) and shows the responses for today when today is complete."
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single Motoko actor; implement Step 2A changes in backend/main.mo.",
+    "Do not edit files under frontend/immutablePaths (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui). Compose or adjust code elsewhere if needed.",
+    "Do not implement Step 2B (streak/harmony/trends/badges computation) as part of this build."
+  ],
+  "nonGoals": [
+    "Implementing real Insights computations (streaks, harmony math, trends) and badge unlock logic (Step 2B).",
+    "Adding new UI features beyond what is required to support multi-day ritual history display and correct ‘today’ status.",
+    "Introducing external databases or backend services."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

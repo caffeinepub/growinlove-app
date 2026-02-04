@@ -1,53 +1,73 @@
 import Map "mo:core/Map";
 import Array "mo:core/Array";
 import Time "mo:core/Time";
-import Text "mo:core/Text";
 import Float "mo:core/Float";
-import Principal "mo:core/Principal";
-import Runtime "mo:core/Runtime";
-import Iter "mo:core/Iter";
-import Int "mo:core/Int";
+import Text "mo:core/Text";
 import Nat "mo:core/Nat";
+import Int "mo:core/Int";
+import Runtime "mo:core/Runtime";
+import Principal "mo:core/Principal";
+import Iter "mo:core/Iter";
+
 import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
-import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import MixinAuthorization "authorization/MixinAuthorization";
 import Migration "migration";
+
+// Specify the state migration function in the with clause
 
 (with migration = Migration.run)
 actor {
-  include MixinStorage();
-
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
+  include MixinStorage();
 
   public type UserId = Principal;
+
+  public type UserRole = {
+    #admin;
+    #user;
+  };
 
   public type UserProfile = {
     name : Text;
     partnerId : ?Principal;
+    role : UserRole;
+    isFirstUser : Bool;
   };
 
   public type RitualPrompt = {
     id : Nat;
     text : Text;
+    loveLanguage : ?LoveLanguage;
   };
 
   public type RitualResponse = {
     userId : UserId;
     text : ?Text;
     emoji : ?Text;
+    photoId : ?Text;
+  };
+
+  public type RitualEntryView = {
+    prompt : RitualPrompt;
+    responses : [RitualResponse];
+    date : Int;
+    loveLanguageFocus : ?LoveLanguage;
   };
 
   public type RitualEntry = {
     prompt : RitualPrompt;
     responses : Map.Map<UserId, RitualResponse>;
-    date : Time.Time;
+    date : Int;
+    loveLanguageFocus : ?LoveLanguage;
   };
 
   public type DailyRitualInput = {
     text : ?Text;
     emoji : ?Text;
+    photoId : ?Text;
   };
 
   public type PartnerRitualStatus = {
@@ -55,9 +75,17 @@ actor {
     partnerBComplete : Bool;
   };
 
+  public type CanonicalPartnerRitualStatus = {
+    partnerA : UserId;
+    partnerB : UserId;
+    partnerAComplete : Bool;
+    partnerBComplete : Bool;
+  };
+
   public type HarmonyStats = {
     streakCount : Nat;
     completionRate : Float;
+    averageHarmony : Float;
   };
 
   public type EntryStatus = {
@@ -66,6 +94,7 @@ actor {
   };
 
   public type GetDailyRitualResponse = {
+    partnerId : ?UserId;
     prompt : RitualPrompt;
     responses : [RitualResponse];
     status : EntryStatus;
@@ -81,49 +110,164 @@ actor {
     timestamp : Time.Time;
   };
 
-  let codeLifetime : Int = 3 * 24 * 60 * 60 * 1_000_000_000; // 3 days in nanoseconds
-
-  let ritualEntries = Map.empty<Text, RitualEntry>();
-  let prompts = Map.empty<Nat, RitualPrompt>();
-  let userProfiles = Map.empty<UserId, UserProfile>();
-  let photos = Map.empty<Text, SharedPhoto>();
-  let codeToPrincipal = Map.empty<Nat, Principal>();
-
-  let queueSize = 100;
-  var codePool : [Nat] = [];
-
-  let randomSeed = 17;
-  var currentSeed = randomSeed;
-
-  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can view profiles");
-    };
-    userProfiles.get(caller);
+  public type PairingError = {
+    #ProfileNotInitialized;
+    #InvalidCode;
+    #ExpiredCode;
+    #SelfPairingNotAllowed;
+    #AlreadyPaired;
+    #PartnerAlreadyPaired;
+    #UserNotFound;
+    #PartnerNotFound;
   };
 
-  public query ({ caller }) func getUserProfile(user : UserId) : async ?UserProfile {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can view profiles");
-    };
-    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Can only view your own profile");
-    };
-    userProfiles.get(user);
+  public type PairingResult = {
+    #ok;
+    #err : Text;
   };
 
-  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can save profiles");
-    };
-    userProfiles.add(caller, profile);
+  public type StreakRecord = {
+    currentStreak : Nat;
+    longestStreak : Nat;
   };
 
-  public shared ({ caller }) func assignPartner(partner : UserId) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can assign partners");
-    };
+  public type CoupleStats = {
+    streakRecord : StreakRecord;
+    lastCompletedDay : ?Text;
+    harmonyStats : HarmonyStats;
+    currentStreak : Nat;
+    longestStreak : Nat;
+  };
 
+  public type PromptInitializationResult = {
+    #success;
+    #alreadyInitialized;
+    #unauthorized;
+    #internalError : Text;
+  };
+
+  public type LoveLanguage = {
+    #wordsOfAffirmation;
+    #actsOfService;
+    #receivingGifts;
+    #qualityTime;
+    #physicalTouch;
+  };
+
+  public type LoveLanguageRanking = {
+    language : LoveLanguage;
+    score : Float;
+  };
+
+  public type LoveLanguagesQuizResult = {
+    userId : UserId;
+    rankings : [LoveLanguageRanking];
+    completionTime : Time.Time;
+  };
+
+  public type PartnerQuizState = {
+    partnerCompleted : Bool;
+    partnerResults : ?LoveLanguagesQuizResult;
+  };
+
+  public type SynchronizedLoveLanguagesResults = {
+    userId : UserId;
+    results : LoveLanguagesQuizResult;
+    partnerResults : LoveLanguagesQuizResult;
+  };
+
+  public type LoveChallenge = {
+    id : Nat;
+    title : Text;
+    description : Text;
+    loveLanguage : LoveLanguage;
+    isCompleted : Bool;
+    dateAssigned : Int;
+  };
+
+  public type CoupleChallenges = {
+    coupleId : Text;
+    activeChallenges : [LoveChallenge];
+    completedChallenges : [LoveChallenge];
+  };
+
+  public type ChallengeCompletionResponse = {
+    #success;
+    #err : Text;
+  };
+
+  public type ChallengeStats = {
+    totalChallenges : Nat;
+    completedChallenges : Nat;
+    progressPercent : Float;
+  };
+
+  public type MilestoneBadge = {
+    name : Text;
+    dateAchieved : Time.Time;
+    isUnlocked : Bool;
+  };
+
+  public type InsightsDataResponse = {
+    currentStreak : Nat;
+    longestStreak : Nat;
+    challengeCompletionRate : Float;
+    mostFrequentLoveLanguage : Text;
+    badges : [MilestoneBadge];
+  };
+
+  public type MilestoneProgress = {
+    sevenDayUnlocked : Bool;
+    thirtyDayUnlocked : Bool;
+    hundredDayUnlocked : Bool;
+    harmonyEliteUnlocked : Bool;
+  };
+
+  public type BadgeMilestoneResponse = {
+    badges : [MilestoneBadge];
+    milestones : MilestoneProgress;
+  };
+
+  public type InsighsDataExtendedResponse = {
+    currentStreak : Nat;
+    longestStreak : Nat;
+    challengeCompletionRate : Float;
+    mostFrequentLoveLanguage : Text;
+    badges : [MilestoneBadge];
+    challengeStats : ChallengeStats;
+    milestones : MilestoneProgress;
+    averageHarmony : Float;
+    currentHarmony : Float;
+    quizOverlapScore : Float;
+    recentCompletionRate : Float;
+    last14DayTrend : [Bool];
+    harmonyTrend : [Float];
+    last30DayTrend : [Bool];
+  };
+
+  public type DayNumber = Nat;
+  public type CoupleId = Text;
+
+  public type RitualCompletion = {
+    partnerAComplete : Bool;
+    partnerBComplete : Bool;
+    completionTimePartnerA : ?Time.Time;
+    completionTimePartnerB : ?Time.Time;
+  };
+
+  public type DayStats = {
+    numCompletedByBoth : Nat;
+    numCompletedByEither : Nat;
+  };
+
+  func convertToRitualEntryView(entry : RitualEntry) : RitualEntryView {
+    {
+      entry with
+      responses = entry.responses.toArray().map(func((_, response)) { response });
+    };
+  };
+
+  func assignPartner(caller : UserId, partner : UserId) {
     switch (userProfiles.get(caller), userProfiles.get(partner)) {
       case (null, _) { Runtime.trap("Caller profile not found") };
       case (_, null) { Runtime.trap("Partner profile not found") };
@@ -143,160 +287,339 @@ actor {
     };
   };
 
-  public shared ({ caller }) func initPrompts() : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can initialize prompts");
-    };
+  func verifyMutualPartnership(userA : UserId, userB : UserId) : Bool {
+    let userAPartner = getPartnerId(userA);
+    let userBPartner = getPartnerId(userB);
 
-    addPrompt(0, "Share one thing you appreciate about your partner today");
-    addPrompt(1, "What made you smile today?");
-    addPrompt(2, "Describe your partner in one word");
-    addPrompt(3, "Send your partner a cute emoji or GIF");
-    addPrompt(4, "Share a memory that makes you laugh");
+    switch (userAPartner, userBPartner) {
+      case (?partnerA, ?partnerB) {
+        partnerA == userB and partnerB == userA
+      };
+      case (_, _) { false };
+    };
   };
 
-  func addPrompt(id : Nat, text : Text) {
+  func addPrompt(id : Nat, text : Text, loveLanguage : LoveLanguage) {
     let prompt = {
       id;
       text;
+      loveLanguage = ?loveLanguage;
     };
     prompts.add(id, prompt);
   };
 
-  public query ({ caller }) func getDailyRitual() : async ?RitualPrompt {
+  func updateMapping(code : Nat, caller : Principal) {
+    codeToPrincipal.add(code, caller);
+  };
+
+  func keepLast(array : [Nat], n : Nat) : [Nat] {
+    let size = array.size();
+    if (n >= size) {
+      array;
+    } else {
+      Array.tabulate<Nat>(n, func(i) { array[size - n + i] });
+    };
+  };
+
+  func getCoupleId(userId : UserId) : ?Text {
+    let partnerId = switch (getPartnerId(userId)) {
+      case (null) { return null };
+      case (?id) { id };
+    };
+
+    if (not verifyMutualPartnership(userId, partnerId)) {
+      return null;
+    };
+
+    let userText = userId.toText();
+    let partnerText = partnerId.toText();
+
+    if (userText < partnerText) {
+      ?("couple-" # userText # "-" # partnerText);
+    } else {
+      ?("couple-" # partnerText # "-" # userText);
+    };
+  };
+
+  func mustGetCoupleId(caller : UserId) : Text {
+    switch (getCoupleId(caller)) {
+      case (null) {
+        Runtime.trap("Unauthorized: Must be paired with a partner to access couple data");
+      };
+      case (?coupleId) { coupleId };
+    };
+  };
+
+  func verifyCoupleAccess(caller : UserId, coupleId : Text) {
+    let callerCoupleId = mustGetCoupleId(caller);
+    if (callerCoupleId != coupleId) {
+      Runtime.trap("Unauthorized: Cannot access data for a different couple");
+    };
+  };
+
+  func getChallengeTemplates() : [(LoveLanguage, Text, Text)] {
+    [
+      (#wordsOfAffirmation, "Daily Affirmation", "Share three things you appreciate about your partner today"),
+      (#wordsOfAffirmation, "Love Letter", "Write a heartfelt note expressing your feelings"),
+      (#wordsOfAffirmation, "Compliment Challenge", "Give your partner five genuine compliments throughout the day"),
+      (#qualityTime, "Uninterrupted Time", "Spend 30 minutes together without phones or distractions"),
+      (#qualityTime, "Shared Activity", "Plan and do a fun activity together that you both enjoy"),
+      (#qualityTime, "Deep Conversation", "Have a meaningful conversation about your dreams and goals"),
+      (#physicalTouch, "Cuddle Time", "Spend 15 minutes cuddling and being close"),
+      (#physicalTouch, "Massage Exchange", "Give each other relaxing shoulder or foot massages"),
+      (#physicalTouch, "Hand Holding", "Hold hands during a walk or while watching something together"),
+      (#actsOfService, "Helpful Gesture", "Do a chore or task your partner usually handles"),
+      (#actsOfService, "Surprise Help", "Complete something on your partner's to-do list without being asked"),
+      (#actsOfService, "Breakfast in Bed", "Prepare a special meal or treat for your partner"),
+      (#receivingGifts, "Thoughtful Surprise", "Give your partner a small, meaningful gift"),
+      (#receivingGifts, "Love Token", "Create or find something that represents your relationship"),
+      (#receivingGifts, "Favorite Treat", "Surprise your partner with their favorite snack or item"),
+    ];
+  };
+
+  func generateChallengesForCouple(_ : Text, preferredLanguages : [LoveLanguage]) : [LoveChallenge] {
+    let templates = getChallengeTemplates();
+    let currentTime = Int.abs(Time.now() / 1_000_000_000);
+
+    let filteredTemplates = if (preferredLanguages.size() > 0) {
+      templates.filter(func((lang, _, _)) {
+        preferredLanguages.find(func(prefLang) { prefLang == lang }) != null;
+      });
+    } else {
+      templates;
+    };
+
+    let numChallenges = Nat.min(3, filteredTemplates.size());
+    let selectedTemplates = Array.tabulate(
+      numChallenges,
+      func(i) {
+        let index = (currentTime + i) % filteredTemplates.size();
+        filteredTemplates[index];
+      }
+    );
+
+    selectedTemplates.map(func((lang, title, desc)) {
+      {
+        id = 0;
+        title;
+        description = desc;
+        loveLanguage = lang;
+        isCompleted = false;
+        dateAssigned = currentTime;
+      };
+    });
+  };
+
+  var codePool : [Nat] = [];
+  let queueSize = 100;
+  let randomSeed = 17;
+  var currentSeed = randomSeed;
+
+  var promptsInitialized = false;
+  var adminAssigned = false;
+
+  let prompts = Map.empty<Nat, RitualPrompt>();
+  let userProfiles = Map.empty<UserId, UserProfile>();
+  let codeToPrincipal = Map.empty<Nat, Principal>();
+  // Store ritual entries per day as Map<DayNumber, RitualEntry>
+  var ritualEntries = Map.empty<Text, Map.Map<DayNumber, RitualEntry>>();
+  let photos = Map.empty<Text, SharedPhoto>();
+  var currentStreaks = Map.empty<UserId, Nat>();
+  let longestStreaks = Map.empty<UserId, Nat>();
+  let coupleStats = Map.empty<UserId, CoupleStats>();
+  var loveLanguagesResults = Map.empty<UserId, LoveLanguagesQuizResult>();
+  var synchronizedLoveLanguagesResults = Map.empty<UserId, SynchronizedLoveLanguagesResults>();
+  let dailyRitualStats = Map.empty<UserId, GetDailyRitualResponse>();
+  let harmonyStatsMap = Map.empty<UserId, HarmonyStats>();
+  let milestoneProgress = Map.empty<UserId, MilestoneProgress>();
+  var milestoneBadges = Map.empty<UserId, [MilestoneBadge]>();
+  var coupleChallenges = Map.empty<Text, CoupleChallenges>();
+  var challengeStats = Map.empty<Text, ChallengeStats>();
+  var completedDays = Map.empty<CoupleId, Map.Map<DayNumber, RitualCompletion>>();
+  let completedDaysReviewStats = Map.empty<CoupleId, DayStats>();
+
+  let harmonyTrendWindow = 7;
+  let recentWindowSize = 14;
+  let fullHistoryWindow = 30;
+
+  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view profiles");
+    };
+    userProfiles.get(caller);
+  };
+
+  public query ({ caller }) func getUserProfile(user : UserId) : async ?UserProfile {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view profiles");
+    };
+
+    if (caller == user) {
+      return userProfiles.get(user);
+    };
+
+    if (not verifyMutualPartnership(caller, user)) {
+      if (not AccessControl.isAdmin(accessControlState, caller)) {
+        Runtime.trap("Unauthorized: Can only view your own profile or your partner`s profile");
+      };
+    };
+
+    userProfiles.get(user);
+  };
+
+  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can save profiles");
+    };
+
+    let existingProfile = userProfiles.get(caller);
+    switch (existingProfile) {
+      case (null) {
+        Runtime.trap("Cannot save profile: Profile must be initialized first");
+      };
+      case (?existing) {
+        if (existing.role != profile.role or existing.isFirstUser != profile.isFirstUser) {
+          Runtime.trap("Unauthorized: Cannot modify role or isFirstUser flag");
+        };
+        if (profile.partnerId != existing.partnerId) {
+          Runtime.trap("Unauthorized: Cannot modify partnerId directly. Use pairing flow instead.");
+        };
+      };
+    };
+
+    userProfiles.add(caller, profile);
+  };
+
+  func internalInitPrompts() {
+    if (promptsInitialized) {
+      return;
+    };
+
+    addPrompt(0, "Plan a special activity together for some quality time.", #qualityTime);
+    addPrompt(1, "Spend uninterrupted time with your partner today.", #qualityTime);
+    addPrompt(2, "Share sincere appreciation with your partner.", #wordsOfAffirmation);
+    addPrompt(3, "Write your partner a positive note.", #wordsOfAffirmation);
+    addPrompt(4, "Show affection through gentle touch and hugs.", #physicalTouch);
+    addPrompt(5, "Plan a cozy movie night with cuddles.", #physicalTouch);
+    addPrompt(6, "Do a helpful gesture for your partner.", #actsOfService);
+    addPrompt(7, "Detailed acts of service prompt.", #actsOfService);
+    addPrompt(8, "Give your partner a thoughtful gift.", #receivingGifts);
+    addPrompt(9, "Share a small surprise with your partner.", #receivingGifts);
+    addPrompt(10, "Share one thing you appreciate about your partner today.", #wordsOfAffirmation);
+    addPrompt(11, "What made you smile today?", #qualityTime);
+    addPrompt(12, "Describe your partner in one word", #wordsOfAffirmation);
+    addPrompt(13, "Send your partner a cute emoji or GIF", #receivingGifts);
+    addPrompt(14, "Share a memory that makes you laugh", #qualityTime);
+
+    promptsInitialized := true;
+  };
+
+  func selectWeightedLoveLanguageFocus(rankings : [LoveLanguageRanking]) : LoveLanguage {
+    if (rankings.isEmpty()) {
+      return #wordsOfAffirmation;
+    };
+    rankings[0].language;
+  };
+
+  public shared ({ caller }) func getDailyRitual() : async ?RitualPrompt {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view daily rituals");
     };
 
+    mustBePairedWithPartner(caller);
+    let _ = mustGetCoupleId(caller);
+    internalInitPrompts();
+
     let dayInMillis = Int.abs(Time.now() / (24 * 60 * 60 * 1000000000));
-    let promptId = dayInMillis % 5;
+    let promptId = dayInMillis % 15;
 
     prompts.get(promptId);
   };
 
-  public shared ({ caller }) func submitRitualResponse(input : DailyRitualInput) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can submit ritual responses");
-    };
-
-    switch (getPartnerId(caller)) {
-      case (null) { Runtime.trap("Cannot submit ritual: No partner assigned") };
-      case (?_) { /* Partner exists, continue */ };
-    };
-
-    let dayInMillis = Int.abs(Time.now() / (24 * 60 * 60 * 1000000000));
-    let ritualKey = dayInMillis.toText();
-
-    let ritualEntry = switch (ritualEntries.get(ritualKey)) {
-      case (null) {
-        let promptId = dayInMillis % 5;
-        let prompt = switch (prompts.get(promptId)) {
-          case (null) { Runtime.trap("Prompt not found in submitRitualResponse") };
-          case (?p) { p };
-        };
-        {
-          prompt;
-          responses = Map.empty<UserId, RitualResponse>();
-          date = Time.now();
-        };
-      };
-      case (?entry) { entry };
-    };
-
-    let response = {
-      userId = caller;
-      text = input.text;
-      emoji = input.emoji;
-    };
-
-    ritualEntry.responses.add(caller, response);
-    ritualEntries.add(ritualKey, ritualEntry);
-  };
-
-  public query ({ caller }) func getRitualStatus() : async PartnerRitualStatus {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can check ritual status");
-    };
-
+  func mustBePairedWithPartner(caller : UserId) {
     let partnerId = switch (getPartnerId(caller)) {
-      case (null) { Runtime.trap("Cannot check status: No partner assigned") };
-      case (?id) { id };
+      case (null) { Runtime.trap("Cannot view ritual: No partner assigned. Please complete pairing first.") };
+      case (?(partnerId)) { partnerId };
     };
 
-    let dayInMillis = Int.abs(Time.now() / (24 * 60 * 60 * 1000000000));
-    let ritualKey = dayInMillis.toText();
-
-    switch (ritualEntries.get(ritualKey)) {
-      case (null) {
-        {
-          partnerAComplete = false;
-          partnerBComplete = false;
-        };
-      };
-      case (?entry) {
-        let partnerAComplete = entry.responses.get(caller) != null;
-        let partnerBComplete = entry.responses.get(partnerId) != null;
-
-        {
-          partnerAComplete;
-          partnerBComplete;
-        };
-      };
+    if (not verifyMutualPartnership(caller, partnerId)) {
+      Runtime.trap("Cannot view ritual: Invalid partner relationship");
     };
   };
 
-  public query ({ caller }) func getDailyRitualWithStats() : async GetDailyRitualResponse {
+  func getPromptByLoveLanguage(loveLanguage : LoveLanguage) : ?RitualPrompt {
+    prompts.values().find(
+      func(prompt) {
+        switch (prompt.loveLanguage) {
+          case (?lang) { lang == loveLanguage };
+          case (null) { false };
+        };
+      }
+    );
+  };
+
+  public query ({ caller }) func getPromptsByLoveLanguage(language : LoveLanguage) : async [RitualPrompt] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can view daily ritual stats");
+      Runtime.trap("Unauthorized: Only users can get prompts by love language");
     };
 
-    let partnerId = switch (getPartnerId(caller)) {
-      case (null) { Runtime.trap("Cannot view ritual: No partner assigned") };
-      case (?id) { id };
-    };
-
-    let dayInMillis = Int.abs(Time.now() / (24 * 60 * 60 * 1000000000));
-    let ritualKey = dayInMillis.toText();
-    let promptId = dayInMillis % 5;
-
-    let prompt = switch (prompts.get(promptId)) {
-      case (null) { Runtime.trap("Prompt not found") };
-      case (?p) { p };
-    };
-
-    let entry = switch (ritualEntries.get(ritualKey)) {
-      case (null) {
-        {
-          prompt = prompt;
-          responses = [];
-          status = #waitingForPartner;
-          streakCount = 0;
-          harmonyMeter = 0.5;
+    prompts.values().toArray().filter(
+      func(prompt) {
+        switch (prompt.loveLanguage) {
+          case (?lang) { lang == language };
+          case (null) { false };
         };
-      };
-      case (?e) {
-        let filteredResponses = e.responses.toArray()
-          .filter(func((userId, _)) { userId == caller or userId == partnerId })
-          .map(func((_, r)) { r });
+      }
+    );
+  };
 
-        let callerComplete = e.responses.get(caller) != null;
-        let partnerComplete = e.responses.get(partnerId) != null;
-
-        let status = if (callerComplete and partnerComplete) {
-          #complete;
-        } else { #waitingForPartner };
-
-        {
-          prompt = e.prompt;
-          responses = filteredResponses;
-          status;
-          streakCount = 0;
-          harmonyMeter = 0.5;
-        };
-      };
+  public query ({ caller }) func fetchPrompts() : async [RitualPrompt] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can fetch prompts");
     };
 
-    entry;
+    prompts.values().toArray();
+  };
+
+  public query ({ caller }) func getBadgeMilestones() : async BadgeMilestoneResponse {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view badge milestones");
+    };
+
+    let coupleId = mustGetCoupleId(caller);
+    let _ = coupleId;
+
+    { badges = []; milestones = getDefaultMilestoneProgress() };
+  };
+
+  public query ({ caller }) func getInsightsData() : async InsighsDataExtendedResponse {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view insights data");
+    };
+
+    let coupleId = mustGetCoupleId(caller);
+    let _ = coupleId;
+
+    {
+      currentStreak = 0;
+      longestStreak = 0;
+      challengeCompletionRate = 0.0;
+      mostFrequentLoveLanguage = "Quality Time";
+      badges = [];
+      challengeStats = {
+        totalChallenges = 0;
+        completedChallenges = 0;
+        progressPercent = 0.0;
+      };
+      milestones = getDefaultMilestoneProgress();
+      averageHarmony = 0.0;
+      currentHarmony = 0.0;
+      quizOverlapScore = 0.0;
+      recentCompletionRate = 0.0;
+      last14DayTrend = [];
+      harmonyTrend = [];
+      last30DayTrend = [];
+    };
   };
 
   public shared ({ caller }) func uploadPhoto(blob : Storage.ExternalBlob, name : Text) : async Text {
@@ -304,7 +627,18 @@ actor {
       Runtime.trap("Unauthorized: Only users can upload photos");
     };
 
-    let photoId = caller.toText();
+    let partnerId = switch (getPartnerId(caller)) {
+      case (null) { Runtime.trap("Cannot upload photo: No partner assigned. Please complete pairing first.") };
+      case (?id) { id };
+    };
+
+    if (not verifyMutualPartnership(caller, partnerId)) {
+      Runtime.trap("Cannot upload photo: Invalid partner relationship");
+    };
+
+    let _ = mustGetCoupleId(caller);
+
+    let photoId = caller.toText() # "-" # Time.now().toText();
     let photo = {
       id = photoId;
       owner = caller;
@@ -327,10 +661,14 @@ actor {
       case (?p) { p };
     };
 
-    // Only allow access to own photos or partner's photos
-    let partnerId = getPartnerId(caller);
-    if (photo.owner != caller and ?photo.owner != partnerId and not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Can only view your own or your partner's photos");
+    if (photo.owner == caller) {
+      return ?photo;
+    };
+
+    if (not verifyMutualPartnership(caller, photo.owner)) {
+      if (not AccessControl.isAdmin(accessControlState, caller)) {
+        Runtime.trap("Unauthorized: Can only view your own or your partner`s photos");
+      };
     };
 
     ?photo;
@@ -341,15 +679,17 @@ actor {
       Runtime.trap("Unauthorized: Only users can view photos");
     };
 
-    // Only allow viewing own photos or partner's photos
-    let partnerId = getPartnerId(caller);
-    if (user != caller and ?user != partnerId and not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Can only view your own or your partner's photos");
+    if (user == caller) {
+      return photos.values().toArray().filter(func(photo) { photo.owner == user });
     };
 
-    let iter = photos.values();
-    let photoValues = iter.toArray();
-    photoValues.filter(func(photo) { photo.owner == user });
+    if (not verifyMutualPartnership(caller, user)) {
+      if (not AccessControl.isAdmin(accessControlState, caller)) {
+        Runtime.trap("Unauthorized: Can only view your own or your partner`s photos");
+      };
+    };
+
+    photos.values().toArray().filter(func(photo) { photo.owner == user });
   };
 
   public shared ({ caller }) func deletePhoto(id : Text) : async () {
@@ -374,15 +714,32 @@ actor {
       Runtime.trap("Unauthorized: Only users can initialize profiles");
     };
 
-    // Prevent setting partnerId directly - must use pairing flow
     if (partnerId != null) {
       Runtime.trap("Cannot set partnerId directly. Use pairing flow instead.");
+    };
+
+    switch (userProfiles.get(caller)) {
+      case (?_) {
+        Runtime.trap("Profile already initialized. Use saveCallerUserProfile to update.");
+      };
+      case (null) {};
+    };
+
+    let isFirstUser = userProfiles.size() == 0;
+    let assignedRole : UserRole = if (isFirstUser and not adminAssigned) {
+      adminAssigned := true;
+      AccessControl.assignRole(accessControlState, caller, caller, #admin);
+      #admin;
+    } else {
+      #user;
     };
 
     let newUserId = caller;
     let profile = {
       name;
-      partnerId = null; // Always initialize without partner
+      partnerId = null;
+      role = assignedRole;
+      isFirstUser;
     };
     userProfiles.add(newUserId, profile);
     newUserId;
@@ -404,18 +761,21 @@ actor {
     (code, newSeed);
   };
 
-  func keepLast(array : [Nat], n : Nat) : [Nat] {
-    let size = array.size();
-    if (n >= size) {
-      array;
-    } else {
-      Array.tabulate<Nat>(n, func(i) { array[size - n + i] });
-    };
-  };
-
   public shared ({ caller }) func createPairingCode() : async Nat {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create pairing codes");
+    };
+
+    let userProfile = switch (userProfiles.get(caller)) {
+      case (null) {
+        Runtime.trap("Profile not initialized. Please complete your profile setup before pairing.");
+      };
+      case (?profile) { profile };
+    };
+
+    switch (userProfile.partnerId) {
+      case (null) {};
+      case (?_) { Runtime.trap("Cannot create pairing code when already paired with a partner") };
     };
 
     let (code, _) = generateRandomCode();
@@ -429,82 +789,350 @@ actor {
     code;
   };
 
-  func updateMapping(code : Nat, caller : Principal) {
-    codeToPrincipal.add(code, caller);
-  };
-
   public shared ({ caller }) func checkPairingCode(code : Nat) : async ?Principal {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can check pairing codes");
     };
 
+    switch (userProfiles.get(caller)) {
+      case (null) {
+        Runtime.trap("Profile not initialized. Please complete your profile setup before pairing.");
+      };
+      case (?_) {};
+    };
+
     codeToPrincipal.get(code);
   };
 
-  public shared ({ caller }) func completePairing(code : Nat) : async () {
+  public shared ({ caller }) func completePairing(code : Nat) : async PairingResult {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can complete pairing");
+      return #err(
+        "Unauthorized: Only users can complete pairing"
+      );
     };
 
-    // Validate the pairing code exists
+    let userProfile = switch (userProfiles.get(caller)) {
+      case (null) {
+        return #err(
+          "Profile not initialized. Please complete your profile setup before pairing."
+        );
+      };
+      case (?profile) { profile };
+    };
+
     let partnerPrincipal = switch (codeToPrincipal.get(code)) {
-      case (null) { Runtime.trap("Invalid or expired pairing code") };
+      case (null) {
+        return #err("Invalid or expired pairing code");
+      };
       case (?p) { p };
     };
 
-    // Prevent self-pairing
     if (partnerPrincipal == caller) {
-      Runtime.trap("Cannot pair with yourself");
+      return #err(
+        "Cannot pair with yourself. Pairing code must be shared with another user"
+      );
     };
 
-    // Check if caller already has a partner
-    switch (userProfiles.get(caller)) {
-      case (null) { Runtime.trap("User profile not found. Please initialize profile first.") };
-      case (?profile) {
-        if (profile.partnerId != null) {
-          Runtime.trap("Already paired with a partner");
-        };
+    switch (userProfile.partnerId) {
+      case (null) { };
+      case (?_) {
+        return #err(
+          "Already paired. Cannot complete pairing when already paired with a partner"
+        );
       };
     };
 
-    // Check if partner already has a partner
-    switch (userProfiles.get(partnerPrincipal)) {
-      case (null) { Runtime.trap("Partner profile not found") };
-      case (?profile) {
-        if (profile.partnerId != null) {
-          Runtime.trap("Partner is already paired with someone else");
-        };
+    let partnerProfile = switch (userProfiles.get(partnerPrincipal)) {
+      case (null) {
+        return #err("Partner profile not found for principal " # partnerPrincipal.toText());
+      };
+      case (?profile) { profile };
+    };
+
+    switch (partnerProfile.partnerId) {
+      case (null) {};
+      case (_) {
+        return #err("Partner is already paired with someone else");
       };
     };
 
-    // Complete the pairing using assignPartner
-    await assignPartner(partnerPrincipal);
-
-    // Remove the used code to prevent reuse
+    assignPartner(caller, partnerPrincipal);
     codeToPrincipal.remove(code);
+
+    #ok;
   };
 
-  func garbageCollectExpiredCodes() {
-    let now = Time.now();
+  public type CombinedQuizResultState = {
+    callerCompleted : Bool;
+    partnerCompleted : Bool;
+    callerResults : ?LoveLanguagesQuizResult;
+    partnerResults : ?LoveLanguagesQuizResult;
+  };
 
-    let codesToRemove = codePool.filter(
-      func(code) {
-        switch (codeToPrincipal.get(code)) {
-          case (?_) { false };
-          case (null) { true };
+  public query ({ caller }) func getCombinedQuizResultState() : async ?CombinedQuizResultState {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can get combined quiz result state");
+    };
+
+    let partnerId = switch (getPartnerId(caller)) {
+      case (null) {
+        Runtime.trap("Unauthorized: Must be paired with a partner to access quiz results");
+      };
+      case (?id) { id };
+    };
+
+    if (not verifyMutualPartnership(caller, partnerId)) {
+      Runtime.trap("Unauthorized: Invalid partner relationship");
+    };
+
+    let _ = mustGetCoupleId(caller);
+
+    let callerResults = loveLanguagesResults.get(caller);
+    let partnerResults = loveLanguagesResults.get(partnerId);
+
+    ?{
+      callerCompleted = callerResults != null;
+      partnerCompleted = partnerResults != null;
+      callerResults;
+      partnerResults;
+    };
+  };
+
+  // Phase 1C: Endpoint for retrieving partner's quiz state with proper authorization
+  public query ({ caller }) func getPartnerQuizState(partnerId : UserId) : async PartnerQuizState {
+    // First check: caller must be at least a user (not a guest)
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view partner quiz state");
+    };
+
+    // Second check: caller cannot retrieve their own state via this endpoint
+    if (partnerId == caller) {
+      Runtime.trap("Unauthorized: Cannot access own partner quiz state, use getLoveLanguageQuizResult instead.");
+    };
+
+    // Third check: caller must be mutually paired with partnerId OR be an admin
+    if (not verifyMutualPartnership(caller, partnerId)) {
+      if (not AccessControl.isAdmin(accessControlState, caller)) {
+        Runtime.trap("Unauthorized: Can only view your partner's quiz state, unless admin");
+      };
+    };
+
+    // Return the partner's quiz state
+    switch (loveLanguagesResults.get(partnerId)) {
+      case (null) {
+        {
+          partnerCompleted = false;
+          partnerResults = null;
         };
-      }
-    );
+      };
+      case (?results) {
+        {
+          partnerCompleted = true;
+          partnerResults = ?results;
+        };
+      };
+    };
+  };
 
-    codesToRemove.forEach(
-      func(_code) {
-        // Remove the codes from the codePool
-        let remainingCodes = codePool.filter(
-          func(c) { c != _code }
+  public query ({ caller }) func getLoveLanguageQuizResult() : async ?LoveLanguagesQuizResult {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can get quiz results");
+    };
+    loveLanguagesResults.get(caller);
+  };
+
+  public query ({ caller }) func isAdmin() : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can check admin status");
+    };
+    AccessControl.isAdmin(accessControlState, caller);
+  };
+
+  public shared ({ caller }) func saveLoveLanguageQuizResults(result : LoveLanguagesQuizResult) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can save quiz results");
+    };
+
+    if (result.userId != caller) {
+      Runtime.trap("Unauthorized: Cannot save quiz results for another user");
+    };
+
+    loveLanguagesResults.add(caller, result);
+  };
+
+  public shared ({ caller }) func clearLoveLanguagesQuizResults() : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can clear quiz results");
+    };
+    loveLanguagesResults.remove(caller);
+  };
+
+  func getDefaultMilestoneProgress() : MilestoneProgress {
+    {
+      sevenDayUnlocked = false;
+      thirtyDayUnlocked = false;
+      hundredDayUnlocked = false;
+      harmonyEliteUnlocked = false;
+    };
+  };
+
+  public shared ({ caller }) func submitRitualResponse(input : DailyRitualInput) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can submit ritual responses");
+    };
+
+    let partnerId = switch (getPartnerId(caller)) {
+      case (null) {
+        Runtime.trap("Cannot submit ritual: No partner assigned. Please complete pairing first.");
+      };
+      case (?id) { id };
+    };
+
+    if (not verifyMutualPartnership(caller, partnerId)) {
+      Runtime.trap("Cannot submit ritual: Invalid partner relationship");
+    };
+
+    let coupleId = mustGetCoupleId(caller);
+    internalInitPrompts();
+
+    let dayInMillis = Int.abs(Time.now() / (24 * 60 * 60 * 1_000_000_000));
+    let promptId = dayInMillis % 15;
+
+    let prompt = switch (prompts.get(promptId)) {
+      case (null) {
+        Runtime.trap("Ritual prompt for today not found");
+      };
+      case (?p) { p };
+    };
+
+    let response : RitualResponse = {
+      userId = caller;
+      text = input.text;
+      emoji = input.emoji;
+      photoId = input.photoId;
+    };
+
+    // Retrieve current entries map for the couple (or create a new one)
+    let currentEntries = switch (ritualEntries.get(coupleId)) {
+      case (null) { Map.empty<DayNumber, RitualEntry>() };
+      case (?entries) { entries };
+    };
+
+    // Get existing entry for the current day (if any)
+    let entry = switch (currentEntries.get(dayInMillis)) {
+      case (null) {
+        {
+          prompt;
+          responses = Map.singleton<UserId, RitualResponse>(caller, response);
+          date = Time.now();
+          loveLanguageFocus = prompt.loveLanguage;
+        };
+      };
+      case (?existing) {
+        let newResponses = existing.responses;
+        newResponses.add(caller, response);
+        {
+          existing with
+          responses = newResponses;
+        };
+      };
+    };
+
+    // Store the entry for the current day
+    currentEntries.add(dayInMillis, entry);
+
+    // Update the couple's entries map
+    ritualEntries.add(coupleId, currentEntries);
+
+    let currentStatus = switch (dailyRitualStats.get(caller)) {
+      case (null) {
+        {
+          partnerId = ?partnerId;
+          prompt;
+          responses = [response];
+          status = #waitingForPartner;
+          streakCount = 0;
+          harmonyMeter = 0.5;
+        };
+      };
+      case (?existing) {
+        {
+          existing with
+          prompt;
+          responses = [response];
+        };
+      };
+    };
+    dailyRitualStats.add(caller, currentStatus);
+  };
+
+  public query ({ caller }) func getRitualStatus() : async ?CanonicalPartnerRitualStatus {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can get ritual status");
+    };
+    mustBePairedWithPartner(caller);
+
+    let coupleId = mustGetCoupleId(caller);
+    let entriesMap = ritualEntries.get(coupleId);
+
+    // Only care about the current day's entry
+    let dayInMillis = Int.abs(Time.now() / (24 * 60 * 60 * 1_000_000_000));
+    let entry = switch (entriesMap) {
+      case (null) { null };
+      case (?map) { map.get(dayInMillis) };
+    };
+
+    switch (entry, getPartnerId(caller)) {
+      case (?e, ?partnerId) {
+        let (partnerA, partnerB) =
+          if (caller.toText() < partnerId.toText()) {
+            (caller, partnerId);
+          } else {
+            (partnerId, caller);
+          };
+
+        let partnerAComplete = e.responses.get(partnerA) != null;
+        let partnerBComplete = e.responses.get(partnerB) != null;
+
+        ?{
+          partnerA;
+          partnerB;
+          partnerAComplete;
+          partnerBComplete;
+        };
+      };
+      case (_ , null) { null };
+      case (null, ?_) { null };
+    };
+  };
+
+  public query ({ caller }) func getRitualHistory(limit : Nat) : async [RitualEntryView] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can get ritual history");
+    };
+    mustBePairedWithPartner(caller);
+
+    let coupleId = mustGetCoupleId(caller);
+
+    switch (ritualEntries.get(coupleId)) {
+      case (null) { [] };
+      case (?dailyEntries) {
+        let sortedEntries = dailyEntries.toArray().sort(
+          func(a, b) {
+            if (a.0 < b.0) { return #greater };
+            if (a.0 > b.0) { return #less };
+            #equal;
+          }
         );
-        codePool := remainingCodes;
-      }
-    );
+
+        // Convert to ritual entry views
+        let sortedViews = sortedEntries.map(
+          func((_, entry)) { convertToRitualEntryView(entry) }
+        );
+
+        // Limit the number of entries returned
+        sortedViews.sliceToArray(0, Nat.min(limit, sortedViews.size()));
+      };
+    };
   };
 };
-

@@ -1,0 +1,338 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 6,
+  "summary": "GrowInLove is a relationship-focused web app built on the Internet Computer (Motoko canister backend + React SPA frontend). Users authenticate via Internet Identity, initialize a simple profile (name), pair with a partner using a 6‑digit code, and then complete a daily ritual prompt by submitting optional text, emoji, and/or an uploaded photo. The app includes partner synchronization for daily ritual completion, a Memories archive fed by ritual history, a Love Languages quiz with partner sync (combined and partner-specific state), and an Insights dashboard UI for streak/harmony/trends/badges (currently backed by stubbed analytics endpoints). An Activities hub provides a love-language spin wheel and unlockable activity packs (largely UI-driven / placeholder for future backend challenges). The backend also includes authorization bootstrap/roles and canister blob-storage maintenance endpoints.",
+  "existing_features": [
+    {
+      "id": "IF-1",
+      "title": "Internet Identity authentication (login/logout + delegation restoration)",
+      "synonyms": [
+        "InternetIdentityProvider",
+        "useInternetIdentity",
+        "AuthClient"
+      ],
+      "description": "Provides an authentication context around @dfinity/auth-client that restores a saved delegation on mount, exposes login/logout, and surfaces status flags used across the SPA.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-2",
+      "title": "Identity-bound canister actor creation with access-control bootstrap via URL-hash secret",
+      "synonyms": [
+        "useActor",
+        "createActorWithConfig",
+        "_initializeAccessControlWithSecret",
+        "getSecretParameter"
+      ],
+      "description": "Creates an anonymous actor when unauthenticated and an identity-bound actor when authenticated; on authenticated actor creation, bootstraps backend access control using a secret token sourced from the URL hash/session, and invalidates/refetches dependent queries when the actor changes.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-3",
+      "title": "Role-based access control (admin/user/guest) with env-token initialization and role assignment",
+      "synonyms": [
+        "AccessControl",
+        "MixinAuthorization",
+        "CAFFEINE_ADMIN_TOKEN",
+        "assignRole"
+      ],
+      "description": "Backend maintains principal→role mapping, supports initialization against an environment admin token, exposes role/admin queries, and supports admin-only role assignment.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-4",
+      "title": "User profile onboarding and management (initialize/get/save)",
+      "synonyms": [
+        "initializeUserProfile",
+        "getCallerUserProfile",
+        "saveCallerUserProfile",
+        "ProfileSetup"
+      ],
+      "description": "Authenticated users initialize a profile (name). The app supports reading/updating the caller’s profile and prevents direct mutation of role/isFirstUser/partnerId fields.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-5",
+      "title": "Partner pairing via 6-digit code (generate/check/complete) with mutual partnership enforcement",
+      "synonyms": [
+        "createPairingCode",
+        "checkPairingCode",
+        "completePairing",
+        "assignPartner",
+        "verifyMutualPartnership"
+      ],
+      "description": "Implements pairing code creation and completion with validations (profile required, no self-pairing, no already-paired users). After pairing, both profiles are updated with partnerId and couple access becomes available.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-6",
+      "title": "Daily ritual prompt rotation with Love Language tagging and prompt library endpoints",
+      "synonyms": [
+        "getDailyRitual",
+        "internalInitPrompts",
+        "fetchPrompts",
+        "getPromptsByLoveLanguage"
+      ],
+      "description": "Backend lazily initializes a fixed prompt set and returns the day’s prompt via day-number modulo prompt count, with an optional LoveLanguage tag; also exposes prompt listing and filtering endpoints.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-7",
+      "title": "Ritual response submission (text/emoji/photo) with reactive UI updates",
+      "synonyms": [
+        "submitRitualResponse",
+        "DailyRitualInput",
+        "React Query invalidation"
+      ],
+      "description": "Users submit a daily ritual response containing optional text, emoji, and photoId; the frontend invalidates/refetches ritual status, ritual history, insights data, and badge milestones so the UI updates without a full reload.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-8",
+      "title": "Canonical ritual completion attribution (partnerA/partnerB) and polling-based sync",
+      "synonyms": [
+        "getRitualStatus",
+        "CanonicalPartnerRitualStatus",
+        "Phase 1B"
+      ],
+      "description": "Backend returns a canonical partnerA/partnerB ordering (principal text ordering). The frontend derives callerComplete/partnerComplete by comparing the caller principal to partnerA/partnerB and polls every 5 seconds for partner completion.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-9",
+      "title": "Ritual completion celebration animation",
+      "synonyms": [
+        "CompletionAnimation",
+        "floating hearts",
+        "Both completed"
+      ],
+      "description": "When both partners complete the ritual, the UI displays a transient floating-hearts overlay and renders the latest ritual responses inline.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-10",
+      "title": "Ritual history UI and Memories archive (expand/modal details + photos)",
+      "synonyms": [
+        "getRitualHistory",
+        "RitualEntryView",
+        "Home history",
+        "Memories page"
+      ],
+      "description": "Displays ritual history entries in Home and Memories, with formatted dates, love-language focus labels, expandable/modal detail views, and inline photo rendering via stored photo blobs.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-11",
+      "title": "Shared photo upload/storage/retrieval/listing/deletion",
+      "synonyms": [
+        "uploadPhoto",
+        "getPhoto",
+        "getPhotosByUser",
+        "deletePhoto",
+        "SharedPhoto"
+      ],
+      "description": "Backend stores photo blobs and metadata, enforces access for owner/partner/admin, supports listing photos by user, and allows deletion by owner/admin; frontend uploads with preview, then references photoId in ritual responses.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-12",
+      "title": "Love Languages quiz UI (7 questions) with scoring, sharing, and retake/reset",
+      "synonyms": [
+        "LoveLanguages page",
+        "LoveLanguagesQuizResult",
+        "Share API",
+        "clearLoveLanguagesQuizResults"
+      ],
+      "description": "Implements a multi-step quiz with scoring/ranking, saves results to the backend, supports viewing persisted results, sharing via Web Share/clipboard, and resetting/retaking with confirmation and error handling.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-13",
+      "title": "Combined quiz synchronization state (caller+partner results) with polling",
+      "synonyms": [
+        "getCombinedQuizResultState",
+        "sync banners",
+        "partner rankings"
+      ],
+      "description": "Backend exposes a combined caller/partner completion+results view; frontend polls it to show waiting/synced status, render partner rankings, and compute a top-3 overlap harmony score.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-14",
+      "title": "Partner quiz state endpoint with authorization + frontend partner quiz hook wiring",
+      "synonyms": [
+        "getPartnerQuizState",
+        "useGetPartnerQuizResults",
+        "PartnerQuizState",
+        "Phase 1C"
+      ],
+      "description": "Backend provides getPartnerQuizState(partnerId) with authorization (must be mutually paired or admin; cannot query self). Frontend derives partnerId from the cached caller profile, calls the endpoint, polls for completion, and falls back safely if the endpoint is unavailable on older backends.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "IF-15",
+      "title": "Insights dashboard UI (streak/harmony/trends/badges) with deterministic trend rendering and badge celebration overlay",
+      "synonyms": [
+        "Insights page",
+        "useGetInsightsData",
+        "useGetBadgeMilestones",
+        "HarmonyBreakdownTrendCard"
+      ],
+      "description": "Renders streak/harmony overview, deterministic 7-day history derived from backend trend series, milestone badge progress, and a celebration overlay when a new badge unlock is detected; supports auto-scroll to the harmony section via sessionStorage flag.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-16",
+      "title": "Harmony UI utilities and components (percent, normalization, trend direction)",
+      "synonyms": [
+        "utils/harmony",
+        "HarmonyHomeEcho",
+        "normalizeTrendSeries",
+        "getTrendLabel"
+      ],
+      "description": "Shared utilities convert harmony 0..1 values to percent, normalize trend series to 7 values, infer up/down/stable direction, and supply display metadata used in Home and Insights harmony widgets.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-17",
+      "title": "Activities hub (spin wheel + unlockable activity packs + admin override)",
+      "synonyms": [
+        "Activities page",
+        "SpinWheel",
+        "UnlockPacks",
+        "LoveChallenges",
+        "RewardVisuals"
+      ],
+      "description": "Activities page includes placeholder Love Challenges and Reward Visuals sections, a spin wheel weighted toward shared/top quiz results with one spin per day persisted in localStorage, and activity packs unlocked by streak thresholds with an admin override to unlock all packs.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-18",
+      "title": "Admin UX (admin checks, badges, and pairing bypass for certain pages)",
+      "synonyms": [
+        "useIsAdmin",
+        "useIsCallerAdmin",
+        "Admin badge section",
+        "Insights/Activities bypass"
+      ],
+      "description": "Frontend queries admin status, shows prominent admin UI markers, and allows admin users to access Insights/Activities even without being paired.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-19",
+      "title": "Secure URL secret handling (hash-only extraction + session persistence + URL cleanup)",
+      "synonyms": [
+        "getSecretFromHash",
+        "getSecretParameter",
+        "sessionStorage secret persistence"
+      ],
+      "description": "Utilities extract sensitive parameters from the URL hash fragment (not querystring), persist them in sessionStorage, and remove them from the address bar via history.replaceState to reduce leakage.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-20",
+      "title": "Blob-storage maintenance endpoints (gateway registry, dead-blob pruning, cashier refill)",
+      "synonyms": [
+        "_caffeineStorageUpdateGatewayPrincipals",
+        "_caffeineStorageBlobsToDelete",
+        "_caffeineStorageConfirmBlobDeletion",
+        "_caffeineStorageRefillCashier"
+      ],
+      "description": "Backend exposes maintenance APIs to refresh authorized gateway principals from a cashier canister, list dead blobs, confirm pruning and trigger Motoko GC, and refill the cashier with cycles (cashier-authorized).",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-21",
+      "title": "Manual QA acceptance checklist for core flows and partner-sync determinism",
+      "synonyms": [
+        "QA_ACCEPTANCE_CHECKLIST",
+        "manual test plan",
+        "Phase 1B/1C cases"
+      ],
+      "description": "Repository includes a detailed manual QA checklist covering pairing, ritual submission modes, history/memories, streak/harmony/badge stability across reload/devices, couple isolation, quiz persistence/synchronization, and canonical ritual completion attribution.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-frontend-data-flow-react-query-any-consuming-ui-to-match-the-backend-s-multi-entry-ritual-history-behavior-ensuring-the-home-and-memories-pages-correctly-display-multiple-days-and-still-treat-ritualhistory-0-as-the-latest-entry-because-results-are-sorted-newest-first-and-limited",
+      "title": "Update the frontend data flow (React Query + any consuming UI) to match the backend’s multi-entry ritual history behavior, ensuring the Home and Memories pages correctly display multiple days and still treat ritualHistory[0] as the latest entry because results are sorted newest-first and limited.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Step 2A: Fix backend ritual history to be true multi-day (append-only per coupleId+day), update submitRitualResponse storage model, and make getRitualHistory(limit) return sorted multi-entry history reliably",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Update the backend ritual storage model so ritual entries are stored append-only per coupleId AND per day (e.g., a unique key derived from coupleId + day number), instead of overwriting a single entry per coupleId. Ensure that submitting a ritual response for the same couple on the same day updates the same day’s entry (merging responses by userId), and submitting on a different day creates a new entry without affecting prior days.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Update backend endpoints that currently assume a single ritual entry per couple so they work with the new per-day storage: (1) getRitualStatus must reflect today’s ritual completion status for the couple (based on today’s day key), and (2) getRitualHistory(limit) must return a list of RitualEntryView across multiple days, sorted reliably by date (newest first) and respecting the provided limit argument.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    }
+  ],
+  "architectural_notes": [
+    "Frontend is a tab-based React SPA (no react-router); navigation is handled by local state in App.tsx and a fixed BottomNav.",
+    "Canister interactions are centralized into React Query hooks (frontend/src/hooks/useQueries.ts) with explicit cache invalidation/refetch after mutations and polling for partner sync (ritual/quiz/insights).",
+    "Authentication uses a custom InternetIdentityProvider wrapping @dfinity/auth-client with delegation restoration; login/logout state is exposed via hooks.",
+    "A useActor() hook builds an anonymous or identity-bound canister actor and bootstraps backend access control via _initializeAccessControlWithSecret using a token sourced from URL hash (persisted in sessionStorage and removed from URL).",
+    "Backend composes functionality via Motoko mixins (authorization + blob-storage maintenance) included into the main actor.",
+    "Couple-scoped isolation is deterministic via a coupleId derived by sorting partner principals (as text) and mutual partnership verification for couple data access.",
+    "UI stack is Tailwind + shadcn-ui with OKLCH design tokens and multiple custom animations (badge celebration, glow pulses, floating hearts, one-time post-pairing highlight).",
+    "Client persistence is used for UX state (localStorage: post-pairing highlight flag, spin-wheel daily result; sessionStorage: secrets and Insights auto-scroll flag).",
+    "Photos are stored in-canister as blobs and rendered in the UI via ExternalBlob direct URLs.",
+    "Backend now uses stable storage with preupgrade/postupgrade hooks to preserve core app state across canister upgrades."
+  ],
+  "known_issues": [
+    "Backend analytics endpoints getInsightsData() and getBadgeMilestones() currently return stub/empty values (zeros and empty arrays), so Insights/Harmony/Badges UI will not reflect real couple state yet.",
+    "Ritual history is effectively single-entry per couple: ritualEntries is keyed only by coupleId and is overwritten; getRitualHistory ignores its limit argument and returns at most one entry.",
+    "React Query is configured with nested QueryClientProviders (frontend/src/main.tsx and frontend/src/App.tsx), which is redundant and can cause cache/context mismatches if hooks are ever used outside the inner provider.",
+    "Several React Query hooks are enabled even when unauthenticated because an anonymous actor exists; calling user-only backend methods as anonymous can trap and produce noisy errors (e.g., getCallerUserProfile, isAdmin).",
+    "Access-control bootstrap can trap for the first user: initializeUserProfile attempts AccessControl.assignRole(...) for first user admin promotion; if the caller was not already admin via _initializeAccessControlWithSecret, assignRole traps (admin-only).",
+    "_caffeineStorageUpdateGatewayPrincipals() lacks any authorization guard; any caller can mutate the authorized gateway principal list used for blob-maintenance authorization.",
+    "Blob-storage cashier env var is misspelled (CAFFFEINE_STORAGE_CASHIER_PRINCIPAL); misconfiguration will trap. Additionally, refillCashier uses Nat.sub(balance, reservedCycles) which can trap if balance < reservedCycles.",
+    "getDailyRitual() is implemented as an update call (shared) rather than a query, increasing latency for a read-mostly endpoint.",
+    "Pairing codes have no actual expiration logic despite errors/types suggesting expiry (e.g., ExpiredCode), and codePool is unused beyond local tracking."
+  ],
+  "isFixRequest": true,
+  "gameProjectType": "none",
+  "projectName": "GrowInLove",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

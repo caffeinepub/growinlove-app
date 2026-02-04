@@ -1,0 +1,38 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Step 2A Frontend: Multi-day ritual history consumption (latest-first + today awareness)",
+  "requirements": [
+    {
+      "id": "REQ-5",
+      "summary": "Align React Query ritual history fetching and Home/Memories rendering with multi-day, newest-first, limit-based ritual history so latest entry remains ritualHistory[0] while correctly showing today’s completed responses.",
+      "acceptanceCriteria": [
+        "Home page ‘Ritual History’ section can show multiple entries across different days without regressions.",
+        "Memories page ‘Load More’ continues to work by increasing the limit and receiving more (older) entries from getRitualHistory(limit).",
+        "Home page ‘Both completed!’ section uses the latest entry (index 0) and shows the responses for today when today is complete."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Harden useGetRitualHistory(limit) to defensively ensure newest-first ordering by entry.date (client-side sort on the returned list) while preserving the limit-based React Query keying/invalidation behavior for incremental loading."
+        },
+        {
+          "path": "frontend/src/pages/Home.tsx",
+          "operation": "modify",
+          "description": "Update the ‘Both completed!’ rendering logic to prefer the ritual history entry for the current calendar day when isComplete is true (falling back to ritualHistory[0] as latest), while keeping the ‘Ritual History’ section mapped across multiple days and continuing to treat ritualHistory[0] as the latest entry."
+        },
+        {
+          "path": "frontend/src/pages/Memories.tsx",
+          "operation": "modify",
+          "description": "Ensure Memories ‘Load More’ behavior remains consistent with limit-based history fetching under multi-day storage by relying on the newest-first list and rendering multiple days reliably (no assumptions of single-entry-per-couple)."
+        },
+        {
+          "path": "frontend/QA_ACCEPTANCE_CHECKLIST.md",
+          "operation": "modify",
+          "description": "Extend the Ritual History section checklist to explicitly verify multi-day behavior in the UI (multiple distinct dates, newest-first ordering, and ‘Load More’ returning older entries) without introducing Step 2B-related checks."
+        }
+      ]
+    }
+  ]
+}

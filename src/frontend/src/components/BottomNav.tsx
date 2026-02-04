@@ -1,4 +1,4 @@
-import { Heart, Lightbulb, HeartHandshake, Sparkles, Users } from 'lucide-react';
+import { Heart, Lightbulb, HeartHandshake, Sparkles, Users, BookHeart } from 'lucide-react';
 import type { TabId } from '../App';
 
 interface BottomNavProps {
@@ -15,7 +15,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { id: 'home', label: 'Home', icon: Heart },
   { id: 'insights', label: 'Insights', icon: Lightbulb },
-  { id: 'love-languages', label: 'Love Languages', icon: HeartHandshake },
+  { id: 'memories', label: 'Memories', icon: BookHeart },
   { id: 'activities', label: 'Activities', icon: Sparkles },
   { id: 'us', label: 'Us', icon: Users },
 ];

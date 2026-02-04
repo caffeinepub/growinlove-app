@@ -1,225 +1,441 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&family=Quicksand:wght@300;400;500;600;700&family=Comfortaa:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-    :root {
-        --radius: 1.25rem;
-        
-        /* Soft blush-pink romantic palette with warm peach and cream accents */
-        --background: 0.97 0.02 15;
-        --foreground: 0.25 0.03 15;
-        
-        --card: 0.99 0.015 15;
-        --card-foreground: 0.25 0.03 15;
-        
-        --popover: 0.99 0.015 15;
-        --popover-foreground: 0.25 0.03 15;
-        
-        /* Primary: Deep rose */
-        --primary: 0.55 0.18 15;
-        --primary-foreground: 0.99 0.01 15;
-        
-        /* Secondary: Soft pink */
-        --secondary: 0.92 0.04 15;
-        --secondary-foreground: 0.35 0.03 15;
-        
-        /* Muted: Light blush */
-        --muted: 0.95 0.025 15;
-        --muted-foreground: 0.50 0.02 15;
-        
-        /* Accent: Warm coral-pink */
-        --accent: 0.85 0.08 25;
-        --accent-foreground: 0.30 0.03 15;
-        
-        /* Peach: Warm peach tone */
-        --peach: 0.88 0.10 45;
-        --peach-foreground: 0.30 0.03 15;
-        
-        /* Cream: Soft cream tone */
-        --cream: 0.96 0.03 65;
-        --cream-foreground: 0.35 0.03 15;
-        
-        /* Destructive: Soft red */
-        --destructive: 0.577 0.245 27.325;
-        --destructive-foreground: 0.985 0 0;
-        
-        --border: 0.90 0.03 15;
-        --input: 0.90 0.03 15;
-        --ring: 0.65 0.15 15;
-        
-        /* Chart colors - romantic palette */
-        --chart-1: 0.65 0.15 15;
-        --chart-2: 0.70 0.12 340;
-        --chart-3: 0.75 0.10 30;
-        --chart-4: 0.68 0.14 350;
-        --chart-5: 0.72 0.11 20;
-    }
-
-    .dark {
-        --background: 0.20 0.03 15;
-        --foreground: 0.95 0.02 15;
-        
-        --card: 0.25 0.03 15;
-        --card-foreground: 0.95 0.02 15;
-        
-        --popover: 0.22 0.03 15;
-        --popover-foreground: 0.95 0.02 15;
-        
-        /* Primary: Bright rose */
-        --primary: 0.75 0.15 15;
-        --primary-foreground: 0.20 0.03 15;
-        
-        /* Secondary: Muted pink */
-        --secondary: 0.35 0.04 15;
-        --secondary-foreground: 0.95 0.02 15;
-        
-        --muted: 0.30 0.03 15;
-        --muted-foreground: 0.65 0.02 15;
-        
-        --accent: 0.45 0.08 25;
-        --accent-foreground: 0.95 0.02 15;
-        
-        --peach: 0.50 0.10 45;
-        --peach-foreground: 0.95 0.02 15;
-        
-        --cream: 0.40 0.03 65;
-        --cream-foreground: 0.95 0.02 15;
-        
-        --destructive: 0.65 0.20 27;
-        --destructive-foreground: 0.95 0.01 15;
-        
-        --border: 0.35 0.03 15;
-        --input: 0.35 0.03 15;
-        --ring: 0.70 0.12 15;
-        
-        --chart-1: 0.70 0.15 15;
-        --chart-2: 0.75 0.12 340;
-        --chart-3: 0.80 0.10 30;
-        --chart-4: 0.73 0.14 350;
-        --chart-5: 0.77 0.11 20;
-    }
-
-    * {
-        @apply border-border;
-    }
+  :root {
+    /* Soft blush-pink and warm peach color system using OKLCH */
+    --background: oklch(98% 0.02 15);
+    --foreground: oklch(25% 0.02 15);
+    --card: oklch(100% 0 0);
+    --card-foreground: oklch(25% 0.02 15);
+    --popover: oklch(100% 0 0);
+    --popover-foreground: oklch(25% 0.02 15);
     
-    body {
-        @apply bg-background text-foreground;
-        font-family: 'Nunito', 'Quicksand', 'Comfortaa', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-        font-size: 18px;
-        line-height: 1.6;
-    }
+    /* Primary: Soft blush pink */
+    --primary: oklch(70% 0.15 15);
+    --primary-foreground: oklch(100% 0 0);
     
-    h1, h2, h3, h4, h5, h6 {
-        font-weight: 700;
-        letter-spacing: -0.02em;
-    }
+    /* Secondary: Warm peach */
+    --secondary: oklch(85% 0.08 45);
+    --secondary-foreground: oklch(30% 0.02 15);
+    
+    /* Accent: Deeper rose/pink */
+    --accent: oklch(75% 0.18 5);
+    --accent-foreground: oklch(100% 0 0);
+    
+    /* Muted: Soft cream */
+    --muted: oklch(95% 0.02 45);
+    --muted-foreground: oklch(50% 0.02 15);
+    
+    --destructive: oklch(60% 0.22 25);
+    --destructive-foreground: oklch(100% 0 0);
+    
+    --border: oklch(90% 0.02 15);
+    --input: oklch(90% 0.02 15);
+    --ring: oklch(70% 0.15 15);
+    
+    --radius: 1rem;
+    
+    /* Chart colors */
+    --chart-1: oklch(70% 0.15 15);
+    --chart-2: oklch(75% 0.18 5);
+    --chart-3: oklch(85% 0.08 45);
+    --chart-4: oklch(65% 0.12 340);
+    --chart-5: oklch(80% 0.10 25);
+  }
+
+  .dark {
+    --background: oklch(20% 0.02 15);
+    --foreground: oklch(95% 0.02 15);
+    --card: oklch(22% 0.02 15);
+    --card-foreground: oklch(95% 0.02 15);
+    --popover: oklch(22% 0.02 15);
+    --popover-foreground: oklch(95% 0.02 15);
+    
+    /* Primary: Soft blush pink (adjusted for dark mode) */
+    --primary: oklch(75% 0.15 15);
+    --primary-foreground: oklch(20% 0.02 15);
+    
+    /* Secondary: Warm peach (adjusted for dark mode) */
+    --secondary: oklch(40% 0.08 45);
+    --secondary-foreground: oklch(95% 0.02 15);
+    
+    /* Accent: Deeper rose/pink (adjusted for dark mode) */
+    --accent: oklch(70% 0.18 5);
+    --accent-foreground: oklch(20% 0.02 15);
+    
+    /* Muted: Dark cream */
+    --muted: oklch(30% 0.02 45);
+    --muted-foreground: oklch(70% 0.02 15);
+    
+    --destructive: oklch(65% 0.22 25);
+    --destructive-foreground: oklch(95% 0.02 15);
+    
+    --border: oklch(30% 0.02 15);
+    --input: oklch(30% 0.02 15);
+    --ring: oklch(75% 0.15 15);
+    
+    /* Chart colors for dark mode */
+    --chart-1: oklch(75% 0.15 15);
+    --chart-2: oklch(70% 0.18 5);
+    --chart-3: oklch(85% 0.08 45);
+    --chart-4: oklch(70% 0.12 340);
+    --chart-5: oklch(80% 0.10 25);
+  }
 }
 
-/* Smooth fade transition */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
+  }
+  h1 {
+    @apply text-4xl;
+  }
+  h2 {
+    @apply text-3xl;
+  }
+  h3 {
+    @apply text-2xl;
+  }
 }
 
-.fade-in {
-    animation: fadeIn 0.4s ease-out;
+/* Romantic animations with optimized performance */
+@keyframes float-heart {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+    opacity: 0.6;
+  }
 }
 
-/* Glow effect for active nav items */
-.nav-glow {
-    filter: drop-shadow(0 0 8px oklch(var(--primary) / 0.4));
+@keyframes glow-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px oklch(70% 0.15 15 / 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px oklch(70% 0.15 15 / 0.8));
+  }
 }
 
-/* Floating hearts animation */
-@keyframes floatHeart {
-    0% {
-        transform: translateY(0) scale(1);
-        opacity: 0.6;
-    }
-    50% {
-        transform: translateY(-10px) scale(1.05);
-        opacity: 0.8;
-    }
-    100% {
-        transform: translateY(0) scale(1);
-        opacity: 0.6;
-    }
+/* Optimized smooth glow pulse with reduced intensity for better performance */
+@keyframes glow-pulse-smooth {
+  0%, 100% {
+    filter: drop-shadow(0 0 6px oklch(70% 0.15 15 / 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 12px oklch(70% 0.15 15 / 0.6));
+  }
+}
+
+@keyframes gentle-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes stagger-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes completion-float-up {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100px) scale(1.5);
+  }
+}
+
+@keyframes glowing-line {
+  0%, 100% {
+    stroke-dashoffset: 0;
+    filter: drop-shadow(0 0 4px oklch(70% 0.15 15 / 0.6));
+  }
+  50% {
+    stroke-dashoffset: 10;
+    filter: drop-shadow(0 0 8px oklch(70% 0.15 15 / 1));
+  }
+}
+
+/* Optimized celebration animations with smoother timing */
+@keyframes float-celebration {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(-60px) scale(1.2) rotate(10deg);
+  }
+}
+
+@keyframes heart-float-1 {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(1.3) rotate(15deg);
+  }
+}
+
+@keyframes heart-float-2 {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50px) scale(1.5) rotate(-20deg);
+  }
+}
+
+@keyframes heart-float-3 {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-45px) scale(1.4) rotate(10deg);
+  }
+}
+
+@keyframes celebration-entrance {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(12px);
+  }
+}
+
+/* Refined badge unlock animation with smoother timing */
+@keyframes badge-unlock-smooth {
+  0% {
+    opacity: 0;
+    transform: scale(0.7) rotate(-5deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.05) rotate(3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Sparkle animations for badges */
+@keyframes sparkle-1 {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes sparkle-2 {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes badge-sparkle {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* One-time Love Languages card highlight animation */
+@keyframes love-languages-highlight {
+  0% {
+    box-shadow: 0 0 0 0 oklch(70% 0.15 15 / 0.7);
+    border-color: oklch(70% 0.15 15 / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px 8px oklch(70% 0.15 15 / 0.4);
+    border-color: oklch(70% 0.15 15 / 0.8);
+  }
+  100% {
+    box-shadow: 0 0 0 0 oklch(70% 0.15 15 / 0);
+    border-color: oklch(70% 0.15 15 / 0.3);
+  }
 }
 
 .float-heart {
-    animation: floatHeart 3s ease-in-out infinite;
+  animation: float-heart 4s ease-in-out infinite;
 }
 
 .float-heart-delayed {
-    animation: floatHeart 3s ease-in-out infinite;
-    animation-delay: 1.5s;
-}
-
-/* Glow pulse animation */
-@keyframes glowPulse {
-    0%, 100% {
-        filter: drop-shadow(0 0 4px oklch(var(--primary) / 0.3));
-    }
-    50% {
-        filter: drop-shadow(0 0 12px oklch(var(--primary) / 0.6));
-    }
+  animation: float-heart 4s ease-in-out infinite;
+  animation-delay: 2s;
 }
 
 .glow-pulse {
-    animation: glowPulse 2s ease-in-out infinite;
+  animation: glow-pulse 2s ease-in-out infinite;
 }
 
-/* Gentle entrance animation */
-@keyframes gentleEntrance {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+.glow-pulse-smooth {
+  animation: glow-pulse-smooth 2.5s ease-in-out infinite;
 }
 
 .gentle-entrance {
-    animation: gentleEntrance 0.6s ease-out;
+  animation: gentle-entrance 0.6s ease-out;
 }
 
-/* Staggered entrance for children */
 .stagger-entrance > * {
-    animation: gentleEntrance 0.6s ease-out;
-    animation-fill-mode: both;
+  animation: stagger-entrance 0.6s ease-out;
 }
 
-.stagger-entrance > *:nth-child(1) { animation-delay: 0.1s; }
-.stagger-entrance > *:nth-child(2) { animation-delay: 0.2s; }
-.stagger-entrance > *:nth-child(3) { animation-delay: 0.3s; }
-.stagger-entrance > *:nth-child(4) { animation-delay: 0.4s; }
-.stagger-entrance > *:nth-child(5) { animation-delay: 0.5s; }
-
-/* Floating hearts animation for completion */
-@keyframes floatUp {
-    0% {
-        transform: translateY(0) scale(0.5);
-        opacity: 0;
-    }
-    20% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(-100vh) scale(1);
-        opacity: 0;
-    }
+.stagger-entrance > *:nth-child(1) {
+  animation-delay: 0.1s;
 }
 
-.animate-float-up {
-    animation: floatUp 3s ease-out forwards;
+.stagger-entrance > *:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.stagger-entrance > *:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.stagger-entrance > *:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.stagger-entrance > *:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.completion-float-up {
+  animation: completion-float-up 2s ease-out forwards;
+}
+
+.glowing-line {
+  animation: glowing-line 2s ease-in-out infinite;
+}
+
+.glow-line {
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+/* Optimized glow line with smoother transitions */
+.glow-line-smooth {
+  filter: drop-shadow(0 0 3px currentColor);
+  transition: filter 0.3s ease-out;
+}
+
+.glow-line-smooth:hover {
+  filter: drop-shadow(0 0 6px currentColor);
+}
+
+.animate-float-celebration {
+  animation: float-celebration 1.5s ease-out forwards;
+}
+
+.animate-heart-float-1 {
+  animation: heart-float-1 1.5s ease-out forwards;
+}
+
+.animate-heart-float-2 {
+  animation: heart-float-2 1.8s ease-out forwards;
+  animation-delay: 0.1s;
+}
+
+.animate-heart-float-3 {
+  animation: heart-float-3 1.6s ease-out forwards;
+  animation-delay: 0.2s;
+}
+
+.animate-celebration-entrance {
+  animation: celebration-entrance 0.3s ease-out forwards;
+}
+
+.animate-badge-unlock-smooth {
+  animation: badge-unlock-smooth 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-sparkle-1 {
+  animation: sparkle-1 1.5s ease-in-out infinite;
+}
+
+.animate-sparkle-2 {
+  animation: sparkle-2 1.5s ease-in-out infinite;
+  animation-delay: 0.3s;
+}
+
+.animate-badge-sparkle {
+  animation: badge-sparkle 2s ease-in-out infinite;
+}
+
+.animate-love-languages-highlight {
+  animation: love-languages-highlight 2s ease-out;
+}
+
+/* Performance optimizations */
+.will-change-transform {
+  will-change: transform;
+}
+
+/* Smooth transitions with optimized timing */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* Reduced motion support for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

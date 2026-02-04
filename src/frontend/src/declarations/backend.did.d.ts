@@ -10,29 +10,96 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface BadgeMilestoneResponse {
+  'badges' : Array<MilestoneBadge>,
+  'milestones' : MilestoneProgress,
+}
+export interface CanonicalPartnerRitualStatus {
+  'partnerBComplete' : boolean,
+  'partnerA' : UserId,
+  'partnerB' : UserId,
+  'partnerAComplete' : boolean,
+}
+export interface ChallengeStats {
+  'completedChallenges' : bigint,
+  'progressPercent' : number,
+  'totalChallenges' : bigint,
+}
+export interface CombinedQuizResultState {
+  'callerResults' : [] | [LoveLanguagesQuizResult],
+  'partnerCompleted' : boolean,
+  'partnerResults' : [] | [LoveLanguagesQuizResult],
+  'callerCompleted' : boolean,
+}
 export interface DailyRitualInput {
   'text' : [] | [string],
   'emoji' : [] | [string],
+  'photoId' : [] | [string],
 }
-export type EntryStatus = { 'complete' : null } |
-  { 'waitingForPartner' : null };
 export type ExternalBlob = Uint8Array;
-export interface GetDailyRitualResponse {
-  'status' : EntryStatus,
+export interface InsighsDataExtendedResponse {
+  'challengeStats' : ChallengeStats,
+  'mostFrequentLoveLanguage' : string,
+  'last14DayTrend' : Array<boolean>,
+  'recentCompletionRate' : number,
+  'badges' : Array<MilestoneBadge>,
+  'quizOverlapScore' : number,
+  'last30DayTrend' : Array<boolean>,
+  'currentHarmony' : number,
+  'harmonyTrend' : Array<number>,
+  'longestStreak' : bigint,
+  'challengeCompletionRate' : number,
+  'averageHarmony' : number,
+  'currentStreak' : bigint,
+  'milestones' : MilestoneProgress,
+}
+export type LoveLanguage = { 'qualityTime' : null } |
+  { 'receivingGifts' : null } |
+  { 'actsOfService' : null } |
+  { 'wordsOfAffirmation' : null } |
+  { 'physicalTouch' : null };
+export interface LoveLanguageRanking {
+  'score' : number,
+  'language' : LoveLanguage,
+}
+export interface LoveLanguagesQuizResult {
+  'rankings' : Array<LoveLanguageRanking>,
+  'completionTime' : Time,
+  'userId' : UserId,
+}
+export interface MilestoneBadge {
+  'name' : string,
+  'dateAchieved' : Time,
+  'isUnlocked' : boolean,
+}
+export interface MilestoneProgress {
+  'hundredDayUnlocked' : boolean,
+  'thirtyDayUnlocked' : boolean,
+  'sevenDayUnlocked' : boolean,
+  'harmonyEliteUnlocked' : boolean,
+}
+export type PairingResult = { 'ok' : null } |
+  { 'err' : string };
+export interface PartnerQuizState {
+  'partnerCompleted' : boolean,
+  'partnerResults' : [] | [LoveLanguagesQuizResult],
+}
+export interface RitualEntryView {
   'responses' : Array<RitualResponse>,
-  'harmonyMeter' : number,
+  'loveLanguageFocus' : [] | [LoveLanguage],
+  'date' : bigint,
   'prompt' : RitualPrompt,
-  'streakCount' : bigint,
 }
-export interface PartnerRitualStatus {
-  'partnerBComplete' : boolean,
-  'partnerAComplete' : boolean,
+export interface RitualPrompt {
+  'id' : bigint,
+  'text' : string,
+  'loveLanguage' : [] | [LoveLanguage],
 }
-export interface RitualPrompt { 'id' : bigint, 'text' : string }
 export interface RitualResponse {
   'userId' : UserId,
   'text' : [] | [string],
   'emoji' : [] | [string],
+  'photoId' : [] | [string],
 }
 export interface SharedPhoto {
   'id' : string,
@@ -43,8 +110,15 @@ export interface SharedPhoto {
 }
 export type Time = bigint;
 export type UserId = Principal;
-export interface UserProfile { 'name' : string, 'partnerId' : [] | [Principal] }
+export interface UserProfile {
+  'name' : string,
+  'role' : UserRole,
+  'partnerId' : [] | [Principal],
+  'isFirstUser' : boolean,
+}
 export type UserRole = { 'admin' : null } |
+  { 'user' : null };
+export type UserRole__1 = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
 export interface _CaffeineStorageCreateCertificateResult {
@@ -75,24 +149,38 @@ export interface _SERVICE {
   >,
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
-  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
-  'assignPartner' : ActorMethod<[UserId], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole__1], undefined>,
   'checkPairingCode' : ActorMethod<[bigint], [] | [Principal]>,
-  'completePairing' : ActorMethod<[bigint], undefined>,
+  'clearLoveLanguagesQuizResults' : ActorMethod<[], undefined>,
+  'completePairing' : ActorMethod<[bigint], PairingResult>,
   'createPairingCode' : ActorMethod<[], bigint>,
   'deletePhoto' : ActorMethod<[string], undefined>,
+  'fetchPrompts' : ActorMethod<[], Array<RitualPrompt>>,
+  'getBadgeMilestones' : ActorMethod<[], BadgeMilestoneResponse>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
-  'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getCallerUserRole' : ActorMethod<[], UserRole__1>,
+  'getCombinedQuizResultState' : ActorMethod<
+    [],
+    [] | [CombinedQuizResultState]
+  >,
   'getDailyRitual' : ActorMethod<[], [] | [RitualPrompt]>,
-  'getDailyRitualWithStats' : ActorMethod<[], GetDailyRitualResponse>,
+  'getInsightsData' : ActorMethod<[], InsighsDataExtendedResponse>,
+  'getLoveLanguageQuizResult' : ActorMethod<[], [] | [LoveLanguagesQuizResult]>,
+  'getPartnerQuizState' : ActorMethod<[UserId], PartnerQuizState>,
   'getPhoto' : ActorMethod<[string], [] | [SharedPhoto]>,
   'getPhotosByUser' : ActorMethod<[UserId], Array<SharedPhoto>>,
-  'getRitualStatus' : ActorMethod<[], PartnerRitualStatus>,
+  'getPromptsByLoveLanguage' : ActorMethod<[LoveLanguage], Array<RitualPrompt>>,
+  'getRitualHistory' : ActorMethod<[bigint], Array<RitualEntryView>>,
+  'getRitualStatus' : ActorMethod<[], [] | [CanonicalPartnerRitualStatus]>,
   'getUserProfile' : ActorMethod<[UserId], [] | [UserProfile]>,
-  'initPrompts' : ActorMethod<[], undefined>,
   'initializeUserProfile' : ActorMethod<[string, [] | [UserId]], UserId>,
+  'isAdmin' : ActorMethod<[], boolean>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'saveLoveLanguageQuizResults' : ActorMethod<
+    [LoveLanguagesQuizResult],
+    undefined
+  >,
   'submitRitualResponse' : ActorMethod<[DailyRitualInput], undefined>,
   'uploadPhoto' : ActorMethod<[ExternalBlob, string], string>,
 }
