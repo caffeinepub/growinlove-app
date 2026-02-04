@@ -558,6 +558,8 @@ actor {
       Runtime.trap("Unauthorized: Only users can get prompts by love language");
     };
 
+    internalInitPrompts();
+
     prompts.values().toArray().filter(
       func(prompt) {
         switch (prompt.loveLanguage) {
@@ -573,6 +575,7 @@ actor {
       Runtime.trap("Unauthorized: Only users can fetch prompts");
     };
 
+    internalInitPrompts();
     prompts.values().toArray();
   };
 

@@ -1,61 +1,78 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T22:23:23.880Z",
-  "summary": "Diff adds reusable loading/empty/error UI components (DataStates.tsx), makes a small performance improvement to the completion hearts animation (memoization + will-change), updates global styling tokens/animations in index.css, and updates the manual QA checklist. The diff does not provide evidence that the new data states/error UX were actually integrated across the five main tabs or key data-driven panels, nor that canister-call error recovery was applied in the specified flows.",
+  "generatedAt": "2026-02-04T22:52:59.960Z",
+  "summary": "The provided diff summary is heavily truncated and only shows type/import additions/changes in backend/main.mo plus an update to project_state.json. There is no visible evidence of the requested backend behavior changes (prompt init, pairing TTL, streak engine, insights/badges computations, or storage authorization/env/cycles hardening) being implemented.",
   "missing_requirements": [
     {
-      "id": "REQ-1",
-      "requirement": "Deliver a single combined frontend polish update across all main tabs (Home, Insights, Memories, Activities, Us) with consistent English copy and no confusing blank/empty sections.",
-      "reason": "The diff adds shared state components and global styling, but does not show modifications to the tab pages/components themselves to standardize copy and ensure empty-state messaging across all five tabs.",
+      "id": "REQ-6",
+      "requirement": "Implement deterministic prompt initialization for all prompt-read endpoints by ensuring internalInitPrompts() is invoked before returning prompt data (at minimum: fetchPrompts() and getPromptsByLoveLanguage()).",
+      "reason": "Diff snippet shows only imports/type definitions; no evidence that fetchPrompts()/getPromptsByLoveLanguage() were updated to call internalInitPrompts() before returning data.",
       "evidence": [
-        "frontend/src/components/DataStates.tsx",
-        "frontend/src/index.css"
+        "backend/main.mo (truncated)"
       ]
     },
     {
-      "id": "REQ-2",
-      "requirement": "Add/standardize loading and empty states for key data-driven surfaces (Insights metrics/cards, ritual history lists, photos/memories lists, pairing/partner info panels, love-language sync panels) without changing React Query setup.",
-      "reason": "A generic LoadingState/EmptyState component was added, but there is no evidence in the diff that these components were wired into the specified surfaces/pages (no page/component diffs shown using them).",
+      "id": "REQ-7",
+      "requirement": "Add pairing-code expiration (TTL) enforcement so pairing codes can expire and are treated as invalid/expired at both checkPairingCode(code) and completePairing(code).",
+      "reason": "No evidence of pairing code timestamp/TTL fields, expiry checks, or updated behavior in checkPairingCode/completePairing in the truncated diff.",
       "evidence": [
-        "frontend/src/components/DataStates.tsx"
+        "backend/main.mo (truncated)"
       ]
     },
     {
-      "id": "REQ-3",
-      "requirement": "Polish error handling and recovery UX for failed canister calls (pairing code check, ritual submission, quiz save/reset, insights fetch) with clear messages and retry actions, without removing legacy paths.",
-      "reason": "An ErrorState component with optional retry was added, but the diff does not show any integration into the listed flows (no changes to pairing/ritual/quiz/insights call sites are present in the provided modified files).",
+      "id": "REQ-8",
+      "requirement": "Finalize and correct streak computation so the current streak and longest streak are computed from real ritual history for the couple, with deterministic resets on missed days and with \"completed\" meaning both partners submitted for the day.",
+      "reason": "No evidence of updated streak computation logic derived from couple ritualEntries; only types are visible.",
       "evidence": [
-        "frontend/src/components/DataStates.tsx"
+        "backend/main.mo (truncated)"
       ]
     },
     {
-      "id": "REQ-4",
-      "requirement": "Apply lightweight performance and UI responsiveness tweaks (reduce unnecessary re-renders, avoid expensive computations during render, ensure animations do not degrade scrolling) without React Query setup changes.",
-      "reason": "Only a narrow performance tweak is evidenced (CompletionAnimation memoization and will-change). The diff does not show broader responsiveness work in other high-traffic components or lists/modals specified in the requirement.",
+      "id": "REQ-9",
+      "requirement": "Update streak-related state deterministically as part of ritual submission so streak/insights do not rely on placeholder or stale caches; streak must reflect the couple’s actual stored ritualEntries and update when a day transitions to \"both completed\".",
+      "reason": "No evidence of changes to ritual submission flow to update streak state only when both partners complete, nor safeguards against double-counting on edits/resubmissions.",
       "evidence": [
-        "frontend/src/components/CompletionAnimation.tsx",
-        "frontend/src/index.css"
+        "backend/main.mo (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "requirement": "Replace placeholder analytics in getInsightsData() with real computations derived from couple ritual history and quiz data, returning populated values for: currentStreak, longestStreak, averageHarmony, currentHarmony, recentCompletionRate, last14DayTrend, last30DayTrend, and harmonyTrend.",
+      "reason": "No evidence of getInsightsData() implementation changes or real computed trend series/harmony series in the truncated diff.",
+      "evidence": [
+        "backend/main.mo (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "requirement": "Implement real badge milestone logic so getBadgeMilestones() returns milestone progress based on real computed metrics and milestone flags use monotonic \"flip-to-true\" behavior once earned (7/30/100 streak and Harmony Elite).",
+      "reason": "No evidence of badge milestone computation or persistent monotonic unlock flags in the truncated diff.",
+      "evidence": [
+        "backend/main.mo (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "requirement": "Add missing authorization to the blob-storage maintenance endpoint _caffeineStorageUpdateGatewayPrincipals so only admins can invoke it.",
+      "reason": "Although authorization mixins are present, the diff snippet does not show any change adding an admin-check guard to _caffeineStorageUpdateGatewayPrincipals.",
+      "evidence": [
+        "backend/main.mo (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-13",
+      "requirement": "Harden storage env-var and cycles refill logic by (1) fixing the cashier principal env var typo risk (CAFFFEINE_STORAGE_CASHIER_PRINCIPAL vs CAFFEINE_STORAGE_CASHIER_PRINCIPAL) with safe fallback behavior, and (2) preventing Nat.sub underflow traps in Storage.refillCashier when the canister balance is below reserved cycles (use saturating/guarded math).",
+      "reason": "No evidence of env-var fallback resolution logic or guarded/saturating math changes to prevent Nat.sub underflow in refill logic within the truncated diff.",
+      "evidence": [
+        "backend/main.mo (truncated)"
       ]
     }
   ],
-  "hallucinated_features": [
-    {
-      "description": "Project/documentation metadata updates that are not explicitly requested as part of the combined polish release (project_state.json and frontend-file-summaries.txt).",
-      "reason": "BuildRequest focuses on frontend UX polish + QA checklist updates; it does not request updating internal project state or adding/updating a file inventory/summary artifact.",
-      "evidence": [
-        "project_state.json",
-        "frontend-file-summaries.txt"
-      ]
-    }
-  ],
-  "confidence": 0.62,
+  "hallucinated_features": [],
+  "confidence": 0.46,
   "changed_files": [
-    "frontend-file-summaries.txt",
-    "frontend/QA_ACCEPTANCE_CHECKLIST.md",
-    "frontend/src/components/CompletionAnimation.tsx",
-    "frontend/src/components/DataStates.tsx",
-    "frontend/src/index.css",
+    "backend/main.mo",
     "project_state.json"
   ]
 }

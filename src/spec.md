@@ -1,14 +1,16 @@
 # Specification
 
 ## Summary
-**Goal:** Ship a single combined pre-launch frontend polish release (steps 3/4/5) that improves UX clarity, copy consistency, and loading/empty/error states across all main tabs without changing React Query setup or removing legacy code paths.
+**Goal:** Ship a pre-launch backend fix bundle to make prompts, pairing, streaks, insights, badges, and storage maintenance behavior correct, deterministic, and secure.
 
 **Planned changes:**
-- Standardize and refine English user-facing copy across Home, Insights, Memories, Activities, and Us for clearer intent and consistent wording.
-- Add consistent loading states (e.g., skeletons/spinners + helpful loading copy) for key data-driven surfaces (Insights cards/metrics, ritual history, memories/photos lists, pairing/partner panels, love-language sync panels) without changing React Query provider/client configuration.
-- Add/standardize empty-state messaging with next-step guidance when data is legitimately absent (e.g., not paired, no history yet, no photos yet).
-- Improve error handling and recovery for failed canister calls by showing clear English error messages and offering safe retry actions where appropriate, ensuring flows don’t get stuck loading and keeping legacy code paths intact (additive/guarded changes only).
-- Apply lightweight UI responsiveness/performance tweaks to reduce avoidable jank (e.g., reduce unnecessary re-renders, avoid expensive render-time computations, keep animations from degrading scrolling) without React Query setup changes.
-- Perform a final manual QA pass aligned to the existing checklist and update the checklist only for clarity/ordering to reflect the single combined release verification.
+- Ensure prompt data is always initialized before returning from prompt-read endpoints (including fetchPrompts() and getPromptsByLoveLanguage()).
+- Enforce pairing-code expiration (TTL) in both checkPairingCode(code) and completePairing(code), while keeping used codes invalidated as before.
+- Compute current streak and longest streak from real couple ritual history (a day counts only when both partners submitted) with deterministic resets on missed days.
+- Update streak state deterministically during ritual submission so streak/insights update when a day transitions to “both completed” and don’t double-count re-submissions.
+- Replace placeholder getInsightsData() analytics with real computed metrics and deterministic trend series derived from couple ritual history and quiz data.
+- Implement real badge milestone logic in getBadgeMilestones() using computed metrics, with monotonic “flip-to-true” unlock behavior (7/30/100 streak, Harmony Elite).
+- Add admin-only authorization to _caffeineStorageUpdateGatewayPrincipals.
+- Harden storage env-var and cycles refill logic by supporting both cashier principal env var spellings and preventing Nat.sub underflow in Storage.refillCashier.
 
-**User-visible outcome:** The app’s five tabs feel more polished and consistent: users see clear English text, helpful loading/empty states instead of blank sections, and actionable error messages with retry options—resulting in smoother, more reliable pre-launch UX.
+**User-visible outcome:** Insights and badges display real, consistent progress based on actual couple activity; streaks update correctly when both partners complete a day; pairing codes can expire; and storage maintenance/admin operations are properly secured and more robust.

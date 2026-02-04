@@ -1,103 +1,82 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T22:23:23.911Z",
+  "generatedAt": "2026-02-04T22:52:59.962Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 5,
-    "implemented": 5,
+    "total": 8,
+    "implemented": 0,
     "items": [
       {
-        "id": "REQ-1",
-        "summary": "Deliver a single combined frontend polish update covering the remaining pre-launch steps (3, 4, and 5) as one cohesive release, focusing on UX clarity, copy, loading/empty states, and final UI refinements across the main tabs (Home, Insights, Memories, Activities, Us).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/DataStates.tsx",
-          "frontend/src/pages/Home.tsx",
-          "frontend/src/pages/Insights.tsx",
-          "frontend/src/pages/Memories.tsx",
-          "frontend/src/pages/Activities.tsx",
-          "frontend/src/pages/Us.tsx",
-          "frontend/src/pages/LoveLanguages.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/DataStates.tsx"
-        ]
+        "id": "REQ-10",
+        "summary": "Replace placeholder analytics in getInsightsData() with real computations derived from couple ritual history and quiz data, returning populated values for: currentStreak, longestStreak, averageHarmony, currentHarmony, recentCompletionRate, last14DayTrend, last30DayTrend, and harmonyTrend.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
-        "id": "REQ-2",
-        "summary": "Add/standardize user-friendly loading states and empty states for key data-driven surfaces (Insights metrics/cards, ritual history lists, photos/memories lists, pairing/partner info panels, and love-language sync panels) without changing React Query configuration or provider setup.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/DataStates.tsx",
-          "frontend/src/pages/Insights.tsx",
-          "frontend/src/pages/Home.tsx",
-          "frontend/src/pages/Memories.tsx",
-          "frontend/src/pages/Us.tsx",
-          "frontend/src/pages/LoveLanguages.tsx",
-          "frontend/src/pages/Activities.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/DataStates.tsx"
-        ]
+        "id": "REQ-11",
+        "summary": "Implement real badge milestone logic so getBadgeMilestones() returns milestone progress based on real computed metrics and milestone flags use monotonic \"flip-to-true\" behavior once earned (7/30/100 streak and Harmony Elite).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
-        "id": "REQ-3",
-        "summary": "Polish error handling and recovery UX for failed canister calls (e.g., pairing code check, ritual submission, quiz save/reset, insights fetch) by presenting clear error messages and safe retry actions, without deleting or removing any existing/legacy code paths referenced in the current step 4 plan.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/DataStates.tsx",
-          "frontend/src/pages/Us.tsx",
-          "frontend/src/pages/Home.tsx",
-          "frontend/src/pages/LoveLanguages.tsx",
-          "frontend/src/pages/Insights.tsx",
-          "frontend/src/pages/Memories.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/DataStates.tsx"
-        ]
+        "id": "REQ-12",
+        "summary": "Add missing authorization to the blob-storage maintenance endpoint _caffeineStorageUpdateGatewayPrincipals so only admins can invoke it.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
-        "id": "REQ-4",
-        "summary": "Apply lightweight performance and UI responsiveness tweaks that do not involve React Query setup changes (e.g., reduce unnecessary re-renders in high-traffic components, avoid expensive computations during render, and ensure animations do not degrade scrolling).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/Insights.tsx",
-          "frontend/src/pages/Home.tsx",
-          "frontend/src/pages/Memories.tsx",
-          "frontend/src/index.css",
-          "frontend/src/components/CompletionAnimation.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/index.css",
-          "frontend/src/components/CompletionAnimation.tsx"
-        ]
+        "id": "REQ-13",
+        "summary": "Harden storage env-var and cycles refill logic by (1) fixing the cashier principal env var typo risk (CAFFFEINE_STORAGE_CASHIER_PRINCIPAL vs CAFFEINE_STORAGE_CASHIER_PRINCIPAL) with safe fallback behavior, and (2) preventing Nat.sub underflow traps in Storage.refillCashier when the canister balance is below reserved cycles (use saturating/guarded math).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
-        "id": "REQ-5",
-        "summary": "Perform a final manual QA pass aligned to the existing checklist and update the checklist only as needed to reflect the combined single-release polish verification steps (without changing app features).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/QA_ACCEPTANCE_CHECKLIST.md"
-        ],
-        "matchedFiles": [
-          "frontend/QA_ACCEPTANCE_CHECKLIST.md"
-        ]
+        "id": "REQ-6",
+        "summary": "Implement deterministic prompt initialization for all prompt-read endpoints by ensuring internalInitPrompts() is invoked before returning prompt data (at minimum: fetchPrompts() and getPromptsByLoveLanguage()).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-7",
+        "summary": "Add pairing-code expiration (TTL) enforcement so pairing codes can expire and are treated as invalid/expired at both checkPairingCode(code) and completePairing(code).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-8",
+        "summary": "Finalize and correct streak computation so the current streak and longest streak are computed from real ritual history for the couple, with deterministic resets on missed days and with \"completed\" meaning both partners submitted for the day.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-9",
+        "summary": "Update streak-related state deterministically as part of ritual submission so streak/insights do not rely on placeholder or stale caches; streak must reflect the couple’s actual stored ritualEntries and update when a day transitions to \"both completed\".",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
-    "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/QA_ACCEPTANCE_CHECKLIST.md",
-    "frontend/src/components/CompletionAnimation.tsx",
-    "frontend/src/components/DataStates.tsx",
-    "frontend/src/index.css",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

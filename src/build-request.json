@@ -1,110 +1,164 @@
 {
   "kind": "build_request",
-  "title": "Single combined pre-launch polish update (Steps 3+4+5) without React Query setup changes",
+  "title": "Pre-launch fix bundle: real Insights + badges, streak engine, prompt init, pairing TTL, storage auth/env/cycles hardening",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Deliver a single combined frontend polish update covering the remaining pre-launch steps (3, 4, and 5) as one cohesive release, focusing on UX clarity, copy, loading/empty states, and final UI refinements across the main tabs (Home, Insights, Memories, Activities, Us).",
-      "target": "frontend",
+      "id": "REQ-6",
+      "text": "Implement deterministic prompt initialization for all prompt-read endpoints by ensuring internalInitPrompts() is invoked before returning prompt data (at minimum: fetchPrompts() and getPromptsByLoveLanguage()).",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "yes, please generate a single combined update next"
+          "please proceed with the new plan provided!"
         ]
       },
       "acceptanceCriteria": [
-        "All five tabs (Home/Insights/Memories/Activities/Us) have consistent, understandable user-facing text in English.",
-        "No pages show confusing blank/empty sections without a helpful empty-state message.",
-        "The update ships as a single change-set (no multi-step rollout required)."
+        "Calling fetchPrompts() on a fresh canister (before any getDailyRitual/submitRitualResponse calls) returns the full prompt set (non-empty).",
+        "Calling getPromptsByLoveLanguage(language) on a fresh canister returns a non-empty array for supported languages.",
+        "No endpoint returns an empty prompt list solely because prompts were not initialized yet."
       ]
     },
     {
-      "id": "REQ-2",
-      "text": "Add/standardize user-friendly loading states and empty states for key data-driven surfaces (Insights metrics/cards, ritual history lists, photos/memories lists, pairing/partner info panels, and love-language sync panels) without changing React Query configuration or provider setup.",
-      "target": "frontend",
+      "id": "REQ-7",
+      "text": "Add pairing-code expiration (TTL) enforcement so pairing codes can expire and are treated as invalid/expired at both checkPairingCode(code) and completePairing(code).",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "ensuring the update will avoid any touches to React Query setup"
+          "please proceed with the new plan provided!"
         ]
       },
       "acceptanceCriteria": [
-        "While data is loading, the UI shows a consistent skeleton/spinner/loading copy instead of flashing empty content.",
-        "When data is legitimately absent (e.g., no history yet, not paired yet), the UI shows a clear empty-state with next-step guidance.",
-        "No modifications are made to QueryClientProvider placement, QueryClient instantiation, or global React Query defaults."
+        "Each pairing code has an associated creation timestamp and a TTL duration enforced by the backend.",
+        "checkPairingCode(code) returns null (or otherwise indicates invalid) when the code is expired, and does not allow discovery of the mapped principal after expiry.",
+        "completePairing(code) returns an error result for expired codes (must not pair users), consistent with existing UX wording (e.g., \"Invalid or expired pairing code\").",
+        "Used codes are still invalidated/removed as before."
       ]
     },
     {
-      "id": "REQ-3",
-      "text": "Polish error handling and recovery UX for failed canister calls (e.g., pairing code check, ritual submission, quiz save/reset, insights fetch) by presenting clear error messages and safe retry actions, without deleting or removing any existing/legacy code paths referenced in the current step 4 plan.",
-      "target": "frontend",
+      "id": "REQ-8",
+      "text": "Finalize and correct streak computation so the current streak and longest streak are computed from real ritual history for the couple, with deterministic resets on missed days and with \"completed\" meaning both partners submitted for the day.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "avoid any touches to React Query setup &/or remove old code paths in step 4."
+          "please proceed with the new plan provided!"
         ]
       },
       "acceptanceCriteria": [
-        "When a canister call fails, the user sees an English error message that explains what happened at a high level and offers a retry where appropriate.",
-        "No existing code paths are removed; any new logic is additive or guarded so older behavior remains available.",
-        "User flows do not get stuck in a perpetual loading state after an error."
+        "A day counts toward streak only if both partners have responses recorded for that day’s ritual entry.",
+        "Current streak increments only for consecutive day numbers and resets to 0 (or 1 only when today is completed) after any missed day according to the defined day-number logic already used by the app.",
+        "Longest streak reflects the maximum consecutive run of days completed-by-both in the couple’s stored history.",
+        "Streak values are consistent for both partners when queried (i.e., couple-derived, not per-user divergent)."
       ]
     },
     {
-      "id": "REQ-4",
-      "text": "Apply lightweight performance and UI responsiveness tweaks that do not involve React Query setup changes (e.g., reduce unnecessary re-renders in high-traffic components, avoid expensive computations during render, and ensure animations do not degrade scrolling).",
-      "target": "frontend",
+      "id": "REQ-9",
+      "text": "Update streak-related state deterministically as part of ritual submission so streak/insights do not rely on placeholder or stale caches; streak must reflect the couple’s actual stored ritualEntries and update when a day transitions to \"both completed\".",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "generate a single combined update next"
+          "please proceed with the new plan provided!"
         ]
       },
       "acceptanceCriteria": [
-        "Navigating between tabs feels responsive and avoids noticeable UI jank on common interactions (scrolling lists, opening modals/details, submitting forms).",
-        "No React Query provider/client configuration is changed as part of performance work.",
-        "No legacy/older code paths are removed as part of cleanup."
+        "After the first partner submits for the day, streak does not incorrectly increment (day not yet completed-by-both).",
+        "After the second partner submits for the same day, streak updates to reflect the newly completed day.",
+        "Submitting additional edits/re-submissions for the same day does not incorrectly double-count streak progress."
       ]
     },
     {
-      "id": "REQ-5",
-      "text": "Perform a final manual QA pass aligned to the existing checklist and update the checklist only as needed to reflect the combined single-release polish verification steps (without changing app features).",
-      "target": "frontend",
+      "id": "REQ-10",
+      "text": "Replace placeholder analytics in getInsightsData() with real computations derived from couple ritual history and quiz data, returning populated values for: currentStreak, longestStreak, averageHarmony, currentHarmony, recentCompletionRate, last14DayTrend, last30DayTrend, and harmonyTrend.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "single combined update next"
+          "please proceed with the new plan provided!"
         ]
       },
       "acceptanceCriteria": [
-        "QA covers: login/logout, profile setup, pairing flow, daily ritual completion/sync, viewing Memories/history, photo add/view/delete, love languages quiz save/reset/sync, insights viewing, and activities gating/spin wheel.",
-        "Any checklist edits are limited to clarity/ordering for the combined release and do not add new product features."
+        "getInsightsData() no longer returns all-zero/empty placeholder values when the couple has ritual history.",
+        "last14DayTrend is a deterministic boolean series representing completion-by-both for each day in the window (ordered oldest→newest or consistently documented), and the frontend can derive the last 7 days via slicing without needing randomness.",
+        "harmonyTrend is returned as a deterministic numeric series compatible with the existing frontend usage (0..1 floats, last 7 values used for charts).",
+        "recentCompletionRate reflects the completion-by-both rate over the existing recent window logic (the frontend expects 0..1 and multiplies by 100)."
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "text": "Implement real badge milestone logic so getBadgeMilestones() returns milestone progress based on real computed metrics and milestone flags use monotonic \"flip-to-true\" behavior once earned (7/30/100 streak and Harmony Elite).",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "please proceed with the new plan provided!"
+        ]
+      },
+      "acceptanceCriteria": [
+        "getBadgeMilestones() returns milestone flags (sevenDayUnlocked/thirtyDayUnlocked/hundredDayUnlocked/harmonyEliteUnlocked) driven by actual computed streak and harmony metrics.",
+        "Once a milestone is unlocked for a user, subsequent calls keep it unlocked even if later computed metrics drop (no regression).",
+        "Milestone badges list returned aligns with milestone flags (e.g., unlocking 7-day milestone results in an unlocked badge entry with isUnlocked=true)."
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "text": "Add missing authorization to the blob-storage maintenance endpoint _caffeineStorageUpdateGatewayPrincipals so only admins can invoke it.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "please proceed with the new plan provided!"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Non-admin callers are rejected from _caffeineStorageUpdateGatewayPrincipals with an authorization failure (trap or error consistent with existing backend patterns).",
+        "Admin callers can still invoke the endpoint successfully.",
+        "No other blob-storage endpoints have their behavior changed unintentionally."
+      ]
+    },
+    {
+      "id": "REQ-13",
+      "text": "Harden storage env-var and cycles refill logic by (1) fixing the cashier principal env var typo risk (CAFFFEINE_STORAGE_CASHIER_PRINCIPAL vs CAFFEINE_STORAGE_CASHIER_PRINCIPAL) with safe fallback behavior, and (2) preventing Nat.sub underflow traps in Storage.refillCashier when the canister balance is below reserved cycles (use saturating/guarded math).",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "please proceed with the new plan provided!"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The cashier principal can be resolved when either CAFFEINE_STORAGE_CASHIER_PRINCIPAL or the legacy misspelled CAFFFEINE_STORAGE_CASHIER_PRINCIPAL is present; behavior is deterministic and does not trap due to the typo alone.",
+        "Storage.refillCashier does not trap when currentBalance < reservedCycles; it behaves safely (no underflow) and preserves the reserved-cycles invariant."
       ]
     }
   ],
   "constraints": [
-    "Do not modify React Query setup or configuration (including QueryClientProvider placement, QueryClient creation, or default query options).",
-    "Do not remove or delete existing/legacy code paths related to step 4; changes must be additive or safely guarded.",
-    "Do not edit files under frontend immutable paths (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui). Compose or wrap instead.",
-    "Backend must remain single-actor in backend/main.mo; add migration.mo only if state changes require it (avoid if not necessary).",
-    "All user-facing text introduced/modified in this update must be in English."
+    "Respect the single-actor backend architecture: all Motoko application logic remains in backend/main.mo; only introduce backend/migration.mo if state must be preserved across upgrade due to data-structure changes (e.g., pairing-code TTL metadata).",
+    "Use English for any user-facing text.",
+    "Do not edit frontend files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or any files under frontend/src/components/ui."
   ],
   "nonGoals": [
-    "Refactoring or consolidating React Query providers/clients, changing caching policies, or altering React Query initialization patterns.",
-    "Removing deprecated/unused code paths as part of cleanup.",
-    "Implementing new backend analytics/badges logic beyond polish (unless explicitly requested separately).",
-    "Adding new product features or new tabs/pages."
+    "Do not add new pages, tabs, or major frontend redesign as part of this fix bundle.",
+    "Do not change React Query provider configuration or remove existing frontend logic unless required to keep compatibility with the fixed backend responses.",
+    "Do not introduce additional backend services, external databases, or non-Motoko backend code."
   ],
   "imageRequirements": {
     "required": [],
