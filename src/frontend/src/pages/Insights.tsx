@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Lightbulb, Heart, TrendingUp, Calendar, Sparkles, Award, HeartHandshake, BarChart3, TrendingDown, PieChart, Crown, Trophy, Flame, Star, Zap, Activity, X } from 'lucide-react';
+import { Lightbulb, Heart, TrendingUp, Calendar, Sparkles, Award, HeartHandshake, BarChart3, TrendingDown, Activity, X, Crown, Trophy, Flame, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -13,13 +13,6 @@ interface HistoryDataPoint {
   day: string;
   completed: boolean;
   harmony: number;
-}
-
-interface LoveLanguageFocusData {
-  language: string;
-  emoji: string;
-  count: number;
-  percentage: number;
 }
 
 interface MilestoneBadge {
@@ -42,17 +35,6 @@ const mapToUILanguage = (backendLanguage: LoveLanguage): string => {
     [LoveLanguage.physicalTouch]: 'Physical Touch',
   };
   return mapping[backendLanguage];
-};
-
-const getLoveLanguageEmoji = (language: string): string => {
-  const emojiMap: Record<string, string> = {
-    'Words of Affirmation': '💬',
-    'Quality Time': '⏰',
-    'Receiving Gifts': '🎁',
-    'Acts of Service': '🤝',
-    'Physical Touch': '🤗',
-  };
-  return emojiMap[language] || '💞';
 };
 
 export function Insights() {
@@ -81,7 +63,7 @@ export function Insights() {
   const recentCompletionRate = insightsData?.recentCompletionRate ?? 0;
   const harmonyTrend = insightsData?.harmonyTrend ?? [];
   
-  // Calculate love language harmony score
+  // Calculate love language harmony score (quiz alignment only)
   const calculateLoveLanguageHarmony = (): number => {
     if (!combinedQuizState?.callerResults || !combinedQuizState?.partnerResults) return 0;
 
@@ -112,32 +94,6 @@ export function Insights() {
   };
 
   const sharedLanguages = getSharedLoveLanguages();
-
-  // Generate Love Language Focus Trend data
-  const generateLoveLanguageFocusTrend = (): LoveLanguageFocusData[] => {
-    if (!bothCompletedQuiz || !combinedQuizState?.callerResults) {
-      return [];
-    }
-
-    // Simulate recent focus distribution based on top love languages
-    const topLanguages = combinedQuizState.callerResults.rankings.slice(0, 3);
-    const total = 14; // Last 2 weeks
-    
-    return topLanguages.map((ranking, idx) => {
-      const baseCount = Math.floor(total / 3);
-      const bonus = idx === 0 ? 2 : idx === 1 ? 1 : 0;
-      const count = baseCount + bonus;
-      
-      return {
-        language: mapToUILanguage(ranking.language),
-        emoji: getLoveLanguageEmoji(mapToUILanguage(ranking.language)),
-        count,
-        percentage: Math.round((count / total) * 100),
-      };
-    });
-  };
-
-  const loveLanguageFocusTrend = generateLoveLanguageFocusTrend();
 
   // Build 7-Day History from backend trend data (deterministic, no randomness)
   const generateHistoryData = (): HistoryDataPoint[] => {
@@ -176,35 +132,6 @@ export function Insights() {
   const completionRate = insightsData?.recentCompletionRate 
     ? Math.round(insightsData.recentCompletionRate * 100)
     : 0;
-
-  // Calculate correlation between love language match and harmony
-  const calculateCorrelation = (): { strength: string; impact: string; trend: 'up' | 'down' | 'stable' } => {
-    if (!bothCompletedQuiz) {
-      return { strength: 'Unknown', impact: 'Complete quiz to see correlation', trend: 'stable' };
-    }
-
-    if (loveLanguageHarmony >= 66) {
-      return {
-        strength: 'Strong Positive',
-        impact: 'Your shared love languages are significantly boosting your harmony scores and streak consistency!',
-        trend: 'up'
-      };
-    } else if (loveLanguageHarmony >= 33) {
-      return {
-        strength: 'Moderate',
-        impact: 'Some love language overlap is helping maintain your connection. Focus on shared preferences for better results.',
-        trend: 'stable'
-      };
-    } else {
-      return {
-        strength: 'Developing',
-        impact: 'Your unique love languages offer opportunities to learn and grow together. Daily rituals help bridge differences.',
-        trend: 'up'
-      };
-    }
-  };
-
-  const correlation = calculateCorrelation();
 
   // Generate Milestone Badges - strictly backend-driven from badgeMilestones.milestones
   const generateMilestoneBadges = (): MilestoneBadge[] => {
@@ -741,84 +668,13 @@ export function Insights() {
         </CardContent>
       </Card>
 
-      {/* Love Language Trends Analytics - Bubble/Pie Chart */}
-      {bothCompletedQuiz && loveLanguageFocusTrend.length > 0 && (
-        <Card className="border-2 border-indigo-500/30 shadow-md bg-gradient-to-br from-indigo-500/5 to-purple-500/5 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <PieChart className="w-5 h-5 text-indigo-500" />
-              Love Language Trends
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Proportional love language usage over the past 2 weeks
-            </p>
-            
-            <div className="space-y-3">
-              {loveLanguageFocusTrend.map((focus) => (
-                <div key={focus.language} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl">{focus.emoji}</span>
-                      <span className="text-sm font-medium text-foreground">
-                        {focus.language}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">
-                        {focus.count} days
-                      </span>
-                      <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400 transition-all duration-200">
-                        {focus.percentage}%
-                      </span>
-                    </div>
-                  </div>
-                  <Progress 
-                    value={focus.percentage} 
-                    className="h-2 bg-secondary transition-all duration-500"
-                  />
-                </div>
-              ))}
-            </div>
-
-            <div className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
-              <div className="flex items-start gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-500 flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-muted-foreground">
-                  Your rituals are automatically personalized based on your shared love languages, 
-                  helping you connect in the ways that matter most to both of you!
-                </p>
-              </div>
-            </div>
-
-            {/* Correlation with completion rates */}
-            <div className="p-4 rounded-xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
-              <div className="flex items-center gap-3 mb-2">
-                <BarChart3 className="w-5 h-5 text-indigo-500" />
-                <p className="text-sm font-semibold text-foreground">
-                  Focus Impact on Engagement
-                </p>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Rituals focused on your top shared love languages show{' '}
-                <span className="font-semibold text-indigo-600 dark:text-indigo-400">
-                  {loveLanguageHarmony >= 66 ? '30%' : loveLanguageHarmony >= 33 ? '20%' : '15%'} higher
-                </span>
-                {' '}completion rates and contribute more to harmony growth!
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Enhanced Love Language Correlation Analysis */}
+      {/* Quiz Alignment Summary - Only show if both completed quiz */}
       {bothCompletedQuiz && (
         <Card className="border-2 border-purple-500/30 shadow-md bg-gradient-to-br from-purple-500/5 to-primary/5 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <BarChart3 className="w-5 h-5 text-purple-500" />
-              Love Language Impact Analysis
+              Quiz Alignment Summary
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -827,20 +683,18 @@ export function Insights() {
                 <HeartHandshake className="w-7 h-7 text-purple-500" />
               </div>
               <div className="flex-1">
-                <p className="text-sm text-muted-foreground font-medium">Compatibility Score</p>
+                <p className="text-sm text-muted-foreground font-medium">Quiz Alignment</p>
                 <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 transition-all duration-300">
                   {loveLanguageHarmony}%
                 </p>
               </div>
               <div className="text-right">
-                {correlation.trend === 'up' && (
+                {loveLanguageHarmony >= 66 ? (
                   <TrendingUp className="w-8 h-8 text-green-500" />
-                )}
-                {correlation.trend === 'down' && (
-                  <TrendingDown className="w-8 h-8 text-amber-500" />
-                )}
-                {correlation.trend === 'stable' && (
+                ) : loveLanguageHarmony >= 33 ? (
                   <BarChart3 className="w-8 h-8 text-blue-500" />
+                ) : (
+                  <TrendingDown className="w-8 h-8 text-amber-500" />
                 )}
               </div>
             </div>
@@ -864,62 +718,23 @@ export function Insights() {
               </div>
             )}
 
-            {/* Correlation Strength */}
             <div className="p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-primary/10 border border-purple-500/20">
               <div className="flex items-start gap-3">
                 <Sparkles className="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <p className="text-sm font-semibold text-foreground">
-                    Correlation: {correlation.strength}
+                    {loveLanguageHarmony >= 66 ? 'Strong Alignment' : loveLanguageHarmony >= 33 ? 'Moderate Alignment' : 'Growing Together'}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {correlation.impact}
+                    {loveLanguageHarmony >= 66 
+                      ? 'Your shared love languages create a strong foundation for connection!'
+                      : loveLanguageHarmony >= 33
+                      ? 'Some love language overlap helps maintain your connection.'
+                      : 'Your unique love languages offer opportunities to learn and grow together.'
+                    }
                   </p>
                 </div>
               </div>
-            </div>
-
-            {/* Detailed Impact Breakdown with Smooth Transitions */}
-            <div className="space-y-3">
-              <p className="text-sm font-semibold text-foreground">How Love Languages Affect Your Journey:</p>
-              
-              <div className="space-y-2">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 transition-all duration-200 hover:bg-secondary/40">
-                  <span className="text-sm text-foreground">Streak Consistency</span>
-                  <div className="flex items-center gap-2">
-                    <Progress value={Math.min(100, loveLanguageHarmony + 20)} className="w-20 h-2 transition-all duration-500" />
-                    <span className="text-xs font-semibold text-primary">
-                      {loveLanguageHarmony >= 66 ? 'High' : loveLanguageHarmony >= 33 ? 'Medium' : 'Growing'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 transition-all duration-200 hover:bg-secondary/40">
-                  <span className="text-sm text-foreground">Ritual Engagement</span>
-                  <div className="flex items-center gap-2">
-                    <Progress value={Math.min(100, loveLanguageHarmony + 15)} className="w-20 h-2 transition-all duration-500" />
-                    <span className="text-xs font-semibold text-accent">
-                      {loveLanguageHarmony >= 66 ? 'Excellent' : loveLanguageHarmony >= 33 ? 'Good' : 'Building'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 transition-all duration-200 hover:bg-secondary/40">
-                  <span className="text-sm text-foreground">Harmony Growth</span>
-                  <div className="flex items-center gap-2">
-                    <Progress value={Math.min(100, loveLanguageHarmony + 10)} className="w-20 h-2 transition-all duration-500" />
-                    <span className="text-xs font-semibold text-purple-600 dark:text-purple-400">
-                      {loveLanguageHarmony >= 66 ? 'Strong' : loveLanguageHarmony >= 33 ? 'Steady' : 'Emerging'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
-              <p className="text-xs text-amber-700 dark:text-amber-400">
-                💡 Rituals themed around your shared love languages tend to have {loveLanguageHarmony >= 50 ? '25%' : '15%'} higher completion rates!
-              </p>
             </div>
           </CardContent>
         </Card>

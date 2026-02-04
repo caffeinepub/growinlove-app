@@ -13,11 +13,7 @@ import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
-import Migration "migration";
 
-// Specify the state migration function in the with clause
-
-(with migration = Migration.run)
 actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
@@ -421,7 +417,6 @@ actor {
   let prompts = Map.empty<Nat, RitualPrompt>();
   let userProfiles = Map.empty<UserId, UserProfile>();
   let codeToPrincipal = Map.empty<Nat, Principal>();
-  // Store ritual entries per day as Map<DayNumber, RitualEntry>
   var ritualEntries = Map.empty<Text, Map.Map<DayNumber, RitualEntry>>();
   let photos = Map.empty<Text, SharedPhoto>();
   var currentStreaks = Map.empty<UserId, Nat>();
@@ -586,10 +581,78 @@ actor {
       Runtime.trap("Unauthorized: Only users can view badge milestones");
     };
 
-    let coupleId = mustGetCoupleId(caller);
-    let _ = coupleId;
+    let badges = switch (milestoneBadges.get(caller)) {
+      case (null) { [] };
+      case (?b) { b };
+    };
 
-    { badges = []; milestones = getDefaultMilestoneProgress() };
+    { badges; milestones = getDefaultMilestoneProgress() };
+  };
+
+  func getStreakData(coupleId : CoupleId) : (Nat, Nat) {
+    switch (ritualEntries.get(coupleId)) {
+      case (null) { (0, 0) };
+      case (?coupleEntries) {
+        var currentStreak = 0;
+        var maxStreak = 0;
+        var previousDay : ?Nat = null;
+        var lastPromptId : ?Nat = null;
+        var partnerA : ?UserId = null;
+        var partnerB : ?UserId = null;
+        var didNotifyPartnerSwitch = false;
+
+        func processDay(dayNum : DayNumber, entry : RitualEntry, currentPromptId : Nat) {
+          if (dayNum >= 1) {
+            switch (previousDay) {
+              case (null) {
+                currentStreak += 1;
+              };
+              case (?prevDay) {
+                if (dayNum == (prevDay + 1)) {
+                  currentStreak += 1;
+                } else {
+                  currentStreak := 1;
+                };
+              };
+            };
+
+            if (currentStreak > maxStreak) {
+              maxStreak := currentStreak;
+            };
+            previousDay := ?dayNum;
+          };
+        };
+
+        coupleEntries.forEach(
+          func(dayNum, entry) {
+            switch (lastPromptId) {
+              case (?lastPrompt) { processDay(dayNum, entry, lastPrompt) };
+              case (null) {
+                switch (entry.loveLanguageFocus, entry.responses.values().next()) {
+                  case (?_, ?_) { processDay(dayNum, entry, entry.prompt.id) };
+                  case (null, _) {};
+                  case (_, null) {};
+                };
+              };
+            };
+          }
+        );
+
+        switch (partnerA, partnerB) {
+          case (?a, ?b) {
+            if (not didNotifyPartnerSwitch) {
+              didNotifyPartnerSwitch := true;
+              currentStreak := 1;
+              (currentStreak, maxStreak);
+            } else {
+              (currentStreak, maxStreak);
+            };
+          };
+          case (null, ?_) { (currentStreak, maxStreak) };
+          case (_, null) { (currentStreak, maxStreak) };
+        };
+      };
+    };
   };
 
   public query ({ caller }) func getInsightsData() : async InsighsDataExtendedResponse {
@@ -597,15 +660,19 @@ actor {
       Runtime.trap("Unauthorized: Only users can view insights data");
     };
 
-    let coupleId = mustGetCoupleId(caller);
-    let _ = coupleId;
+    let _ = mustGetCoupleId(caller);
+
+    let badges = switch (milestoneBadges.get(caller)) {
+      case (null) { [] };
+      case (?b) { b };
+    };
 
     {
       currentStreak = 0;
       longestStreak = 0;
       challengeCompletionRate = 0.0;
       mostFrequentLoveLanguage = "Quality Time";
-      badges = [];
+      badges;
       challengeStats = {
         totalChallenges = 0;
         completedChallenges = 0;
@@ -1012,13 +1079,11 @@ actor {
       photoId = input.photoId;
     };
 
-    // Retrieve current entries map for the couple (or create a new one)
     let currentEntries = switch (ritualEntries.get(coupleId)) {
       case (null) { Map.empty<DayNumber, RitualEntry>() };
       case (?entries) { entries };
     };
 
-    // Get existing entry for the current day (if any)
     let entry = switch (currentEntries.get(dayInMillis)) {
       case (null) {
         {
@@ -1038,10 +1103,8 @@ actor {
       };
     };
 
-    // Store the entry for the current day
     currentEntries.add(dayInMillis, entry);
 
-    // Update the couple's entries map
     ritualEntries.add(coupleId, currentEntries);
 
     let currentStatus = switch (dailyRitualStats.get(caller)) {
@@ -1075,7 +1138,6 @@ actor {
     let coupleId = mustGetCoupleId(caller);
     let entriesMap = ritualEntries.get(coupleId);
 
-    // Only care about the current day's entry
     let dayInMillis = Int.abs(Time.now() / (24 * 60 * 60 * 1_000_000_000));
     let entry = switch (entriesMap) {
       case (null) { null };
@@ -1125,12 +1187,10 @@ actor {
           }
         );
 
-        // Convert to ritual entry views
         let sortedViews = sortedEntries.map(
           func((_, entry)) { convertToRitualEntryView(entry) }
         );
 
-        // Limit the number of entries returned
         sortedViews.sliceToArray(0, Nat.min(limit, sortedViews.size()));
       };
     };

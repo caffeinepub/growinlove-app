@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Heart, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { Heart, Info, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,9 @@ export function HarmonyBreakdownTrendCard({
   const normalizedTrend = normalizeTrendSeries(harmonyTrend);
   const trendDirection = getTrendLabel(normalizedTrend);
   const trendDisplay = getTrendDisplay(trendDirection);
+
+  // Check if we have enough data to show meaningful trends
+  const hasEnoughData = harmonyTrend.length >= 3 && harmonyTrend.some(v => v > 0);
 
   // Color band based on harmony level
   const getColorBand = (percent: number): string => {
@@ -52,34 +55,46 @@ export function HarmonyBreakdownTrendCard({
           <div className={`text-5xl font-bold ${colorClass} transition-all duration-300`}>
             {harmonyPercent}%
           </div>
-          <div className="flex items-center justify-center gap-2">
-            <span className={`text-sm font-semibold ${trendDisplay.color}`}>
-              {trendDisplay.icon} {trendDisplay.label}
-            </span>
-          </div>
+          {hasEnoughData && (
+            <div className="flex items-center justify-center gap-2">
+              <span className={`text-sm font-semibold ${trendDisplay.color}`}>
+                {trendDisplay.icon} {trendDisplay.label}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* 7-Day Sparkline - Deterministic from backend */}
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-foreground">7-Day Trend</p>
-          <div className="flex items-end justify-between gap-1 h-16">
-            {normalizedTrend.map((value, idx) => {
-              const height = Math.max(10, value * 100);
-              return (
-                <div
-                  key={idx}
-                  className="flex-1 bg-gradient-to-t from-purple-500 to-indigo-500 rounded-t transition-all duration-500 hover:opacity-80"
-                  style={{ height: `${height}%` }}
-                  title={`Day ${idx + 1}: ${harmonyToPercent(value)}%`}
-                />
-              );
-            })}
+        {hasEnoughData ? (
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-foreground">7-Day Trend</p>
+            <div className="flex items-end justify-between gap-1 h-16">
+              {normalizedTrend.map((value, idx) => {
+                const height = Math.max(10, value * 100);
+                return (
+                  <div
+                    key={idx}
+                    className="flex-1 bg-gradient-to-t from-purple-500 to-indigo-500 rounded-t transition-all duration-500 hover:opacity-80"
+                    style={{ height: `${height}%` }}
+                    title={`Day ${idx + 1}: ${harmonyToPercent(value)}%`}
+                  />
+                );
+              })}
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>7 days ago</span>
+              <span>Today</span>
+            </div>
           </div>
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>7 days ago</span>
-            <span>Today</span>
+        ) : (
+          <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-center space-y-2">
+            <AlertCircle className="w-8 h-8 text-purple-500 mx-auto" />
+            <p className="text-sm font-semibold text-foreground">Not Enough Data Yet</p>
+            <p className="text-xs text-muted-foreground">
+              Complete more daily rituals together to see your harmony trend visualization.
+            </p>
           </div>
-        </div>
+        )}
 
         {/* Breakdown */}
         <div className="space-y-3">

@@ -438,4 +438,24 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  
+  .float-heart,
+  .float-heart-delayed,
+  .glow-pulse,
+  .glow-pulse-smooth {
+    animation: none !important;
+  }
+}
+
+/* Optimize scroll performance */
+@supports (scroll-behavior: smooth) {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
 }

@@ -1,25 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Heart } from 'lucide-react';
 
 export function CompletionAnimation() {
   const [hearts, setHearts] = useState<Array<{ id: number; x: number; delay: number }>>([]);
 
-  useEffect(() => {
-    // Generate floating hearts
-    const newHearts = Array.from({ length: 12 }, (_, i) => ({
+  // Memoize heart generation to avoid recalculation on every render
+  const generatedHearts = useMemo(() => {
+    return Array.from({ length: 12 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       delay: Math.random() * 0.5,
     }));
-    setHearts(newHearts);
   }, []);
+
+  useEffect(() => {
+    setHearts(generatedHearts);
+  }, [generatedHearts]);
 
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden">
       {hearts.map((heart) => (
         <div
           key={heart.id}
-          className="absolute animate-float-up"
+          className="absolute animate-float-up will-change-transform"
           style={{
             left: `${heart.x}%`,
             bottom: '-20px',

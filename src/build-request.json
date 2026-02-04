@@ -1,74 +1,110 @@
 {
   "kind": "build_request",
-  "title": "Step 2A: Make ritual history truly multi-day (append-only per couple per day)",
+  "title": "Single combined pre-launch polish update (Steps 3+4+5) without React Query setup changes",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-3",
-      "text": "Update the backend ritual storage model so ritual entries are stored append-only per coupleId AND per day (e.g., a unique key derived from coupleId + day number), instead of overwriting a single entry per coupleId. Ensure that submitting a ritual response for the same couple on the same day updates the same day’s entry (merging responses by userId), and submitting on a different day creates a new entry without affecting prior days.",
-      "target": "backend",
+      "id": "REQ-1",
+      "text": "Deliver a single combined frontend polish update covering the remaining pre-launch steps (3, 4, and 5) as one cohesive release, focusing on UX clarity, copy, loading/empty states, and final UI refinements across the main tabs (Home, Insights, Memories, Activities, Us).",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-20"
+          "msg-4"
         ],
         "quotes": [
-          "please proceed with implementing the updated step 2A."
+          "yes, please generate a single combined update next"
         ]
       },
       "acceptanceCriteria": [
-        "Two different calendar days for the same couple produce two distinct stored ritual entries (prior day is not overwritten).",
-        "Two submissions on the same day (caller + partner) both appear in the same day’s stored entry under that couple.",
-        "Ritual response merging remains keyed by userId so a user re-submitting updates only their own response for that day."
+        "All five tabs (Home/Insights/Memories/Activities/Us) have consistent, understandable user-facing text in English.",
+        "No pages show confusing blank/empty sections without a helpful empty-state message.",
+        "The update ships as a single change-set (no multi-step rollout required)."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Add/standardize user-friendly loading states and empty states for key data-driven surfaces (Insights metrics/cards, ritual history lists, photos/memories lists, pairing/partner info panels, and love-language sync panels) without changing React Query configuration or provider setup.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "ensuring the update will avoid any touches to React Query setup"
+        ]
+      },
+      "acceptanceCriteria": [
+        "While data is loading, the UI shows a consistent skeleton/spinner/loading copy instead of flashing empty content.",
+        "When data is legitimately absent (e.g., no history yet, not paired yet), the UI shows a clear empty-state with next-step guidance.",
+        "No modifications are made to QueryClientProvider placement, QueryClient instantiation, or global React Query defaults."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Polish error handling and recovery UX for failed canister calls (e.g., pairing code check, ritual submission, quiz save/reset, insights fetch) by presenting clear error messages and safe retry actions, without deleting or removing any existing/legacy code paths referenced in the current step 4 plan.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "avoid any touches to React Query setup &/or remove old code paths in step 4."
+        ]
+      },
+      "acceptanceCriteria": [
+        "When a canister call fails, the user sees an English error message that explains what happened at a high level and offers a retry where appropriate.",
+        "No existing code paths are removed; any new logic is additive or guarded so older behavior remains available.",
+        "User flows do not get stuck in a perpetual loading state after an error."
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Update backend endpoints that currently assume a single ritual entry per couple so they work with the new per-day storage: (1) getRitualStatus must reflect today’s ritual completion status for the couple (based on today’s day key), and (2) getRitualHistory(limit) must return a list of RitualEntryView across multiple days, sorted reliably by date (newest first) and respecting the provided limit argument.",
-      "target": "backend",
+      "text": "Apply lightweight performance and UI responsiveness tweaks that do not involve React Query setup changes (e.g., reduce unnecessary re-renders in high-traffic components, avoid expensive computations during render, and ensure animations do not degrade scrolling).",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-20"
+          "msg-4"
         ],
         "quotes": [
-          "Add per-day keys: store ritual entries under coupleId + date instead of overwriting.",
-          "Update getRitualHistory to return all entries, sorted, respecting limit."
+          "generate a single combined update next"
         ]
       },
       "acceptanceCriteria": [
-        "getRitualStatus returns completion for the current day only (not a previous day) and remains correct for partnerA/partnerB canonical attribution.",
-        "getRitualHistory(limit) returns at most `limit` entries when more exist.",
-        "getRitualHistory(limit) returns entries sorted newest-first using the entry.date field.",
-        "Existing behavior for unpaired users remains unchanged (traps/authorization as before)."
+        "Navigating between tabs feels responsive and avoids noticeable UI jank on common interactions (scrolling lists, opening modals/details, submitting forms).",
+        "No React Query provider/client configuration is changed as part of performance work.",
+        "No legacy/older code paths are removed as part of cleanup."
       ]
     },
     {
       "id": "REQ-5",
-      "text": "Update the frontend data flow (React Query + any consuming UI) to match the backend’s multi-entry ritual history behavior, ensuring the Home and Memories pages correctly display multiple days and still treat ritualHistory[0] as the latest entry because results are sorted newest-first and limited.",
+      "text": "Perform a final manual QA pass aligned to the existing checklist and update the checklist only as needed to reflect the combined single-release polish verification steps (without changing app features).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-20"
+          "msg-4"
         ],
         "quotes": [
-          "Update frontend hook to match new response shape."
+          "single combined update next"
         ]
       },
       "acceptanceCriteria": [
-        "Home page ‘Ritual History’ section can show multiple entries across different days without regressions.",
-        "Memories page ‘Load More’ continues to work by increasing the limit and receiving more (older) entries from getRitualHistory(limit).",
-        "Home page ‘Both completed!’ section uses the latest entry (index 0) and shows the responses for today when today is complete."
+        "QA covers: login/logout, profile setup, pairing flow, daily ritual completion/sync, viewing Memories/history, photo add/view/delete, love languages quiz save/reset/sync, insights viewing, and activities gating/spin wheel.",
+        "Any checklist edits are limited to clarity/ordering for the combined release and do not add new product features."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor; implement Step 2A changes in backend/main.mo.",
-    "Do not edit files under frontend/immutablePaths (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui). Compose or adjust code elsewhere if needed.",
-    "Do not implement Step 2B (streak/harmony/trends/badges computation) as part of this build."
+    "Do not modify React Query setup or configuration (including QueryClientProvider placement, QueryClient creation, or default query options).",
+    "Do not remove or delete existing/legacy code paths related to step 4; changes must be additive or safely guarded.",
+    "Do not edit files under frontend immutable paths (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui). Compose or wrap instead.",
+    "Backend must remain single-actor in backend/main.mo; add migration.mo only if state changes require it (avoid if not necessary).",
+    "All user-facing text introduced/modified in this update must be in English."
   ],
   "nonGoals": [
-    "Implementing real Insights computations (streaks, harmony math, trends) and badge unlock logic (Step 2B).",
-    "Adding new UI features beyond what is required to support multi-day ritual history display and correct ‘today’ status.",
-    "Introducing external databases or backend services."
+    "Refactoring or consolidating React Query providers/clients, changing caching policies, or altering React Query initialization patterns.",
+    "Removing deprecated/unused code paths as part of cleanup.",
+    "Implementing new backend analytics/badges logic beyond polish (unless explicitly requested separately).",
+    "Adding new product features or new tabs/pages."
   ],
   "imageRequirements": {
     "required": [],

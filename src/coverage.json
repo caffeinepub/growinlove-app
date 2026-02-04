@@ -1,61 +1,103 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T21:10:27.903Z",
+  "generatedAt": "2026-02-04T22:23:23.911Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 1,
+    "total": 5,
+    "implemented": 5,
     "items": [
       {
+        "id": "REQ-1",
+        "summary": "Deliver a single combined frontend polish update covering the remaining pre-launch steps (3, 4, and 5) as one cohesive release, focusing on UX clarity, copy, loading/empty states, and final UI refinements across the main tabs (Home, Insights, Memories, Activities, Us).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/DataStates.tsx",
+          "frontend/src/pages/Home.tsx",
+          "frontend/src/pages/Insights.tsx",
+          "frontend/src/pages/Memories.tsx",
+          "frontend/src/pages/Activities.tsx",
+          "frontend/src/pages/Us.tsx",
+          "frontend/src/pages/LoveLanguages.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/DataStates.tsx"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Add/standardize user-friendly loading states and empty states for key data-driven surfaces (Insights metrics/cards, ritual history lists, photos/memories lists, pairing/partner info panels, and love-language sync panels) without changing React Query configuration or provider setup.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/DataStates.tsx",
+          "frontend/src/pages/Insights.tsx",
+          "frontend/src/pages/Home.tsx",
+          "frontend/src/pages/Memories.tsx",
+          "frontend/src/pages/Us.tsx",
+          "frontend/src/pages/LoveLanguages.tsx",
+          "frontend/src/pages/Activities.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/DataStates.tsx"
+        ]
+      },
+      {
         "id": "REQ-3",
-        "summary": "Update the backend ritual storage model so ritual entries are stored append-only per coupleId AND per day (e.g., a unique key derived from coupleId + day number), instead of overwriting a single entry per coupleId. Ensure that submitting a ritual response for the same couple on the same day updates the same day’s entry (merging responses by userId), and submitting on a different day creates a new entry without affecting prior days.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "Polish error handling and recovery UX for failed canister calls (e.g., pairing code check, ritual submission, quiz save/reset, insights fetch) by presenting clear error messages and safe retry actions, without deleting or removing any existing/legacy code paths referenced in the current step 4 plan.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/DataStates.tsx",
+          "frontend/src/pages/Us.tsx",
+          "frontend/src/pages/Home.tsx",
+          "frontend/src/pages/LoveLanguages.tsx",
+          "frontend/src/pages/Insights.tsx",
+          "frontend/src/pages/Memories.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/DataStates.tsx"
+        ]
       },
       {
         "id": "REQ-4",
-        "summary": "Update backend endpoints that currently assume a single ritual entry per couple so they work with the new per-day storage: (1) getRitualStatus must reflect today’s ritual completion status for the couple (based on today’s day key), and (2) getRitualHistory(limit) must return a list of RitualEntryView across multiple days, sorted reliably by date (newest first) and respecting the provided limit argument.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "Apply lightweight performance and UI responsiveness tweaks that do not involve React Query setup changes (e.g., reduce unnecessary re-renders in high-traffic components, avoid expensive computations during render, and ensure animations do not degrade scrolling).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/Insights.tsx",
+          "frontend/src/pages/Home.tsx",
+          "frontend/src/pages/Memories.tsx",
+          "frontend/src/index.css",
+          "frontend/src/components/CompletionAnimation.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/index.css",
+          "frontend/src/components/CompletionAnimation.tsx"
+        ]
       },
       {
         "id": "REQ-5",
-        "summary": "Update the frontend data flow (React Query + any consuming UI) to match the backend’s multi-entry ritual history behavior, ensuring the Home and Memories pages correctly display multiple days and still treat ritualHistory[0] as the latest entry because results are sorted newest-first and limited.",
+        "summary": "Perform a final manual QA pass aligned to the existing checklist and update the checklist only as needed to reflect the combined single-release polish verification steps (without changing app features).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/Home.tsx",
-          "frontend/src/pages/Memories.tsx",
           "frontend/QA_ACCEPTANCE_CHECKLIST.md"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/Home.tsx",
-          "frontend/src/pages/Memories.tsx",
           "frontend/QA_ACCEPTANCE_CHECKLIST.md"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/QA_ACCEPTANCE_CHECKLIST.md",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/Home.tsx",
-    "frontend/src/pages/Memories.tsx",
+    "frontend/src/components/CompletionAnimation.tsx",
+    "frontend/src/components/DataStates.tsx",
+    "frontend/src/index.css",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

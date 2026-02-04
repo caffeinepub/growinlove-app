@@ -1,66 +1,61 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T21:10:27.883Z",
-  "summary": "Diff shows frontend updates for multi-day ritual history display (Home/Memories UI + client-side sorting in useGetRitualHistory) and introduction of a backend migration module, but the provided backend/main.mo diff excerpt does not contain enough evidence of the required per-couple-per-day append-only storage change or updated status/history endpoints. Diff summary also indicates substantial additional UI/features (Insights, Love Languages quiz, Activities, badges/animations) beyond Step 2A scope.",
+  "generatedAt": "2026-02-04T22:23:23.880Z",
+  "summary": "Diff adds reusable loading/empty/error UI components (DataStates.tsx), makes a small performance improvement to the completion hearts animation (memoization + will-change), updates global styling tokens/animations in index.css, and updates the manual QA checklist. The diff does not provide evidence that the new data states/error UX were actually integrated across the five main tabs or key data-driven panels, nor that canister-call error recovery was applied in the specified flows.",
   "missing_requirements": [
     {
-      "id": "REQ-3",
-      "requirement": "Update the backend ritual storage model so ritual entries are stored append-only per coupleId AND per day (unique key derived from coupleId + day number), updating same-day entries by merging responses by userId and creating new entries on different days without overwriting prior days.",
-      "reason": "The backend/main.mo excerpt shown only includes imports, actor/migration wiring, and type definitions; it does not show changes to the ritual storage map/keying strategy, day-key computation, or submit/merge logic needed to prove per-day append-only storage and same-day merge-by-userId behavior.",
+      "id": "REQ-1",
+      "requirement": "Deliver a single combined frontend polish update across all main tabs (Home, Insights, Memories, Activities, Us) with consistent English copy and no confusing blank/empty sections.",
+      "reason": "The diff adds shared state components and global styling, but does not show modifications to the tab pages/components themselves to standardize copy and ensure empty-state messaging across all five tabs.",
       "evidence": [
-        "backend/main.mo (truncated excerpt shows types/imports but not storage/key logic)"
+        "frontend/src/components/DataStates.tsx",
+        "frontend/src/index.css"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "Add/standardize loading and empty states for key data-driven surfaces (Insights metrics/cards, ritual history lists, photos/memories lists, pairing/partner info panels, love-language sync panels) without changing React Query setup.",
+      "reason": "A generic LoadingState/EmptyState component was added, but there is no evidence in the diff that these components were wired into the specified surfaces/pages (no page/component diffs shown using them).",
+      "evidence": [
+        "frontend/src/components/DataStates.tsx"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Polish error handling and recovery UX for failed canister calls (pairing code check, ritual submission, quiz save/reset, insights fetch) with clear messages and retry actions, without removing legacy paths.",
+      "reason": "An ErrorState component with optional retry was added, but the diff does not show any integration into the listed flows (no changes to pairing/ritual/quiz/insights call sites are present in the provided modified files).",
+      "evidence": [
+        "frontend/src/components/DataStates.tsx"
       ]
     },
     {
       "id": "REQ-4",
-      "requirement": "Update backend endpoints to work with per-day storage: getRitualStatus must reflect today only; getRitualHistory(limit) must return multiple days sorted newest-first by entry.date and respect limit; unpaired-user behavior unchanged.",
-      "reason": "The diff summary does not provide any evidence of modifications to getRitualStatus or getRitualHistory implementation (today-day-key lookup, sorting, limiting). Frontend adds defensive client-side sorting, which suggests backend ordering may still be unreliable, but the backend change itself is not evidenced in the provided snippet.",
+      "requirement": "Apply lightweight performance and UI responsiveness tweaks (reduce unnecessary re-renders, avoid expensive computations during render, ensure animations do not degrade scrolling) without React Query setup changes.",
+      "reason": "Only a narrow performance tweak is evidenced (CompletionAnimation memoization and will-change). The diff does not show broader responsiveness work in other high-traffic components or lists/modals specified in the requirement.",
       "evidence": [
-        "backend/main.mo (truncated excerpt does not show getRitualStatus/getRitualHistory implementations)"
+        "frontend/src/components/CompletionAnimation.tsx",
+        "frontend/src/index.css"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Implementation/expansion of Insights UI and related streak/harmony/trend/badge presentation (Step 2B scope).",
-      "reason": "BuildRequest explicitly says not to implement Step 2B (streak/harmony/trends/badges computation/logic) as part of this build, but the diff summary describes significant Insights-related UI behavior and badge unlock celebrations.",
+      "description": "Project/documentation metadata updates that are not explicitly requested as part of the combined polish release (project_state.json and frontend-file-summaries.txt).",
+      "reason": "BuildRequest focuses on frontend UX polish + QA checklist updates; it does not request updating internal project state or adding/updating a file inventory/summary artifact.",
       "evidence": [
-        "frontend-file-summaries.txt (Insights page: streak/harmony/badge data, 7-day history from trend series, celebration animations)",
-        "frontend/src/index.css (mentions badge unlock timing/celebration effects)"
-      ]
-    },
-    {
-      "description": "Large Love Languages Quiz feature set with synchronization, polling, persistent storage, and UI feedback.",
-      "reason": "Not requested by Step 2A requirements (which focus on multi-day ritual history + today status).",
-      "evidence": [
-        "frontend-file-summaries.txt (frontend/src/pages/LoveLanguages.tsx: complete quiz implementation with partner synchronization, polling, persistent storage)"
-      ]
-    },
-    {
-      "description": "Activities hub additions (Spin the Love Wheel, unlock packs, admin overrides, reward visuals).",
-      "reason": "Not requested by Step 2A requirements and goes beyond needed changes to support multi-day ritual history display.",
-      "evidence": [
-        "frontend-file-summaries.txt (frontend/src/pages/Activities.tsx, frontend/src/components/SpinWheel.tsx, frontend/src/components/UnlockPacks.tsx)"
-      ]
-    },
-    {
-      "description": "New/expanded QA acceptance checklist document covering broad app functionality beyond Step 2A.",
-      "reason": "Not requested in the BuildRequest (requirements are backend storage/endpoints + frontend data flow updates).",
-      "evidence": [
-        "frontend/QA_ACCEPTANCE_CHECKLIST.md"
+        "project_state.json",
+        "frontend-file-summaries.txt"
       ]
     }
   ],
   "confidence": 0.62,
   "changed_files": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
     "frontend/QA_ACCEPTANCE_CHECKLIST.md",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/Home.tsx",
-    "frontend/src/pages/Memories.tsx",
+    "frontend/src/components/CompletionAnimation.tsx",
+    "frontend/src/components/DataStates.tsx",
+    "frontend/src/index.css",
     "project_state.json"
   ]
 }
