@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Heart, Sparkles, CheckCircle2, Info } from 'lucide-react';
 import { LoveLanguage } from '../backend';
 import type { LoveLanguagesQuizResult } from '../backend';
 
@@ -198,6 +198,19 @@ export function SpinWheel({ bothCompletedQuiz, combinedQuizState }: SpinWheelPro
         <p className="text-sm text-muted-foreground">
           Spin the wheel to discover your love language focus for today! The wheel is weighted towards your shared preferences.
         </p>
+
+        {/* Coming Soon Note */}
+        <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-start gap-3">
+          <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+              Coming soon
+            </p>
+            <p className="text-xs text-blue-600 dark:text-blue-400">
+              Smoother slow-stop and deceleration polish is on the way!
+            </p>
+          </div>
+        </div>
 
         {/* Wheel Container */}
         <div className="relative flex flex-col items-center gap-6">

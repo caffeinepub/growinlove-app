@@ -968,26 +968,21 @@ actor {
     };
   };
 
-  // Phase 1C: Endpoint for retrieving partner's quiz state with proper authorization
   public query ({ caller }) func getPartnerQuizState(partnerId : UserId) : async PartnerQuizState {
-    // First check: caller must be at least a user (not a guest)
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view partner quiz state");
     };
 
-    // Second check: caller cannot retrieve their own state via this endpoint
     if (partnerId == caller) {
       Runtime.trap("Unauthorized: Cannot access own partner quiz state, use getLoveLanguageQuizResult instead.");
     };
 
-    // Third check: caller must be mutually paired with partnerId OR be an admin
     if (not verifyMutualPartnership(caller, partnerId)) {
       if (not AccessControl.isAdmin(accessControlState, caller)) {
         Runtime.trap("Unauthorized: Can only view your partner's quiz state, unless admin");
       };
     };
 
-    // Return the partner's quiz state
     switch (loveLanguagesResults.get(partnerId)) {
       case (null) {
         {

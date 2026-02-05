@@ -4,6 +4,62 @@ This document provides step-by-step manual verification steps for the GrowInLove
 
 ---
 
+## 0. Version 64 Verification
+
+### Test Case 0.1: Build Identifier Check
+**Steps:**
+1. Open the application
+2. Open browser developer console (F12)
+3. Look for the build identifier message in the console
+
+**Expected Outcome:**
+- Console displays: "🚀 GrowInLove Version 64 - Build deployed"
+- This confirms the deployed version is Version 64, not Version 63
+
+### Test Case 0.2: Theme Toggle Functionality
+**Steps:**
+1. Open the application
+2. Locate the theme toggle button in the top bar (Sun/Moon icon)
+3. Click the theme toggle button
+4. Observe the theme change
+5. Reload the page
+6. Verify theme preference persists
+
+**Expected Outcome:**
+- Theme toggles between light and dark mode
+- Theme preference persists across page reloads
+- On first load (no saved preference), app follows OS/browser theme
+- Toggle button icon updates correctly (Sun for dark mode, Moon for light mode)
+
+### Test Case 0.3: Modal Readability (Ritual History Dialog)
+**Steps:**
+1. Log in and navigate to Home tab
+2. Complete at least one ritual (both partners)
+3. Scroll to Ritual History section
+4. Click on a ritual entry to open the detail dialog
+5. Verify dialog content is opaque and readable in light mode
+6. Toggle to dark mode
+7. Verify dialog content is opaque and readable in dark mode
+
+**Expected Outcome:**
+- Dialog content has fully opaque background (not see-through)
+- Dialog backdrop has subtle dimming and blur
+- Text is clearly readable in both light and dark modes
+- Dialog content has proper contrast against backdrop
+
+### Test Case 0.4: Love Wheel "Coming Soon" Note
+**Steps:**
+1. Log in and navigate to Activities tab
+2. Scroll to "Spin the Love Wheel" section
+3. Verify "Coming soon" note is visible
+
+**Expected Outcome:**
+- Blue info banner displays above the wheel
+- Message reads: "Coming soon - Smoother slow-stop and deceleration polish is on the way!"
+- Note is readable in both light and dark modes
+
+---
+
 ## 1. Authentication & Profile Setup
 
 ### Test Case 1.1: Login Flow
@@ -573,6 +629,12 @@ This document provides step-by-step manual verification steps for the GrowInLove
 
 Use this summary to quickly verify all critical areas:
 
+**Version 64 Verification:**
+- [ ] Console shows Version 64 build identifier
+- [ ] Theme toggle works and persists
+- [ ] Modal dialogs are opaque and readable in both themes
+- [ ] Love Wheel shows "Coming soon" note
+
 **Authentication & Profile:**
 - [ ] Login flow works correctly
 - [ ] Profile setup saves and persists
@@ -656,4 +718,4 @@ Use this summary to quickly verify all critical areas:
 
 ---
 
-**Last Updated:** February 4, 2026 (Combined Pre-Launch Polish - Steps 3+4+5)
+**Last Updated:** February 5, 2026 (Version 64: Theme toggle + modal readability + Love Wheel note + single React Query provider)

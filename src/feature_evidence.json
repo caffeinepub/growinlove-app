@@ -1,4 +1,108 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-implement-a-single-global-themeprovider-themecontext-that-stores-theme-light-dark-system-and-effectivetheme-light-dark-and-centralizes-all-dom-theme-class-application-adding-removing-light-dark-on-document-documentelement-in-exactly-one-place",
+      "featureTitle": "Implement a single global ThemeProvider/ThemeContext that stores `theme` ('light'|'dark'|'system') and `effectiveTheme` ('light'|'dark'), and centralizes all DOM theme class application (adding/removing `light`/`dark` on `document.documentElement`) in exactly one place.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/contexts/ThemeContext.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-refactor-the-existing-theme-hook-api-so-app-code-can-continue-using-a-hook-to-access-theme-state-but-ensure-there-are-no-dom-reads-during-render-and-no-duplicate-system-theme-listeners-only-one-system-preference-listener-is-active-and-only-when-theme-system",
+      "featureTitle": "Refactor the existing theme hook API so app code can continue using a hook to access theme state, but ensure there are no DOM reads during render and no duplicate system-theme listeners; only one system preference listener is active and only when `theme === 'system'`.",
+      "files": [
+        "frontend/src/contexts/ThemeContext.tsx",
+        "frontend/src/hooks/useTheme.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-themetoggle-to-use-the-themecontext-values-for-rendering-including-aria-label-and-icon-state-and-for-toggling-eliminating-icon-state-desynchronization",
+      "featureTitle": "Update ThemeToggle to use the ThemeContext values for rendering (including aria-label and icon state) and for toggling, eliminating icon/state desynchronization.",
+      "files": [
+        "frontend/src/components/ThemeToggle.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-localstorage-persistence-for-theme-preference-only-happens-in-the-explicit-theme-setter-toggle-action-not-on-every-render-and-not-in-effects-that-run-repeatedly",
+      "featureTitle": "Ensure localStorage persistence for theme preference only happens in the explicit theme setter/toggle action (not on every render and not in effects that run repeatedly).",
+      "files": [
+        "frontend/src/contexts/ThemeContext.tsx",
+        "frontend/src/hooks/useTheme.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-make-the-home-ritual-history-entry-dialog-readable-by-ensuring-the-dialog-content-surface-is-fully-opaque-optionally-with-a-subtle-backdrop-blur-in-both-light-and-dark-themes-without-editing-any-files-under-frontend-src-components-ui-compose-via-classname-overrides-at-the-call-site",
+      "featureTitle": "Make the Home → Ritual History entry dialog readable by ensuring the dialog content surface is fully opaque (optionally with a subtle backdrop blur) in both light and dark themes, without editing any files under `frontend/src/components/ui` (compose via className overrides at the call site).",
+      "files": [
+        "frontend/src/pages/Home.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    }
+  ]
 }

@@ -1,78 +1,85 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T22:52:59.960Z",
-  "summary": "The provided diff summary is heavily truncated and only shows type/import additions/changes in backend/main.mo plus an update to project_state.json. There is no visible evidence of the requested backend behavior changes (prompt init, pairing TTL, streak engine, insights/badges computations, or storage authorization/env/cycles hardening) being implemented.",
+  "generatedAt": "2026-02-05T01:27:44.419Z",
+  "summary": "ThemeContext/Provider was added and ThemeToggle was refactored to consume it, but some requirements are not fully evidenced or are partially violated (notably DOM reads during render via matchMedia). The diff summary also indicates multiple unrelated UI/feature changes outside the requested theme/modal fixes.",
   "missing_requirements": [
     {
-      "id": "REQ-6",
-      "requirement": "Implement deterministic prompt initialization for all prompt-read endpoints by ensuring internalInitPrompts() is invoked before returning prompt data (at minimum: fetchPrompts() and getPromptsByLoveLanguage()).",
-      "reason": "Diff snippet shows only imports/type definitions; no evidence that fetchPrompts()/getPromptsByLoveLanguage() were updated to call internalInitPrompts() before returning data.",
+      "id": "REQ-2",
+      "requirement": "Refactor theme hook API to avoid DOM reads during render and ensure only one system-theme listener active only when theme==='system'.",
+      "reason": "ThemeProvider initializes effectiveTheme with window.matchMedia(...) inside a useState initializer, which executes during render (a DOM/browser API read during render). While documentElement.classList is not read during render, matchMedia is.",
       "evidence": [
-        "backend/main.mo (truncated)"
+        "frontend/src/contexts/ThemeContext.tsx"
       ]
     },
     {
-      "id": "REQ-7",
-      "requirement": "Add pairing-code expiration (TTL) enforcement so pairing codes can expire and are treated as invalid/expired at both checkPairingCode(code) and completePairing(code).",
-      "reason": "No evidence of pairing code timestamp/TTL fields, expiry checks, or updated behavior in checkPairingCode/completePairing in the truncated diff.",
+      "id": "REQ-5",
+      "requirement": "Make the Home → Ritual History entry dialog content surface fully opaque (optionally with subtle backdrop blur) in both light and dark themes via className overrides at the call site (no edits under frontend/src/components/ui).",
+      "reason": "Home.tsx is truncated before any DialogContent/Dialog overlay className overrides are shown; the provided snippet does not include evidence of an opaque dialog surface being applied at the call site.",
       "evidence": [
-        "backend/main.mo (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-8",
-      "requirement": "Finalize and correct streak computation so the current streak and longest streak are computed from real ritual history for the couple, with deterministic resets on missed days and with \"completed\" meaning both partners submitted for the day.",
-      "reason": "No evidence of updated streak computation logic derived from couple ritualEntries; only types are visible.",
-      "evidence": [
-        "backend/main.mo (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "requirement": "Update streak-related state deterministically as part of ritual submission so streak/insights do not rely on placeholder or stale caches; streak must reflect the couple’s actual stored ritualEntries and update when a day transitions to \"both completed\".",
-      "reason": "No evidence of changes to ritual submission flow to update streak state only when both partners complete, nor safeguards against double-counting on edits/resubmissions.",
-      "evidence": [
-        "backend/main.mo (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-10",
-      "requirement": "Replace placeholder analytics in getInsightsData() with real computations derived from couple ritual history and quiz data, returning populated values for: currentStreak, longestStreak, averageHarmony, currentHarmony, recentCompletionRate, last14DayTrend, last30DayTrend, and harmonyTrend.",
-      "reason": "No evidence of getInsightsData() implementation changes or real computed trend series/harmony series in the truncated diff.",
-      "evidence": [
-        "backend/main.mo (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-11",
-      "requirement": "Implement real badge milestone logic so getBadgeMilestones() returns milestone progress based on real computed metrics and milestone flags use monotonic \"flip-to-true\" behavior once earned (7/30/100 streak and Harmony Elite).",
-      "reason": "No evidence of badge milestone computation or persistent monotonic unlock flags in the truncated diff.",
-      "evidence": [
-        "backend/main.mo (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-12",
-      "requirement": "Add missing authorization to the blob-storage maintenance endpoint _caffeineStorageUpdateGatewayPrincipals so only admins can invoke it.",
-      "reason": "Although authorization mixins are present, the diff snippet does not show any change adding an admin-check guard to _caffeineStorageUpdateGatewayPrincipals.",
-      "evidence": [
-        "backend/main.mo (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-13",
-      "requirement": "Harden storage env-var and cycles refill logic by (1) fixing the cashier principal env var typo risk (CAFFFEINE_STORAGE_CASHIER_PRINCIPAL vs CAFFEINE_STORAGE_CASHIER_PRINCIPAL) with safe fallback behavior, and (2) preventing Nat.sub underflow traps in Storage.refillCashier when the canister balance is below reserved cycles (use saturating/guarded math).",
-      "reason": "No evidence of env-var fallback resolution logic or guarded/saturating math changes to prevent Nat.sub underflow in refill logic within the truncated diff.",
-      "evidence": [
-        "backend/main.mo (truncated)"
+        "frontend/src/pages/Home.tsx"
       ]
     }
   ],
-  "hallucinated_features": [],
-  "confidence": 0.46,
+  "hallucinated_features": [
+    {
+      "description": "Changes to global dialog styling / modal surfaces via CSS (index.css) rather than only composing className overrides at the call site.",
+      "reason": "The diff summary text claims index.css was updated with improved dialog overlay/content styling; this is not part of the requested approach for REQ-5 (which explicitly calls for call-site className composition, without touching shared UI internals).",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Insights page modifications (e.g., removing simulated sections, changing summaries).",
+      "reason": "Non-goal explicitly says not to implement or change Insights computations; the diff summary indicates substantive Insights page changes.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Love Languages page overhaul (quiz sync, polling, persistence, error handling, etc.).",
+      "reason": "Not requested; outside the theme/modal scope.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Activities page changes (new sections, admin override behavior, etc.).",
+      "reason": "Not requested; outside the theme/modal scope.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Us page changes (pairing flow sections, navigation callbacks, highlighting, etc.).",
+      "reason": "Not requested; outside the theme/modal scope.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "React Query hook behavior change: defensive client-side sorting in useGetRitualHistory.",
+      "reason": "Not requested; outside theme/modal scope.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Tailwind configuration changes (new tokens/fonts/base sizes).",
+      "reason": "Not requested; outside theme/modal scope.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    }
+  ],
+  "confidence": 0.68,
   "changed_files": [
-    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/src/App.tsx",
+    "frontend/src/components/ThemeToggle.tsx",
+    "frontend/src/contexts/ThemeContext.tsx",
+    "frontend/src/hooks/useTheme.ts",
+    "frontend/src/pages/Home.tsx",
     "project_state.json"
   ]
 }

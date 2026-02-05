@@ -1,164 +1,106 @@
 {
   "kind": "build_request",
-  "title": "Pre-launch fix bundle: real Insights + badges, streak engine, prompt init, pairing TTL, storage auth/env/cycles hardening",
+  "title": "Fix theme desync with global ThemeProvider + make Ritual History modal opaque",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-6",
-      "text": "Implement deterministic prompt initialization for all prompt-read endpoints by ensuring internalInitPrompts() is invoked before returning prompt data (at minimum: fetchPrompts() and getPromptsByLoveLanguage()).",
-      "target": "backend",
+      "id": "REQ-1",
+      "text": "Implement a single global ThemeProvider/ThemeContext that stores `theme` ('light'|'dark'|'system') and `effectiveTheme` ('light'|'dark'), and centralizes all DOM theme class application (adding/removing `light`/`dark` on `document.documentElement`) in exactly one place.",
+      "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "please proceed with the new plan provided!"
+          "Plan 4: Reactive Theme State + Guaranteed Sync"
         ]
       },
       "acceptanceCriteria": [
-        "Calling fetchPrompts() on a fresh canister (before any getDailyRitual/submitRitualResponse calls) returns the full prompt set (non-empty).",
-        "Calling getPromptsByLoveLanguage(language) on a fresh canister returns a non-empty array for supported languages.",
-        "No endpoint returns an empty prompt list solely because prompts were not initialized yet."
+        "Theme state has one source of truth via a React context provider.",
+        "`document.documentElement.classList` is only mutated inside the ThemeProvider (not scattered across multiple hooks/components).",
+        "The provider exposes both `theme` and `effectiveTheme` to consumers."
       ]
     },
     {
-      "id": "REQ-7",
-      "text": "Add pairing-code expiration (TTL) enforcement so pairing codes can expire and are treated as invalid/expired at both checkPairingCode(code) and completePairing(code).",
-      "target": "backend",
+      "id": "REQ-2",
+      "text": "Refactor the existing theme hook API so app code can continue using a hook to access theme state, but ensure there are no DOM reads during render and no duplicate system-theme listeners; only one system preference listener is active and only when `theme === 'system'`.",
+      "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "please proceed with the new plan provided!"
+          "Add a `useSystemThemeWatcher` hook used only when theme==='system'.",
+          "Update ThemeToggle to consume context values instead of reading `document.documentElement.classList` during render."
         ]
       },
       "acceptanceCriteria": [
-        "Each pairing code has an associated creation timestamp and a TTL duration enforced by the backend.",
-        "checkPairingCode(code) returns null (or otherwise indicates invalid) when the code is expired, and does not allow discovery of the mapped principal after expiry.",
-        "completePairing(code) returns an error result for expired codes (must not pair users), consistent with existing UX wording (e.g., \"Invalid or expired pairing code\").",
-        "Used codes are still invalidated/removed as before."
+        "ThemeToggle (and any other consumer) does not read `document.documentElement.classList` during render.",
+        "When `theme !== 'system'`, there is no active `matchMedia('(prefers-color-scheme: dark)')` change listener.",
+        "Switching OS light/dark while `theme === 'system'` updates `effectiveTheme` and the UI reactively without requiring a refresh."
       ]
     },
     {
-      "id": "REQ-8",
-      "text": "Finalize and correct streak computation so the current streak and longest streak are computed from real ritual history for the couple, with deterministic resets on missed days and with \"completed\" meaning both partners submitted for the day.",
-      "target": "backend",
+      "id": "REQ-3",
+      "text": "Update ThemeToggle to use the ThemeContext values for rendering (including aria-label and icon state) and for toggling, eliminating icon/state desynchronization.",
+      "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "please proceed with the new plan provided!"
+          "Fixes icon desynchronization."
         ]
       },
       "acceptanceCriteria": [
-        "A day counts toward streak only if both partners have responses recorded for that day’s ritual entry.",
-        "Current streak increments only for consecutive day numbers and resets to 0 (or 1 only when today is completed) after any missed day according to the defined day-number logic already used by the app.",
-        "Longest streak reflects the maximum consecutive run of days completed-by-both in the couple’s stored history.",
-        "Streak values are consistent for both partners when queried (i.e., couple-derived, not per-user divergent)."
+        "ThemeToggle icon and aria-label always match the currently applied theme (`effectiveTheme`).",
+        "Toggling the theme updates the UI immediately and correctly without needing a rerender triggered by unrelated state."
       ]
     },
     {
-      "id": "REQ-9",
-      "text": "Update streak-related state deterministically as part of ritual submission so streak/insights do not rely on placeholder or stale caches; streak must reflect the couple’s actual stored ritualEntries and update when a day transitions to \"both completed\".",
-      "target": "backend",
+      "id": "REQ-4",
+      "text": "Ensure localStorage persistence for theme preference only happens in the explicit theme setter/toggle action (not on every render and not in effects that run repeatedly).",
+      "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "please proceed with the new plan provided!"
+          "Keep localStorage writes only in the setter—not on every render/effect."
         ]
       },
       "acceptanceCriteria": [
-        "After the first partner submits for the day, streak does not incorrectly increment (day not yet completed-by-both).",
-        "After the second partner submits for the same day, streak updates to reflect the newly completed day.",
-        "Submitting additional edits/re-submissions for the same day does not incorrectly double-count streak progress."
+        "LocalStorage key `theme` is written only when the user changes theme (set/toggle).",
+        "Reloading the app restores the saved theme preference and applies it correctly."
       ]
     },
     {
-      "id": "REQ-10",
-      "text": "Replace placeholder analytics in getInsightsData() with real computations derived from couple ritual history and quiz data, returning populated values for: currentStreak, longestStreak, averageHarmony, currentHarmony, recentCompletionRate, last14DayTrend, last30DayTrend, and harmonyTrend.",
-      "target": "backend",
+      "id": "REQ-5",
+      "text": "Make the Home → Ritual History entry dialog readable by ensuring the dialog content surface is fully opaque (optionally with a subtle backdrop blur) in both light and dark themes, without editing any files under `frontend/src/components/ui` (compose via className overrides at the call site).",
+      "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "please proceed with the new plan provided!"
+          "Fix Home → Ritual History dialog readability: make modal sheet opaque (optionally with backdrop blur) instead of transparent; verify in light and dark mode"
         ]
       },
       "acceptanceCriteria": [
-        "getInsightsData() no longer returns all-zero/empty placeholder values when the couple has ritual history.",
-        "last14DayTrend is a deterministic boolean series representing completion-by-both for each day in the window (ordered oldest→newest or consistently documented), and the frontend can derive the last 7 days via slicing without needing randomness.",
-        "harmonyTrend is returned as a deterministic numeric series compatible with the existing frontend usage (0..1 floats, last 7 values used for charts).",
-        "recentCompletionRate reflects the completion-by-both rate over the existing recent window logic (the frontend expects 0..1 and multiplies by 100)."
-      ]
-    },
-    {
-      "id": "REQ-11",
-      "text": "Implement real badge milestone logic so getBadgeMilestones() returns milestone progress based on real computed metrics and milestone flags use monotonic \"flip-to-true\" behavior once earned (7/30/100 streak and Harmony Elite).",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "please proceed with the new plan provided!"
-        ]
-      },
-      "acceptanceCriteria": [
-        "getBadgeMilestones() returns milestone flags (sevenDayUnlocked/thirtyDayUnlocked/hundredDayUnlocked/harmonyEliteUnlocked) driven by actual computed streak and harmony metrics.",
-        "Once a milestone is unlocked for a user, subsequent calls keep it unlocked even if later computed metrics drop (no regression).",
-        "Milestone badges list returned aligns with milestone flags (e.g., unlocking 7-day milestone results in an unlocked badge entry with isUnlocked=true)."
-      ]
-    },
-    {
-      "id": "REQ-12",
-      "text": "Add missing authorization to the blob-storage maintenance endpoint _caffeineStorageUpdateGatewayPrincipals so only admins can invoke it.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "please proceed with the new plan provided!"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Non-admin callers are rejected from _caffeineStorageUpdateGatewayPrincipals with an authorization failure (trap or error consistent with existing backend patterns).",
-        "Admin callers can still invoke the endpoint successfully.",
-        "No other blob-storage endpoints have their behavior changed unintentionally."
-      ]
-    },
-    {
-      "id": "REQ-13",
-      "text": "Harden storage env-var and cycles refill logic by (1) fixing the cashier principal env var typo risk (CAFFFEINE_STORAGE_CASHIER_PRINCIPAL vs CAFFEINE_STORAGE_CASHIER_PRINCIPAL) with safe fallback behavior, and (2) preventing Nat.sub underflow traps in Storage.refillCashier when the canister balance is below reserved cycles (use saturating/guarded math).",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "please proceed with the new plan provided!"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The cashier principal can be resolved when either CAFFEINE_STORAGE_CASHIER_PRINCIPAL or the legacy misspelled CAFFFEINE_STORAGE_CASHIER_PRINCIPAL is present; behavior is deterministic and does not trap due to the typo alone.",
-        "Storage.refillCashier does not trap when currentBalance < reservedCycles; it behaves safely (no underflow) and preserves the reserved-cycles invariant."
+        "Opening a Ritual History entry on the Home page shows an opaque dialog surface (text is clearly legible) in light mode.",
+        "Opening a Ritual History entry on the Home page shows an opaque dialog surface (text is clearly legible) in dark mode.",
+        "No changes are made to any files under `frontend/src/components/ui`."
       ]
     }
   ],
   "constraints": [
-    "Respect the single-actor backend architecture: all Motoko application logic remains in backend/main.mo; only introduce backend/migration.mo if state must be preserved across upgrade due to data-structure changes (e.g., pairing-code TTL metadata).",
-    "Use English for any user-facing text.",
-    "Do not edit frontend files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or any files under frontend/src/components/ui."
+    "Do not modify any frontend files under the immutable paths: `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, and anything under `frontend/src/components/ui`.",
+    "Backend must remain single-actor; no backend changes are required for this request."
   ],
   "nonGoals": [
-    "Do not add new pages, tabs, or major frontend redesign as part of this fix bundle.",
-    "Do not change React Query provider configuration or remove existing frontend logic unless required to keep compatibility with the fixed backend responses.",
-    "Do not introduce additional backend services, external databases, or non-Motoko backend code."
+    "Do not implement or change Insights computations, badge milestone persistence, or any backend logic unrelated to theme/modal fixes.",
+    "Do not add new authentication methods beyond Internet Identity.",
+    "Do not redesign unrelated UI components or navigation behavior."
   ],
   "imageRequirements": {
     "required": [],

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Home } from './pages/Home';
 import { Insights } from './pages/Insights';
 import { LoveLanguages } from './pages/LoveLanguages';
@@ -9,21 +8,14 @@ import { Memories } from './pages/Memories';
 import { BottomNav } from './components/BottomNav';
 import { LoginButton } from './components/LoginButton';
 import { ProfileSetup } from './components/ProfileSetup';
+import { ThemeToggle } from './components/ThemeToggle';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { Toaster } from '@/components/ui/sonner';
 import { Bell, Loader2 } from 'lucide-react';
 import { useInternetIdentity } from './hooks/useInternetIdentity';
 import { useGetCallerUserProfile } from './hooks/useQueries';
 
 export type TabId = 'home' | 'insights' | 'love-languages' | 'activities' | 'us' | 'memories';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState<TabId>('home');
@@ -125,6 +117,7 @@ function AppContent() {
               className="h-8 object-contain"
             />
             <div className="flex items-center gap-3">
+              <ThemeToggle />
               <button 
                 className="p-2 rounded-full hover:bg-secondary/50 transition-colors"
                 aria-label="Notifications"
@@ -153,9 +146,9 @@ function AppContent() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <ThemeProvider>
       <AppContent />
-    </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 

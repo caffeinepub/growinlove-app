@@ -114,9 +114,9 @@ function RitualHistoryEntry({ entry, currentUserId }: { entry: RitualEntryView; 
         </div>
       </div>
       
-      {/* Modal for Full Details */}
+      {/* Modal for Full Details - REQ-5: Force opaque background */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto bg-card border-2 border-border shadow-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <span>{loveLanguageFocus.emoji}</span>

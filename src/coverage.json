@@ -1,82 +1,88 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T22:52:59.962Z",
+  "generatedAt": "2026-02-05T01:27:44.437Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 8,
-    "implemented": 0,
+    "total": 5,
+    "implemented": 5,
     "items": [
       {
-        "id": "REQ-10",
-        "summary": "Replace placeholder analytics in getInsightsData() with real computations derived from couple ritual history and quiz data, returning populated values for: currentStreak, longestStreak, averageHarmony, currentHarmony, recentCompletionRate, last14DayTrend, last30DayTrend, and harmonyTrend.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "id": "REQ-1",
+        "summary": "Implement a single global ThemeProvider/ThemeContext that stores `theme` ('light'|'dark'|'system') and `effectiveTheme` ('light'|'dark'), and centralizes all DOM theme class application (adding/removing `light`/`dark` on `document.documentElement`) in exactly one place.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/contexts/ThemeContext.tsx",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/contexts/ThemeContext.tsx",
+          "frontend/src/App.tsx"
+        ]
       },
       {
-        "id": "REQ-11",
-        "summary": "Implement real badge milestone logic so getBadgeMilestones() returns milestone progress based on real computed metrics and milestone flags use monotonic \"flip-to-true\" behavior once earned (7/30/100 streak and Harmony Elite).",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "id": "REQ-2",
+        "summary": "Refactor the existing theme hook API so app code can continue using a hook to access theme state, but ensure there are no DOM reads during render and no duplicate system-theme listeners; only one system preference listener is active and only when `theme === 'system'`.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useTheme.ts",
+          "frontend/src/contexts/ThemeContext.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useTheme.ts",
+          "frontend/src/contexts/ThemeContext.tsx"
+        ]
       },
       {
-        "id": "REQ-12",
-        "summary": "Add missing authorization to the blob-storage maintenance endpoint _caffeineStorageUpdateGatewayPrincipals so only admins can invoke it.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "id": "REQ-3",
+        "summary": "Update ThemeToggle to use the ThemeContext values for rendering (including aria-label and icon state) and for toggling, eliminating icon/state desynchronization.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/ThemeToggle.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/ThemeToggle.tsx"
+        ]
       },
       {
-        "id": "REQ-13",
-        "summary": "Harden storage env-var and cycles refill logic by (1) fixing the cashier principal env var typo risk (CAFFFEINE_STORAGE_CASHIER_PRINCIPAL vs CAFFEINE_STORAGE_CASHIER_PRINCIPAL) with safe fallback behavior, and (2) preventing Nat.sub underflow traps in Storage.refillCashier when the canister balance is below reserved cycles (use saturating/guarded math).",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "id": "REQ-4",
+        "summary": "Ensure localStorage persistence for theme preference only happens in the explicit theme setter/toggle action (not on every render and not in effects that run repeatedly).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/contexts/ThemeContext.tsx",
+          "frontend/src/hooks/useTheme.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/contexts/ThemeContext.tsx",
+          "frontend/src/hooks/useTheme.ts"
+        ]
       },
       {
-        "id": "REQ-6",
-        "summary": "Implement deterministic prompt initialization for all prompt-read endpoints by ensuring internalInitPrompts() is invoked before returning prompt data (at minimum: fetchPrompts() and getPromptsByLoveLanguage()).",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-7",
-        "summary": "Add pairing-code expiration (TTL) enforcement so pairing codes can expire and are treated as invalid/expired at both checkPairingCode(code) and completePairing(code).",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-8",
-        "summary": "Finalize and correct streak computation so the current streak and longest streak are computed from real ritual history for the couple, with deterministic resets on missed days and with \"completed\" meaning both partners submitted for the day.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-9",
-        "summary": "Update streak-related state deterministically as part of ritual submission so streak/insights do not rely on placeholder or stale caches; streak must reflect the couple’s actual stored ritualEntries and update when a day transitions to \"both completed\".",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "id": "REQ-5",
+        "summary": "Make the Home → Ritual History entry dialog readable by ensuring the dialog content surface is fully opaque (optionally with a subtle backdrop blur) in both light and dark themes, without editing any files under `frontend/src/components/ui` (compose via className overrides at the call site).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/Home.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/Home.tsx"
+        ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
+    "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
+    "frontend/src/App.tsx",
+    "frontend/src/components/ThemeToggle.tsx",
+    "frontend/src/contexts/ThemeContext.tsx",
+    "frontend/src/hooks/useTheme.ts",
+    "frontend/src/pages/Home.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
