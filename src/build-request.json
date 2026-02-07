@@ -1,106 +1,146 @@
 {
   "kind": "build_request",
-  "title": "Fix theme desync with global ThemeProvider + make Ritual History modal opaque",
+  "title": "Implement A2: Fix ritual-history persistence and fully activate backend-driven Insights + badge milestones",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Implement a single global ThemeProvider/ThemeContext that stores `theme` ('light'|'dark'|'system') and `effectiveTheme` ('light'|'dark'), and centralizes all DOM theme class application (adding/removing `light`/`dark` on `document.documentElement`) in exactly one place.",
-      "target": "frontend",
+      "text": "Implement real backend computation for `getInsightsData()` so Insights no longer returns placeholder/zero values and correctly reflects the couple’s post-deploy ritual activity.",
+      "target": "backend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Plan 4: Reactive Theme State + Guaranteed Sync"
+          "Great! Please proceed with implementing the updated A2 plan."
         ]
       },
       "acceptanceCriteria": [
-        "Theme state has one source of truth via a React context provider.",
-        "`document.documentElement.classList` is only mutated inside the ThemeProvider (not scattered across multiple hooks/components).",
-        "The provider exposes both `theme` and `effectiveTheme` to consumers."
+        "Calling `getInsightsData()` returns non-placeholder values derived from stored data (not hard-coded zeros/empty arrays).",
+        "After both partners submit today’s ritual, `getInsightsData().currentStreak` becomes >= 1 and `last14DayTrend` includes `true` for today.",
+        "`last14DayTrend` and `last30DayTrend` are deterministic arrays representing day-by-day completion-by-both (lengths 14 and 30 respectively) ending at the current day.",
+        "`harmonyTrend` is deterministic and aligned with the returned day-trend series (suitable for the frontend’s last-7 slicing)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Refactor the existing theme hook API so app code can continue using a hook to access theme state, but ensure there are no DOM reads during render and no duplicate system-theme listeners; only one system preference listener is active and only when `theme === 'system'`.",
-      "target": "frontend",
+      "text": "Fix streak and completion calculations to be order-stable and couple-based, counting a day as complete only when both partners have submitted a ritual response for that day.",
+      "target": "backend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Add a `useSystemThemeWatcher` hook used only when theme==='system'.",
-          "Update ThemeToggle to consume context values instead of reading `document.documentElement.classList` during render."
+          "Please proceed with implementing the updated A2 plan."
         ]
       },
       "acceptanceCriteria": [
-        "ThemeToggle (and any other consumer) does not read `document.documentElement.classList` during render.",
-        "When `theme !== 'system'`, there is no active `matchMedia('(prefers-color-scheme: dark)')` change listener.",
-        "Switching OS light/dark while `theme === 'system'` updates `effectiveTheme` and the UI reactively without requiring a refresh."
+        "Current streak and longest streak are computed from day numbers in chronological order (no dependence on Map iteration order).",
+        "A day with only one partner response does not increment streak and is represented as missed in trend arrays.",
+        "If the second partner completes later the same day, the day flips from missed/incomplete to complete without creating duplicate day entries."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Update ThemeToggle to use the ThemeContext values for rendering (including aria-label and icon state) and for toggling, eliminating icon/state desynchronization.",
-      "target": "frontend",
+      "text": "Compute and return harmony metrics from real stored data: quiz alignment (from both partners’ saved Love Languages quiz results) + recent ritual consistency (from recent completion trends), and expose them via `quizOverlapScore`, `recentCompletionRate`, `currentHarmony`, and `averageHarmony`.",
+      "target": "backend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Fixes icon desynchronization."
+          "Please proceed with implementing the updated A2 plan."
         ]
       },
       "acceptanceCriteria": [
-        "ThemeToggle icon and aria-label always match the currently applied theme (`effectiveTheme`).",
-        "Toggling the theme updates the UI immediately and correctly without needing a rerender triggered by unrelated state."
+        "When both partners have quiz results saved, `quizOverlapScore` is non-zero and reflects overlap of each partner’s top rankings (backend-driven).",
+        "`recentCompletionRate` reflects completion-by-both over the recent window used by Insights (expressed as 0..1 Float).",
+        "`currentHarmony` and `averageHarmony` are computed from (quiz alignment + recent completion) and are returned as 0..1 Float values.",
+        "If either partner has not completed the quiz, `quizOverlapScore` falls back to 0 without trapping, and other metrics still compute from ritual consistency alone."
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Ensure localStorage persistence for theme preference only happens in the explicit theme setter/toggle action (not on every render and not in effects that run repeatedly).",
-      "target": "frontend",
+      "text": "Replace `getBadgeMilestones()` default milestone logic with real computed milestone progress (7/30/100 day streaks and harmony elite) derived from the same computations used by `getInsightsData()`.",
+      "target": "backend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Keep localStorage writes only in the setter—not on every render/effect."
+          "Please proceed with implementing the updated A2 plan."
         ]
       },
       "acceptanceCriteria": [
-        "LocalStorage key `theme` is written only when the user changes theme (set/toggle).",
-        "Reloading the app restores the saved theme preference and applies it correctly."
+        "`getBadgeMilestones().milestones` reflects real unlocked state for: sevenDayUnlocked, thirtyDayUnlocked, hundredDayUnlocked, harmonyEliteUnlocked.",
+        "After crossing a threshold (e.g., reaching a 7-day streak), the corresponding milestone boolean becomes true for both partners in the couple.",
+        "`getBadgeMilestones()` no longer returns `getDefaultMilestoneProgress()` except as a fallback when the caller is unpaired/unauthorized (and must follow existing authorization rules)."
       ]
     },
     {
       "id": "REQ-5",
-      "text": "Make the Home → Ritual History entry dialog readable by ensuring the dialog content surface is fully opaque (optionally with a subtle backdrop blur) in both light and dark themes, without editing any files under `frontend/src/components/ui` (compose via className overrides at the call site).",
+      "text": "Ensure ritual submission writes/maintains the canonical daily history used by Insights so that a successful “both completed today” state is reflected consistently across Home, Ritual History, and Insights.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Please proceed with implementing the updated A2 plan."
+        ]
+      },
+      "acceptanceCriteria": [
+        "After both partners submit the daily ritual, `getRitualHistory(7)` includes an entry for today with two responses, and `getInsightsData()` shows today as completed.",
+        "Submitting the second partner response updates the same day entry rather than creating multiple entries for the same day.",
+        "Ritual entries remain accessible via existing access-control rules (only self/partner/admin as currently enforced by the canister)."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Add lightweight diagnostic logging around ritual submission and daily completion resolution to aid debugging without breaking queries or leaking sensitive content.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Please proceed with implementing the updated A2 plan."
+        ]
+      },
+      "acceptanceCriteria": [
+        "On `submitRitualResponse`, the backend emits minimal logs indicating: caller principal, coupleId, day number, and whether the day is now complete-by-both (do not log ritual text, emoji, or photos).",
+        "Logs do not cause traps and do not change API response shapes."
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Update frontend data expectations only where needed to display the newly-real backend Insights values (no UI redesign), ensuring the Insights screen updates after ritual submission without requiring a hard reload.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Fix Home → Ritual History dialog readability: make modal sheet opaque (optionally with backdrop blur) instead of transparent; verify in light and dark mode"
+          "Please proceed with implementing the updated A2 plan."
         ]
       },
       "acceptanceCriteria": [
-        "Opening a Ritual History entry on the Home page shows an opaque dialog surface (text is clearly legible) in light mode.",
-        "Opening a Ritual History entry on the Home page shows an opaque dialog surface (text is clearly legible) in dark mode.",
-        "No changes are made to any files under `frontend/src/components/ui`."
+        "After completing a ritual from both accounts, the Insights page shows non-zero streak and a 7-day history row for Today marked Done (not Missed) once polling/refetch completes.",
+        "Milestone badges reflect backend milestone booleans (unlock when backend says unlocked).",
+        "No changes are made to immutable frontend paths listed in SYSTEM_CONTEXT."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any frontend files under the immutable paths: `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, and anything under `frontend/src/components/ui`.",
-    "Backend must remain single-actor; no backend changes are required for this request."
+    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
+    "Do not edit files under frontend immutablePaths (compose existing UI components instead).",
+    "Use English for any user-facing text.",
+    "Do not introduce third-party auth providers; Internet Identity remains the only auth mechanism."
   ],
   "nonGoals": [
-    "Do not implement or change Insights computations, badge milestone persistence, or any backend logic unrelated to theme/modal fixes.",
-    "Do not add new authentication methods beyond Internet Identity.",
-    "Do not redesign unrelated UI components or navigation behavior."
+    "Implementing new product features outside A2 (e.g., new tabs, new ritual types, push notifications, external analytics).",
+    "Changing the overall UI theme/layout of the Insights page beyond wiring it to real backend values.",
+    "Adding a new database or external storage layer."
   ],
   "imageRequirements": {
     "required": [],

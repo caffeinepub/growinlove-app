@@ -1,7 +1,32 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 3,
-  "summary": "GrowInLove is a relationship-focused web app built for the Internet Computer (Motoko canister backend + React frontend). Authenticated users (via Internet Identity) create a profile, pair with a partner using a 6-digit code, complete daily ritual prompts (with text/emoji and optional photo uploads), review ritual history (Home + Memories scrapbook), take a Love Languages quiz with partner synchronization, and view an Insights dashboard (streak/harmony/badges UI). The Activities tab provides client-side engagement features like a weighted Love Wheel and streak-gated activity packs (with admin override).",
+  "projectStateVersion": 8,
+  "summary": "GrowInLove is a relationship-focused web application built on the Internet Computer (Motoko canister backend + React/Tailwind frontend). Users authenticate via Internet Identity, create a personal profile, pair with a partner via a 6-digit code, and then complete a shared daily ritual prompt (text/emoji + optional photo upload). The app surfaces couple progress via an Insights dashboard (streaks, harmony, trends, milestone badges UI), provides a Memories scrapbook view of ritual history with photo rendering, offers a Love Languages quiz with partner synchronization, and includes an Activities hub (spin wheel + unlockable activity packs) with admin override gates. Backend also includes authorization mixins and Caffeine blob-storage operational endpoints.",
+  "architectural_notes": [
+    "Backend is a Motoko canister that composes cross-cutting concerns via mixins (authorization + Caffeine blob-storage maintenance).",
+    "Role-based access control is Principal-keyed; first-time admin assignment is gated by an environment token and a user-provided secret passed from the frontend.",
+    "Couple-scoped authorization uses mutual pairing verification and a canonical coupleId derived from sorted principal text to gate couple data (rituals, history, combined quiz state).",
+    "Frontend is a tab-based React SPA (no router) with a persistent Top Bar and Bottom Navigation and conditional gating by auth/profile/pairing state.",
+    "Canister IO is centralized in @tanstack/react-query hooks (queries/mutations), including targeted cache invalidation and polling for partner sync (ritual status, quiz state) and insights/badges refresh.",
+    "Theming uses a single global ThemeProvider/ThemeContext with light/dark/system preference, derived effective theme, and centralized DOM root class application.",
+    "UI is built with Tailwind + shadcn/ui components and OKLCH token-based design variables; dark mode uses Tailwind class strategy.",
+    "Media (photos) are stored as blobs in the canister and rendered client-side via direct blob URLs (ExternalBlob.getDirectURL).",
+    "UX polish is provided via reusable loading/empty/error components, animated celebration overlays, and dialog overlay/content styling for readability and reduced-motion support.",
+    "Local-only engagement features (Love Wheel + unlock packs) use persisted state (localStorage) and admin overrides rather than backend challenge computation."
+  ],
+  "known_issues": [
+    "Backend getInsightsData returns placeholder/default values (zeros/empty arrays) despite extended response types; real streak/harmony/trend computation is not implemented/wired up.",
+    "Backend getBadgeMilestones always returns getDefaultMilestoneProgress() rather than computed/persisted milestone progress, so UI badges may not reflect real achievements.",
+    "_caffeineStorageUpdateGatewayPrincipals() in blob-storage mixin lacks an authorization check, allowing any caller to refresh authorized gateway principal lists.",
+    "Storage.getCashierPrincipal reads env var \"CAFFFEINE_STORAGE_CASHIER_PRINCIPAL\" (typo: triple 'F'); misconfiguration will trap at runtime.",
+    "Storage.refillCashier uses Nat.sub(currentBalance, reservedCycles) and can trap if currentBalance < reservedCycles.",
+    "Frontend useArePromptsInitialized() is a stub that always returns true (backend prompt-init status endpoint is missing).",
+    "CSS class mismatch: some UI uses className \"animate-float-up\" but global CSS defines \"completion-float-up\" (not \"animate-float-up\"), so intended float animations may not run.",
+    "ThemeProvider computes initial effective theme using window.matchMedia during state initialization; this can break in SSR/non-browser environments.",
+    "Pairing codes are treated as potentially expirable in UI/UX copy, but backend does not implement expiration timestamps or cleanup.",
+    "Pairing code generation uses a deterministic PRNG/seeded scheme and is not cryptographically secure."
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
       "id": "IF-1",
@@ -11,7 +36,7 @@
         "useInternetIdentity",
         "AuthClient"
       ],
-      "description": "Provides a React context for Internet Identity authentication, restores a previously authenticated identity on app load, exposes login/logout actions, and tracks detailed status flags (initializing/logging-in/success/error).",
+      "description": "Provides a React context for Internet Identity authentication, restores a previously authenticated identity on app load, exposes login/logout actions, and tracks status flags and errors.",
       "reqIds": [],
       "version": 1
     },
@@ -23,7 +48,7 @@
         "createActorWithConfig",
         "_initializeAccessControlWithSecret"
       ],
-      "description": "Creates an anonymous actor when unauthenticated and an identity-bound actor when authenticated; on authenticated creation, calls a backend bootstrap to initialize/register access control using an env-gated admin token plus a user-provided secret extracted from the URL hash.",
+      "description": "Creates an anonymous actor when unauthenticated and an identity-bound actor when authenticated; on authenticated creation, calls a backend bootstrap that initializes/registers access control using an env-gated admin token plus a user-provided secret extracted from the URL hash.",
       "reqIds": [],
       "version": 1
     },
@@ -43,13 +68,14 @@
     },
     {
       "id": "IF-4",
-      "title": "User profile onboarding and editing with backend safety checks",
+      "title": "User profile onboarding and editing",
       "synonyms": [
         "initializeUserProfile",
         "getCallerUserProfile",
-        "saveCallerUserProfile"
+        "saveCallerUserProfile",
+        "ProfileSetup"
       ],
-      "description": "Authenticated users initialize a profile (name). Profile updates are allowed but backend prevents unauthorized changes to role/isFirstUser and disallows directly mutating partnerId outside the pairing flow.",
+      "description": "Authenticated users initialize a profile (name) via a dedicated onboarding modal and can later save updates; backend rejects unauthorized modifications (e.g., role/isFirstUser and partnerId mutations outside the pairing flow).",
       "reqIds": [],
       "version": 1
     },
@@ -67,21 +93,23 @@
     },
     {
       "id": "IF-6",
-      "title": "Light/dark theme with system default and persistent override",
+      "title": "Global theme system (light/dark/system) with effectiveTheme and DOM root class management",
       "synonyms": [
+        "ThemeProvider",
+        "ThemeContext",
         "useTheme",
-        "ThemeToggle",
-        "Tailwind darkMode class"
+        "ThemeToggle"
       ],
-      "description": "Applies light/dark theme classes to the document root based on system preference by default, allows a user override via a UI toggle, persists preference in localStorage, and listens for OS theme changes when in system mode.",
+      "description": "Centralizes theme state in a single provider, derives an effective light/dark mode (including system preference support), applies/removes the `light`/`dark` class on document.documentElement in one place, and persists user preference to localStorage only on explicit actions.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-7",
-      "title": "Partner pairing via 6-digit code (generate/share/complete)",
+      "title": "Partner pairing via 6-digit code (generate/share/complete) with profile prerequisite",
       "synonyms": [
         "createPairingCode",
+        "checkPairingCode",
         "completePairing",
         "Us tab pairing UI"
       ],
@@ -91,7 +119,7 @@
     },
     {
       "id": "IF-8",
-      "title": "Canonical couple identity + mutual partnership enforcement",
+      "title": "Canonical couple identity and mutual partnership enforcement",
       "synonyms": [
         "getCoupleId",
         "mustGetCoupleId",
@@ -109,7 +137,7 @@
         "getDailyRitual",
         "RitualPrompt"
       ],
-      "description": "Backend lazily initializes a fixed prompt list and selects the daily prompt deterministically by day number modulo prompt count. Frontend renders the prompt with a love-language themed hero card.",
+      "description": "Backend lazily initializes a fixed prompt list and selects the daily prompt deterministically by day number modulo prompt count. Frontend displays a love-language-themed hero card for the prompt.",
       "reqIds": [],
       "version": 1
     },
@@ -118,7 +146,8 @@
       "title": "Daily ritual submission (text/emoji/photo)",
       "synonyms": [
         "submitRitualResponse",
-        "DailyRitualInput"
+        "DailyRitualInput",
+        "RitualResponse"
       ],
       "description": "Users submit a daily ritual response containing optional text, an emoji, and an optional uploaded photoId. Backend stores/merges responses per couple per day.",
       "reqIds": [],
@@ -126,13 +155,13 @@
     },
     {
       "id": "IF-11",
-      "title": "Ritual completion status with canonical partner attribution + polling",
+      "title": "Ritual completion status with canonical partner attribution and polling",
       "synonyms": [
         "getRitualStatus",
         "CanonicalPartnerRitualStatus",
         "polling"
       ],
-      "description": "Backend reports ritual completion for canonical partnerA/partnerB; frontend derives caller vs partner completion and polls regularly to show “waiting” and “both completed” states.",
+      "description": "Backend reports ritual completion for canonical partnerA/partnerB; frontend derives caller vs partner completion, polls regularly, and shows “waiting” vs “both completed” states.",
       "reqIds": [],
       "version": 1
     },
@@ -149,19 +178,30 @@
     },
     {
       "id": "IF-13",
-      "title": "Ritual history retrieval and viewing (Home modal + Memories scrapbook)",
+      "title": "Ritual history retrieval and viewing (Home dialog + Memories scrapbook)",
       "synonyms": [
         "getRitualHistory",
         "useGetRitualHistory",
-        "Home Ritual History Dialog",
+        "RitualHistoryEntry",
         "Memories"
       ],
-      "description": "Fetches reverse-chronological ritual history with a configurable limit; frontend defensively sorts newest-first and provides both a Home list with modal drill-in and a Memories page with expand/collapse plus progressive “Load More” behavior.",
+      "description": "Fetches reverse-chronological ritual history with a configurable limit; frontend defensively sorts newest-first, shows loading/empty states, supports drill-in viewing in Home via dialog, and provides a Memories page with expand/collapse plus progressive “Load More” behavior.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-14",
+      "title": "Readable ritual history entry dialog surfaces (opaque modal content)",
+      "synonyms": [
+        "Home.tsx",
+        "DialogContent class override"
+      ],
+      "description": "Ensures the ritual history detail dialog content surface is fully opaque and readable across light/dark themes by applying call-site className overrides on the dialog content.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-15",
       "title": "Shared photo storage (upload/get/list/delete) with partner/admin access rules",
       "synonyms": [
         "uploadPhoto",
@@ -170,62 +210,63 @@
         "deletePhoto",
         "SharedPhoto"
       ],
-      "description": "Backend stores uploaded image blobs with owner metadata and enforces access rules (owner, mutual partner, or admin). Frontend supports photo selection/preview, upload, and inline rendering via direct blob URLs.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-15",
-      "title": "Love Languages quiz (7 questions) with persistence, sharing, and reset/retake",
-      "synonyms": [
-        "LoveLanguages page",
-        "saveLoveLanguageQuizResults",
-        "clearLoveLanguagesQuizResults"
-      ],
-      "description": "Client implements a multi-step quiz, computes rankings, saves results to backend, reloads saved results, supports retake with confirmation and backend reset, and supports sharing results via Web Share API or clipboard.",
+      "description": "Backend stores uploaded image blobs with owner metadata and enforces access rules (owner, mutual partner, or admin). Frontend supports photo preview, upload, and inline rendering via direct blob URLs.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-16",
-      "title": "Partner quiz synchronization and combined quiz state",
+      "title": "Love Languages quiz (multi-step) with persistence, sharing, and reset/retake",
       "synonyms": [
-        "getCombinedQuizResultState",
-        "getPartnerQuizState",
-        "PartnerQuizState"
+        "LoveLanguages page",
+        "saveLoveLanguageQuizResults",
+        "clearLoveLanguagesQuizResults",
+        "Web Share API"
       ],
-      "description": "Backend exposes combined quiz completion/results for a couple and partner quiz state. Frontend polls for updates and shows synced/waiting banners plus an error fallback with manual retry refetch.",
+      "description": "Client implements a multi-step quiz, computes rankings, saves results to backend, loads saved results, supports retake with confirmation and backend reset, and supports sharing results via Web Share API or clipboard.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-17",
-      "title": "Insights dashboard UI wired to backend insights + badge milestone endpoints",
+      "title": "Partner quiz synchronization and combined quiz state (polling + defensive fallbacks)",
       "synonyms": [
-        "useGetInsightsData",
-        "useGetBadgeMilestones",
-        "Insights page",
-        "HarmonyBreakdownTrendCard"
+        "getCombinedQuizResultState",
+        "getPartnerQuizState",
+        "PartnerQuizState"
       ],
-      "description": "Renders a relationship insights dashboard (streak, harmony, 7‑day history visuals, milestone badges) with admin override for access gating, celebration overlay on detected new badge unlocks, and a guarded “not enough data yet” trend display.",
+      "description": "Backend exposes combined quiz completion/results for a couple and partner quiz state. Frontend polls for updates, displays synced/waiting states, and provides error recovery with manual retry refetch.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-18",
-      "title": "Harmony UI utilities and deep-link navigation to the harmony section",
+      "title": "Insights dashboard UI wired to backend insights and badge milestone endpoints",
       "synonyms": [
-        "utils/harmony.ts",
-        "HarmonyHomeEcho",
-        "scrollToHarmony"
+        "Insights page",
+        "useGetInsightsData",
+        "useGetBadgeMilestones",
+        "HarmonyBreakdownTrendCard"
       ],
-      "description": "Provides helpers for consistent harmony percent display and trend labeling; supports navigation from Home/Us to the Insights harmony section using a sessionStorage flag and scrollIntoView behavior.",
+      "description": "Renders an Insights dashboard (streaks, harmony visuals, 7‑day history charts, milestone badges) based on backend endpoints, includes badge-unlock celebration overlay detection, and guards against insufficient trend data by showing a “Not Enough Data Yet” state.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-19",
-      "title": "Activities hub (Love Wheel + streak-gated activity packs + placeholders)",
+      "title": "Harmony UI utilities and deep-link navigation to harmony section",
+      "synonyms": [
+        "utils/harmony.ts",
+        "HarmonyHomeEcho",
+        "scrollToHarmony"
+      ],
+      "description": "Provides helpers for consistent harmony percent display and trend labeling; supports navigation from Home/Us to the Insights harmony section via a sessionStorage flag and scrollIntoView behavior.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-20",
+      "title": "Activities hub (Love Wheel + streak-gated activity packs + placeholders) with admin overrides",
       "synonyms": [
         "Activities page",
         "SpinWheel",
@@ -233,12 +274,12 @@
         "LoveChallenges",
         "RewardVisuals"
       ],
-      "description": "Client-side engagement tab featuring a weighted spin wheel (biased by shared top love languages when both quizzes are complete) with daily localStorage persistence, streak-gated love-language activity packs (admin unlock override), plus placeholder UI for challenges and reward progress.",
+      "description": "Client-side engagement tab featuring a weighted spin wheel (biased by shared top love languages when both quizzes are complete) with daily localStorage persistence, streak-gated love-language activity packs (admin unlock override), and placeholder UI for challenges/rewards.",
       "reqIds": [],
       "version": 1
     },
     {
-      "id": "IF-20",
+      "id": "IF-21",
       "title": "Reusable loading/empty/error UI components",
       "synonyms": [
         "DataStates",
@@ -246,13 +287,25 @@
         "EmptyState",
         "ErrorState"
       ],
-      "description": "Shared UI primitives for consistent loading, empty, and error states (including optional retry and expandable technical details) for data-driven screens.",
+      "description": "Shared UI primitives for consistent loading, empty, and error states (including optional retry and expandable technical details) across data-driven screens.",
       "reqIds": [],
       "version": 1
     },
     {
-      "id": "IF-21",
-      "title": "Caffeine blob-storage maintenance endpoints (gateway update, dead blob pruning, cashier refill)",
+      "id": "IF-22",
+      "title": "Secure URL hash secret handling for admin bootstrap tokens",
+      "synonyms": [
+        "getSecretParameter",
+        "getSecretFromHash",
+        "urlParams.ts"
+      ],
+      "description": "Parses sensitive parameters from the URL hash fragment, persists them in sessionStorage for the session, and clears them from the URL to reduce history/referrer leakage.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-23",
+      "title": "Caffeine blob-storage operational endpoints (cashier refill, gateway update, dead blob pruning)",
       "synonyms": [
         "backend/blob-storage/Mixin.mo",
         "_caffeineStorageRefillCashier",
@@ -264,42 +317,10 @@
       "version": 1
     },
     {
-      "id": "feature-implement-a-single-global-themeprovider-themecontext-that-stores-theme-light-dark-system-and-effectivetheme-light-dark-and-centralizes-all-dom-theme-class-application-adding-removing-light-dark-on-document-documentelement-in-exactly-one-place",
-      "title": "Implement a single global ThemeProvider/ThemeContext that stores `theme` ('light'|'dark'|'system') and `effectiveTheme` ('light'|'dark'), and centralizes all DOM theme class application (adding/removing `light`/`dark` on `document.documentElement`) in exactly one place.",
+      "id": "feature-update-frontend-data-expectations-only-where-needed-to-display-the-newly-real-backend-insights-values-no-ui-redesign-ensuring-the-insights-screen-updates-after-ritual-submission-without-requiring-a-hard-reload",
+      "title": "Update frontend data expectations only where needed to display the newly-real backend Insights values (no UI redesign), ensuring the Insights screen updates after ritual submission without requiring a hard reload.",
       "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-refactor-the-existing-theme-hook-api-so-app-code-can-continue-using-a-hook-to-access-theme-state-but-ensure-there-are-no-dom-reads-during-render-and-no-duplicate-system-theme-listeners-only-one-system-preference-listener-is-active-and-only-when-theme-system",
-      "title": "Refactor the existing theme hook API so app code can continue using a hook to access theme state, but ensure there are no DOM reads during render and no duplicate system-theme listeners; only one system preference listener is active and only when `theme === 'system'`.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-themetoggle-to-use-the-themecontext-values-for-rendering-including-aria-label-and-icon-state-and-for-toggling-eliminating-icon-state-desynchronization",
-      "title": "Update ThemeToggle to use the ThemeContext values for rendering (including aria-label and icon state) and for toggling, eliminating icon/state desynchronization.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-ensure-localstorage-persistence-for-theme-preference-only-happens-in-the-explicit-theme-setter-toggle-action-not-on-every-render-and-not-in-effects-that-run-repeatedly",
-      "title": "Ensure localStorage persistence for theme preference only happens in the explicit theme setter/toggle action (not on every render and not in effects that run repeatedly).",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-make-the-home-ritual-history-entry-dialog-readable-by-ensuring-the-dialog-content-surface-is-fully-opaque-optionally-with-a-subtle-backdrop-blur-in-both-light-and-dark-themes-without-editing-any-files-under-frontend-src-components-ui-compose-via-classname-overrides-at-the-call-site",
-      "title": "Make the Home → Ritual History entry dialog readable by ensuring the dialog content surface is fully opaque (optionally with a subtle backdrop blur) in both light and dark themes, without editing any files under `frontend/src/components/ui` (compose via className overrides at the call site).",
-      "reqIds": [
-        "REQ-5"
+        "REQ-7"
       ],
       "version": 1
     }
@@ -307,42 +328,83 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Fix light/dark theme toggle: implement a single global ThemeProvider/ThemeContext with effectiveTheme, centralized DOM class application, and reactive ThemeToggle UI",
+      "summary": "A2: Fix ritual-history write path so both-partner daily completion is persisted in the history format that Insights reads",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-2",
+      "summary": "A2: Implement/complete real Insights computations (streaks, 7-day consistency, harmony score, trends/breakdown) using persisted ritual history + quiz alignment",
       "reqIds": [],
       "status": "pending"
     },
     {
-      "id": "AR-2",
-      "summary": "Fix Home → Ritual History dialog readability: make modal sheet opaque (optionally with backdrop blur) instead of transparent; verify in light and dark mode",
+      "id": "AR-3",
+      "summary": "A2: Replace default badge milestone progress with real computed/persisted milestone progress so UI badges unlock correctly",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "A2: Add defensive safeguards + lightweight logging around ritual completion/history writes (handle late partner completion; ensure missed days recorded consistently)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "A2: End-to-end test/verification flow for ritual completion -> history persistence -> Insights updates -> badge unlock behavior (two accounts)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Implement real backend computation for `getInsightsData()` so Insights no longer returns placeholder/zero values and correctly reflects the couple’s post-deploy ritual activity.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Fix streak and completion calculations to be order-stable and couple-based, counting a day as complete only when both partners have submitted a ritual response for that day.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Compute and return harmony metrics from real stored data: quiz alignment (from both partners’ saved Love Languages quiz results) + recent ritual consistency (from recent completion trends), and expose them via `quizOverlapScore`, `recentCompletionRate`, `currentHarmony`, and `averageHarmony`.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Replace `getBadgeMilestones()` default milestone logic with real computed milestone progress (7/30/100 day streaks and harmony elite) derived from the same computations used by `getInsightsData()`.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Ensure ritual submission writes/maintains the canonical daily history used by Insights so that a successful “both completed today” state is reflected consistently across Home, Ritual History, and Insights.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Add lightweight diagnostic logging around ritual submission and daily completion resolution to aid debugging without breaking queries or leaking sensitive content.",
+      "reqIds": [
+        "REQ-6"
+      ],
       "status": "pending"
     }
   ],
-  "architectural_notes": [
-    "Backend is a Motoko canister that composes cross-cutting concerns via mixins (authorization + caffeine blob-storage maintenance).",
-    "Role-based access control is Principal-keyed, with first-time/bootstrapped admin assignment gated by an environment token and a user-provided secret (passed from the frontend) and enforced in backend methods.",
-    "Couple-scoped authorization is enforced by requiring mutual pairing and deriving a canonical coupleId from sorted principal text, used to gate couple data (rituals/history/quiz state).",
-    "Frontend is a tab-based React SPA (no router), with app-level gating for unauthenticated, unprofiled, and unpaired states.",
-    "Canister IO is centralized in @tanstack/react-query hooks (queries + mutations), including targeted cache invalidation/refetch and polling for partner synchronization (ritual status, quiz state) and insights/badges refresh.",
-    "UI is built with Tailwind + shadcn/ui components and an OKLCH token-based design system; dark mode uses Tailwind class strategy (document root class).",
-    "Theme preference supports system default and persistent user override via localStorage, with system change listeners active only in system mode.",
-    "Photos are stored as blobs via backend storage types and rendered client-side via direct blob URLs (ExternalBlob.getDirectURL).",
-    "Animations and UI polish are handled via global CSS utilities with prefers-reduced-motion safeguards and dialog overlay/content styling for readability.",
-    "Theme handling should use a single app-level ThemeProvider/ThemeContext as the source of truth (theme preference + effectiveTheme), with centralized DOM class toggling and system-theme listeners only in system mode."
-  ],
-  "known_issues": [
-    "Backend getInsightsData currently returns placeholder/default values (zeros/empty arrays) despite rich response types; real insights computation (streaks, harmony, trends, milestone progress) appears not implemented or not wired up.",
-    "Backend getBadgeMilestones returns default milestone progress (getDefaultMilestoneProgress) rather than persisted/computed milestoneProgress; badges/milestones may not reflect actual behavior.",
-    "_caffeineStorageUpdateGatewayPrincipals() has no authorization check in the storage mixin, allowing any caller to refresh gateway principal lists.",
-    "blob-storage Storage.getCashierPrincipal reads env var CAFFFEINE_STORAGE_CASHIER_PRINCIPAL (typo with triple 'F'); misconfiguration will trap at runtime.",
-    "blob-storage Storage.refillCashier uses Nat.sub(currentBalance, reservedCycles) and can trap if currentBalance < reservedCycles.",
-    "Frontend useArePromptsInitialized() is a stub that always returns true (backend prompt-init status endpoint is missing), so admin “Prompts Active” is not a real health check.",
-    "CSS animation class mismatch: components use className \"animate-float-up\" but global CSS defines \"completion-float-up\" (not \"animate-float-up\"), so some intended float animations may not run.",
-    "Access control bootstrap depends on CAFFEINE_ADMIN_TOKEN being set; if missing, _initializeAccessControlWithSecret traps and prevents authenticated actor creation entirely.",
-    "Pairing codes are described as expirable, but backend does not implement expiration timestamps/cleanup; codes remain valid until used/removed.",
-    "Pairing code generation uses a deterministic PRNG/seeded scheme (predictable codes), which may be acceptable for a beta but is not cryptographically secure."
-  ],
-  "isFixRequest": true,
   "gameProjectType": "none",
   "projectName": "GrowInLove",
   "clarification_mode": "instant",

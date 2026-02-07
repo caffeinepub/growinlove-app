@@ -1,98 +1,26 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Global ThemeProvider sync + opaque Ritual History dialog",
+  "title": "Wire Insights UI to backend-driven metrics and ensure post-ritual refresh",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Add a single global ThemeProvider/ThemeContext that owns theme state, derives effectiveTheme, and is the only place that mutates the root DOM theme class.",
+      "id": "REQ-7",
+      "summary": "Update Insights screen to consume backend-driven Insights + milestone values and refresh automatically after ritual submission (no redesign).",
       "acceptanceCriteria": [
-        "Theme state has one source of truth via a React context provider.",
-        "`document.documentElement.classList` is only mutated inside the ThemeProvider (not scattered across multiple hooks/components).",
-        "The provider exposes both `theme` and `effectiveTheme` to consumers."
+        "After completing a ritual from both accounts, the Insights page shows non-zero streak and a 7-day history row for Today marked Done (not Missed) once polling/refetch completes.",
+        "Milestone badges reflect backend milestone booleans (unlock when backend says unlocked).",
+        "No changes are made to immutable frontend paths listed in SYSTEM_CONTEXT."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/contexts/ThemeContext.tsx",
-          "operation": "create",
-          "description": "Create a ThemeContext + ThemeProvider that stores `theme` ('light'|'dark'|'system') and derived `effectiveTheme` ('light'|'dark'), and centralizes applying/removing `light`/`dark` classes on `document.documentElement` in exactly one effect within the provider."
+          "path": "frontend/src/pages/Insights.tsx",
+          "operation": "modify",
+          "description": "Align displayed Insights metrics with backend-provided values: use getInsightsData().quizOverlapScore (and related harmony metrics already returned) as the source of truth for quiz alignment/harmony sections; avoid showing misleading 0% placeholders by adding a lightweight loading/empty-state behavior while insights data is still fetching; keep milestone badge unlocked state driven by getBadgeMilestones().milestones booleans and preserve existing UI layout."
         },
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Wrap the authenticated app shell (and unauthenticated/login screens) with the new ThemeProvider so the entire app reads theme state from a single global source of truth without changing frontend/src/main.tsx."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Refactor the theme hook API to consume ThemeContext, avoid DOM reads during render, and ensure only one system preference listener runs only when theme is 'system'.",
-      "acceptanceCriteria": [
-        "ThemeToggle (and any other consumer) does not read `document.documentElement.classList` during render.",
-        "When `theme !== 'system'`, there is no active `matchMedia('(prefers-color-scheme: dark)')` change listener.",
-        "Switching OS light/dark while `theme === 'system'` updates `effectiveTheme` and the UI reactively without requiring a refresh."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useTheme.ts",
-          "operation": "modify",
-          "description": "Refactor `useTheme` to become a lightweight consumer of the new ThemeContext (returning `theme`, `effectiveTheme`, and actions) with no DOM reads during render and no `matchMedia` listener creation here."
-        },
-        {
-          "path": "frontend/src/contexts/ThemeContext.tsx",
-          "operation": "modify",
-          "description": "Add/organize an internal `useSystemThemeWatcher` (or equivalent provider-scoped logic) that installs exactly one `matchMedia('(prefers-color-scheme: dark)')` listener only while `theme === 'system'`, updating `effectiveTheme` reactively."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Update ThemeToggle to render and toggle using ThemeContext values to eliminate icon/aria-label desynchronization.",
-      "acceptanceCriteria": [
-        "ThemeToggle icon and aria-label always match the currently applied theme (`effectiveTheme`).",
-        "Toggling the theme updates the UI immediately and correctly without needing a rerender triggered by unrelated state."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/ThemeToggle.tsx",
-          "operation": "modify",
-          "description": "Update ThemeToggle to use `theme`/`effectiveTheme` and actions from the refactored `useTheme` (context-based) for icon state and aria-label, removing any render-time reads of `document.documentElement.classList`."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Ensure theme persistence writes to localStorage only occur in explicit theme actions (set/toggle), not in effects or repeated renders.",
-      "acceptanceCriteria": [
-        "LocalStorage key `theme` is written only when the user changes theme (set/toggle).",
-        "Reloading the app restores the saved theme preference and applies it correctly."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/contexts/ThemeContext.tsx",
-          "operation": "modify",
-          "description": "Implement theme initialization by reading localStorage once (lazy init) and ensure localStorage writes for key `theme` happen only inside explicit theme action functions (e.g., `setTheme`/`toggleTheme`), not in effects tied to render cycles."
-        },
-        {
-          "path": "frontend/src/hooks/useTheme.ts",
-          "operation": "modify",
-          "description": "Ensure the hook API does not introduce any additional localStorage write paths (it should delegate persistence solely to ThemeProvider actions)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "Make the Home Ritual History entry dialog content fully opaque in light/dark themes via className overrides at the call site (no edits under components/ui).",
-      "acceptanceCriteria": [
-        "Opening a Ritual History entry on the Home page shows an opaque dialog surface (text is clearly legible) in light mode.",
-        "Opening a Ritual History entry on the Home page shows an opaque dialog surface (text is clearly legible) in dark mode.",
-        "No changes are made to any files under `frontend/src/components/ui`."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/Home.tsx",
-          "operation": "modify",
-          "description": "Update the Ritual History entry <DialogContent> call-site className to force a fully opaque surface (e.g., using an opaque background and appropriate border/shadow classes) for both light and dark themes, without modifying any files under frontend/src/components/ui."
+          "description": "Ensure post-ritual submission refresh remains robust: confirm submitRitualResponse success flow invalidates and refetches insightsData and badgeMilestones (and related ritual queries) so Insights updates without hard reload; adjust query options only if needed to reliably reflect new backend values (e.g., staleTime/refetch timing) while keeping polling behavior."
         }
       ]
     }

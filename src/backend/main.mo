@@ -2,9 +2,9 @@ import Map "mo:core/Map";
 import Array "mo:core/Array";
 import Time "mo:core/Time";
 import Float "mo:core/Float";
-import Text "mo:core/Text";
 import Nat "mo:core/Nat";
 import Int "mo:core/Int";
+import Text "mo:core/Text";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import Iter "mo:core/Iter";
@@ -13,7 +13,9 @@ import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
@@ -254,6 +256,27 @@ actor {
   public type DayStats = {
     numCompletedByBoth : Nat;
     numCompletedByEither : Nat;
+  };
+
+  public type BackendState = {
+    prompts : Map.Map<Nat, RitualPrompt>;
+    userProfiles : Map.Map<UserId, UserProfile>;
+    codeToPrincipal : Map.Map<Nat, Principal>;
+    ritualEntries : Map.Map<Text, Map.Map<DayNumber, RitualEntry>>;
+    photos : Map.Map<Text, SharedPhoto>;
+    currentStreaks : Map.Map<UserId, Nat>;
+    longestStreaks : Map.Map<UserId, Nat>;
+    coupleStats : Map.Map<UserId, CoupleStats>;
+    loveLanguagesResults : Map.Map<UserId, LoveLanguagesQuizResult>;
+    synchronizedLoveLanguagesResults : Map.Map<UserId, SynchronizedLoveLanguagesResults>;
+    dailyRitualStats : Map.Map<UserId, GetDailyRitualResponse>;
+    harmonyStatsMap : Map.Map<UserId, HarmonyStats>;
+    milestoneProgress : Map.Map<UserId, MilestoneProgress>;
+    milestoneBadges : Map.Map<UserId, [MilestoneBadge]>;
+    coupleChallenges : Map.Map<Text, CoupleChallenges>;
+    challengeStats : Map.Map<Text, ChallengeStats>;
+    completedDays : Map.Map<CoupleId, Map.Map<DayNumber, RitualCompletion>>;
+    completedDaysReviewStats : Map.Map<CoupleId, DayStats>;
   };
 
   func convertToRitualEntryView(entry : RitualEntry) : RitualEntryView {
@@ -579,19 +602,6 @@ actor {
     prompts.values().toArray();
   };
 
-  public query ({ caller }) func getBadgeMilestones() : async BadgeMilestoneResponse {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can view badge milestones");
-    };
-
-    let badges = switch (milestoneBadges.get(caller)) {
-      case (null) { [] };
-      case (?b) { b };
-    };
-
-    { badges; milestones = getDefaultMilestoneProgress() };
-  };
-
   func getStreakData(coupleId : CoupleId) : (Nat, Nat) {
     switch (ritualEntries.get(coupleId)) {
       case (null) { (0, 0) };
@@ -690,6 +700,19 @@ actor {
       harmonyTrend = [];
       last30DayTrend = [];
     };
+  };
+
+  public query ({ caller }) func getBadgeMilestones() : async BadgeMilestoneResponse {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view badge milestones");
+    };
+
+    let badges = switch (milestoneBadges.get(caller)) {
+      case (null) { [] };
+      case (?b) { b };
+    };
+
+    { badges; milestones = getDefaultMilestoneProgress() };
   };
 
   public shared ({ caller }) func uploadPhoto(blob : Storage.ExternalBlob, name : Text) : async Text {
@@ -1007,9 +1030,6 @@ actor {
   };
 
   public query ({ caller }) func isAdmin() : async Bool {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can check admin status");
-    };
     AccessControl.isAdmin(accessControlState, caller);
   };
 

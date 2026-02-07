@@ -1,85 +1,88 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T01:27:44.419Z",
-  "summary": "ThemeContext/Provider was added and ThemeToggle was refactored to consume it, but some requirements are not fully evidenced or are partially violated (notably DOM reads during render via matchMedia). The diff summary also indicates multiple unrelated UI/feature changes outside the requested theme/modal fixes.",
+  "generatedAt": "2026-02-05T19:28:16.621Z",
+  "summary": "The diff shows a new backend migration module and partial frontend query-hook changes, but it does not include any visible implementation details for the core backend requirements (real Insights computation, couple-based streak/trend logic, harmony metrics, badge milestone computation, canonical ritual history persistence, or diagnostic logging). The frontend summaries also describe broader Insights/Home/LoveLanguages UI/behavior changes beyond the strictly requested wiring to backend values.",
   "missing_requirements": [
     {
-      "id": "REQ-2",
-      "requirement": "Refactor theme hook API to avoid DOM reads during render and ensure only one system-theme listener active only when theme==='system'.",
-      "reason": "ThemeProvider initializes effectiveTheme with window.matchMedia(...) inside a useState initializer, which executes during render (a DOM/browser API read during render). While documentElement.classList is not read during render, matchMedia is.",
+      "id": "REQ-1",
+      "requirement": "Implement real backend computation for `getInsightsData()` (no placeholders/zeros) including deterministic 14/30-day completion-by-both trends and aligned `harmonyTrend`.",
+      "reason": "No evidence in the provided backend diff excerpt that `getInsightsData()` was implemented/updated; `backend/main.mo` is truncated before any Insights-related functions or computations are shown.",
       "evidence": [
-        "frontend/src/contexts/ThemeContext.tsx"
+        "backend/main.mo (truncated in diff summary)"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "Fix streak and completion calculations to be order-stable and couple-based (complete only when both partners submit for the day), with correct flipping behavior when the second partner completes later.",
+      "reason": "No evidence in the diff summary of changes to streak/trend calculation logic; backend implementation details are not shown in the truncated excerpt.",
+      "evidence": [
+        "backend/main.mo (truncated in diff summary)"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Compute harmony metrics from stored quiz results + recent ritual consistency, exposing `quizOverlapScore`, `recentCompletionRate`, `currentHarmony`, and `averageHarmony` with proper fallbacks.",
+      "reason": "No evidence in the diff summary that these metrics are computed or returned from backend APIs; only type definitions are visible in the truncated excerpt.",
+      "evidence": [
+        "backend/main.mo (truncated in diff summary)"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Replace `getBadgeMilestones()` default milestone logic with computed milestone progress (7/30/100 streak + harmony elite) derived from the same computations as Insights.",
+      "reason": "No evidence in the diff summary that `getBadgeMilestones()` was updated or that milestone booleans are computed from real streak/harmony values; backend function bodies are not shown.",
+      "evidence": [
+        "backend/main.mo (truncated in diff summary)"
       ]
     },
     {
       "id": "REQ-5",
-      "requirement": "Make the Home → Ritual History entry dialog content surface fully opaque (optionally with subtle backdrop blur) in both light and dark themes via className overrides at the call site (no edits under frontend/src/components/ui).",
-      "reason": "Home.tsx is truncated before any DialogContent/Dialog overlay className overrides are shown; the provided snippet does not include evidence of an opaque dialog surface being applied at the call site.",
+      "requirement": "Ensure ritual submission maintains canonical daily history used by Insights so both-completed-today is consistent across Home, Ritual History, and Insights (update same day entry, no duplicates).",
+      "reason": "No evidence in the diff summary of changes to `submitRitualResponse` persistence behavior or `getRitualHistory` day-entry merging; backend submission/history code is not shown.",
       "evidence": [
-        "frontend/src/pages/Home.tsx"
+        "backend/main.mo (truncated in diff summary)"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "requirement": "Add lightweight diagnostic logging on `submitRitualResponse` including caller principal, coupleId, day number, and whether day is complete-by-both, without logging sensitive content.",
+      "reason": "No evidence in the diff summary of new logging statements around ritual submission/completion resolution; backend submission function is not visible in the excerpt.",
+      "evidence": [
+        "backend/main.mo (truncated in diff summary)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Changes to global dialog styling / modal surfaces via CSS (index.css) rather than only composing className overrides at the call site.",
-      "reason": "The diff summary text claims index.css was updated with improved dialog overlay/content styling; this is not part of the requested approach for REQ-5 (which explicitly calls for call-site className composition, without touching shared UI internals).",
+      "description": "Added a `backend/migration.mo` module and wired `Migration.run` into the actor via `(with migration = Migration.run)`.",
+      "reason": "The BuildRequest does not ask for a migration module or state migration work; this appears to be additional infrastructure beyond the listed A2 requirements.",
       "evidence": [
-        "frontend-file-summaries.txt"
+        "backend/migration.mo",
+        "backend/main.mo"
       ]
     },
     {
-      "description": "Insights page modifications (e.g., removing simulated sections, changing summaries).",
-      "reason": "Non-goal explicitly says not to implement or change Insights computations; the diff summary indicates substantive Insights page changes.",
+      "description": "Frontend hook `useArePromptsInitialized` explicitly returns `true` with a comment stating the backend method doesn't exist, plus periodic polling for initialization.",
+      "reason": "The BuildRequest does not mention prompts initialization checks, nor does it request adding/altering a prompts-initialization query that returns a hardcoded value.",
       "evidence": [
-        "frontend-file-summaries.txt"
+        "frontend/src/hooks/useQueries.ts"
       ]
     },
     {
-      "description": "Love Languages page overhaul (quiz sync, polling, persistence, error handling, etc.).",
-      "reason": "Not requested; outside the theme/modal scope.",
-      "evidence": [
-        "frontend-file-summaries.txt"
-      ]
-    },
-    {
-      "description": "Activities page changes (new sections, admin override behavior, etc.).",
-      "reason": "Not requested; outside the theme/modal scope.",
-      "evidence": [
-        "frontend-file-summaries.txt"
-      ]
-    },
-    {
-      "description": "Us page changes (pairing flow sections, navigation callbacks, highlighting, etc.).",
-      "reason": "Not requested; outside the theme/modal scope.",
-      "evidence": [
-        "frontend-file-summaries.txt"
-      ]
-    },
-    {
-      "description": "React Query hook behavior change: defensive client-side sorting in useGetRitualHistory.",
-      "reason": "Not requested; outside theme/modal scope.",
-      "evidence": [
-        "frontend-file-summaries.txt"
-      ]
-    },
-    {
-      "description": "Tailwind configuration changes (new tokens/fonts/base sizes).",
-      "reason": "Not requested; outside theme/modal scope.",
+      "description": "Broader frontend UI/behavior changes described for Insights/Home/LoveLanguages (e.g., 'removed simulated Love Language Trends section', 'enhanced synchronization', 'opaque dialog modal', design/token changes).",
+      "reason": "Non-goals/constraints state no overall Insights UI theme/layout changes beyond wiring to backend values and no new product features outside A2; these described changes appear to go beyond minimal wiring and persistence fixes.",
       "evidence": [
         "frontend-file-summaries.txt"
       ]
     }
   ],
-  "confidence": 0.68,
+  "confidence": 0.56,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/components/ThemeToggle.tsx",
-    "frontend/src/contexts/ThemeContext.tsx",
-    "frontend/src/hooks/useTheme.ts",
-    "frontend/src/pages/Home.tsx",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json"
   ]
 }

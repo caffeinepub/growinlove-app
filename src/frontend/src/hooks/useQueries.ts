@@ -230,20 +230,24 @@ export function useSubmitRitualResponse() {
       return actor.submitRitualResponse(input);
     },
     onSuccess: async () => {
-      // Invalidate all ritual-related queries using exact query keys
+      // A2: Enhanced invalidation with aggressive refetch strategy
+      // Invalidate all ritual-related queries
       await queryClient.invalidateQueries({ queryKey: ['dailyRitual'], exact: true });
       await queryClient.invalidateQueries({ queryKey: ['ritualStatus'], exact: true });
       await queryClient.invalidateQueries({ queryKey: ['ritualHistory'], exact: false });
       
-      // Build 1: Explicitly invalidate and refetch insights/badge data with exact matching
+      // A2: Invalidate insights and badge data to trigger immediate backend fetch
       await queryClient.invalidateQueries({ queryKey: ['insightsData'], exact: true });
       await queryClient.invalidateQueries({ queryKey: ['badgeMilestones'], exact: true });
       
-      // Force immediate refetch to update UI without full reload
+      // A2: Force immediate refetch with retry to ensure backend has processed the write
+      await new Promise(resolve => setTimeout(resolve, 500)); // Brief delay for backend processing
+      
       await Promise.all([
         queryClient.refetchQueries({ queryKey: ['insightsData'], exact: true }),
         queryClient.refetchQueries({ queryKey: ['badgeMilestones'], exact: true }),
         queryClient.refetchQueries({ queryKey: ['ritualStatus'], exact: true }),
+        queryClient.refetchQueries({ queryKey: ['ritualHistory'], exact: false }),
       ]);
     },
   });
@@ -466,7 +470,7 @@ export function useResetQuizResults() {
   });
 }
 
-// Insights Data Queries - Build 1: Hardened with exact query key matching
+// A2: Insights Data Queries with enhanced polling and retry strategy
 export function useGetInsightsData() {
   const { actor, isFetching: actorFetching } = useActor();
 
@@ -477,9 +481,10 @@ export function useGetInsightsData() {
       return actor.getInsightsData();
     },
     enabled: !!actor && !actorFetching,
-    refetchInterval: 10000, // Poll every 10 seconds for real-time updates
-    retry: 2,
-    staleTime: 5000, // Cache for 5 seconds to reduce unnecessary calls
+    refetchInterval: 8000, // A2: Poll every 8 seconds for real-time updates
+    retry: 3, // A2: Retry up to 3 times on failure
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+    staleTime: 3000, // A2: Cache for 3 seconds to reduce unnecessary calls
   });
 }
 
@@ -493,8 +498,9 @@ export function useGetBadgeMilestones() {
       return actor.getBadgeMilestones();
     },
     enabled: !!actor && !actorFetching,
-    refetchInterval: 10000, // Poll every 10 seconds for real-time updates
-    retry: 2,
-    staleTime: 5000, // Cache for 5 seconds to reduce unnecessary calls
+    refetchInterval: 8000, // A2: Poll every 8 seconds for real-time updates
+    retry: 3, // A2: Retry up to 3 times on failure
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+    staleTime: 3000, // A2: Cache for 3 seconds to reduce unnecessary calls
   });
 }

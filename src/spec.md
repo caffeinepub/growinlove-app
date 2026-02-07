@@ -1,13 +1,15 @@
 # Specification
 
 ## Summary
-**Goal:** Fix theme state/icon desynchronization by centralizing theme handling in a single global provider, and improve readability of the Home → Ritual History entry dialog by making its content surface opaque.
+**Goal:** Fix ritual-history persistence and replace placeholder Insights + milestone badge data with real backend-driven computations based on stored couple activity and quiz results.
 
 **Planned changes:**
-- Add a single global ThemeProvider/ThemeContext that stores `theme` (`light`|`dark`|`system`) and `effectiveTheme` (`light`|`dark`) and is the only place that mutates `document.documentElement` theme classes.
-- Refactor the existing theme hook API to consume the context without DOM reads during render, and ensure only one system theme `matchMedia` listener exists (active only when `theme === 'system'`).
-- Update ThemeToggle to render and toggle using ThemeContext values (icon state + aria-label) to prevent desync.
-- Restrict theme persistence so `localStorage` is written only when the user explicitly changes theme (set/toggle), and restore the saved preference on reload.
-- Make the Home → Ritual History entry dialog content surface fully opaque (optionally with subtle backdrop blur) via call-site `className` overrides, without modifying any files under `frontend/src/components/ui`.
+- Implement backend computation for `getInsightsData()` so it returns deterministic, non-placeholder values derived from stored ritual history (including `currentStreak`, `last14DayTrend`, `last30DayTrend`, and aligned `harmonyTrend`).
+- Fix streak/trend calculations to be couple-based and order-stable: a day counts as complete only when both partners submit for that day; completing later the same day updates the existing day entry.
+- Compute and expose harmony metrics from stored data (quiz alignment + recent ritual consistency) via `quizOverlapScore`, `recentCompletionRate`, `currentHarmony`, and `averageHarmony`, with safe fallback when quiz data is missing.
+- Replace default `getBadgeMilestones()` logic with real computed milestone progress (7/30/100-day streak and harmony elite) derived from the same underlying computations as Insights, preserving existing auth behavior and fallback for unpaired/unauthorized callers.
+- Ensure ritual submission maintains canonical daily history used consistently by Home, Ritual History, and Insights.
+- Add lightweight diagnostic logging around ritual submission and daily completion resolution (no sensitive content; no API shape changes).
+- Update frontend data expectations only as needed so Insights and milestone badges reflect the new backend values and refresh after ritual submission without a hard reload.
 
-**User-visible outcome:** Theme toggling and system-theme syncing work reliably with correctly matched toggle icon/label, and Ritual History entry dialogs are clearly readable in both light and dark modes.
+**User-visible outcome:** Insights no longer shows all-zero/placeholder harmony and history; after both partners complete today’s ritual, streaks, daily trends, harmony metrics, and milestone badge unlocks update correctly and consistently across the app.

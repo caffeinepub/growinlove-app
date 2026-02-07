@@ -1,88 +1,79 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T01:27:44.437Z",
+  "generatedAt": "2026-02-05T19:28:16.624Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 5,
-    "implemented": 5,
+    "total": 7,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Implement a single global ThemeProvider/ThemeContext that stores `theme` ('light'|'dark'|'system') and `effectiveTheme` ('light'|'dark'), and centralizes all DOM theme class application (adding/removing `light`/`dark` on `document.documentElement`) in exactly one place.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/contexts/ThemeContext.tsx",
-          "frontend/src/App.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/contexts/ThemeContext.tsx",
-          "frontend/src/App.tsx"
-        ]
+        "summary": "Implement real backend computation for `getInsightsData()` so Insights no longer returns placeholder/zero values and correctly reflects the couple’s post-deploy ritual activity.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Refactor the existing theme hook API so app code can continue using a hook to access theme state, but ensure there are no DOM reads during render and no duplicate system-theme listeners; only one system preference listener is active and only when `theme === 'system'`.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useTheme.ts",
-          "frontend/src/contexts/ThemeContext.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useTheme.ts",
-          "frontend/src/contexts/ThemeContext.tsx"
-        ]
+        "summary": "Fix streak and completion calculations to be order-stable and couple-based, counting a day as complete only when both partners have submitted a ritual response for that day.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-3",
-        "summary": "Update ThemeToggle to use the ThemeContext values for rendering (including aria-label and icon state) and for toggling, eliminating icon/state desynchronization.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/ThemeToggle.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/ThemeToggle.tsx"
-        ]
+        "summary": "Compute and return harmony metrics from real stored data: quiz alignment (from both partners’ saved Love Languages quiz results) + recent ritual consistency (from recent completion trends), and expose them via `quizOverlapScore`, `recentCompletionRate`, `currentHarmony`, and `averageHarmony`.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-4",
-        "summary": "Ensure localStorage persistence for theme preference only happens in the explicit theme setter/toggle action (not on every render and not in effects that run repeatedly).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/contexts/ThemeContext.tsx",
-          "frontend/src/hooks/useTheme.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/contexts/ThemeContext.tsx",
-          "frontend/src/hooks/useTheme.ts"
-        ]
+        "summary": "Replace `getBadgeMilestones()` default milestone logic with real computed milestone progress (7/30/100 day streaks and harmony elite) derived from the same computations used by `getInsightsData()`.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-5",
-        "summary": "Make the Home → Ritual History entry dialog readable by ensuring the dialog content surface is fully opaque (optionally with a subtle backdrop blur) in both light and dark themes, without editing any files under `frontend/src/components/ui` (compose via className overrides at the call site).",
+        "summary": "Ensure ritual submission writes/maintains the canonical daily history used by Insights so that a successful “both completed today” state is reflected consistently across Home, Ritual History, and Insights.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Add lightweight diagnostic logging around ritual submission and daily completion resolution to aid debugging without breaking queries or leaking sensitive content.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-7",
+        "summary": "Update frontend data expectations only where needed to display the newly-real backend Insights values (no UI redesign), ensuring the Insights screen updates after ritual submission without requiring a hard reload.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/Home.tsx"
+          "frontend/src/pages/Insights.tsx",
+          "frontend/src/hooks/useQueries.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pages/Home.tsx"
+          "frontend/src/hooks/useQueries.ts"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/components/ThemeToggle.tsx",
-    "frontend/src/contexts/ThemeContext.tsx",
-    "frontend/src/hooks/useTheme.ts",
-    "frontend/src/pages/Home.tsx",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
