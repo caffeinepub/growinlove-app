@@ -1,14 +1,35 @@
-<!DOCTYPE html>
-<html lang='en'>
-    <head>
-        <meta charset='UTF-8' />
-        <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
-        <meta name='theme-color' content='#f8d7da' />
-        <meta name='description' content='GrowInLove - A relationship-focused app to strengthen your bond' />
-        <title>GrowInLove</title>
-    </head>
-    <body>
-        <div id='root'></div>
-        <script type='module' src='/src/main.tsx'></script>
-    </body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/generated/favicon-32.dim_32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/generated/favicon-16.dim_16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/generated/apple-touch-icon.dim_180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/generated/android-chrome.dim_192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/generated/android-chrome.dim_512x512.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#f4a5a5" />
+    <title>GrowInLove</title>
+    <script>
+      // Pre-React theme initialization to prevent flash
+      (function() {
+        try {
+          const savedTheme = localStorage.getItem('theme');
+          const effectiveTheme = savedTheme === 'system' || !savedTheme
+            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+            : savedTheme;
+          
+          document.documentElement.classList.remove('light', 'dark');
+          document.documentElement.classList.add(effectiveTheme);
+        } catch (e) {
+          // Fallback to light if localStorage is unavailable
+          document.documentElement.classList.add('light');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

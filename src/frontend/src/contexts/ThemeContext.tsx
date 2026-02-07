@@ -15,8 +15,12 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   // Initialize theme from localStorage (lazy init)
   const [theme, setThemeState] = useState<Theme>(() => {
-    const saved = localStorage.getItem('theme') as Theme | null;
-    return saved || 'system';
+    try {
+      const saved = localStorage.getItem('theme') as Theme | null;
+      return saved || 'system';
+    } catch {
+      return 'system';
+    }
   });
 
   // Derive effective theme from theme preference and system preference
@@ -67,7 +71,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // Action: set theme and persist to localStorage
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem('theme', newTheme);
+    try {
+      localStorage.setItem('theme', newTheme);
+    } catch {
+      // Ignore localStorage errors
+    }
     
     // Immediately update effective theme if not system
     if (newTheme !== 'system') {

@@ -1,61 +1,51 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-07T21:14:26.761Z",
-  "summary": "Diff adds a new Landing page shown to unauthenticated users (with URL-hash mode switching), blush-themed styling tokens, a static screenshot carousel with swipe + next/prev controls, a founder story content module, and a dialog component intended for footer links. Some requirements (full section set, stable anchor IDs, and exact footer link labeling/behavior) cannot be fully verified from the truncated diff summary; branding asset files themselves are also not evidenced as added.",
+  "generatedAt": "2026-02-07T22:35:49.310Z",
+  "summary": "Landing hero and screenshot carousel were updated to use 4 new /assets/generated JPG screenshots, favicon links were wired in index.html, and ThemeContext was reworked to persist/apply light/dark themes. However, the diff summary does not show the required static image assets (screenshots, favicon/app icons, and updated logo files) being added, and it includes at least one unrelated utility change (urlParams).",
   "missing_requirements": [
     {
-      "id": "REQ-2",
-      "requirement": "Landing page contains all required sections (Hero, Benefit Trio, Product Screenshot Carousel, Founder Story, Privacy Reassurance, Optional Feature Deep-dives, Final CTA, Footer) and each section has stable anchor IDs for footer navigation.",
-      "reason": "Only some sections/IDs are visible in the truncated Landing.tsx snippet (e.g., Benefit Trio has id=\"features\"); the rest of the required sections and their anchor IDs are not evidenced in the provided diff summary.",
+      "id": "REQ-4",
+      "requirement": "Update landing-page branding imagery so header logo, footer logo, and any other landing brand marks are visually consistent and use the same tree-heart style artwork.",
+      "reason": "The diff shows header logo icon + wordmark updated, but the Landing.tsx diff is truncated before the footer; no evidence in the provided diff summary that the footer logo (or other landing brand marks) was updated to match.",
       "evidence": [
-        "frontend/src/pages/Landing.tsx (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "requirement": "Footer displays five labeled links (About, Contact, Terms, Privacy, and exactly “Interested in supporting our growth?”) and each link navigates to a section or opens an on-page modal/sheet (no dead links).",
-      "reason": "A dialog component for footer link content exists, but the actual footer link UI (including exact link label text and click behavior) is not shown in the diff summary; additionally, the investor dialog title uses different capitalization than the required exact footer link label (title is not the label, but the label cannot be verified).",
-      "evidence": [
-        "frontend/src/components/LandingFooterLinksDialog.tsx (truncated)",
         "frontend/src/pages/Landing.tsx (truncated)"
       ]
     },
     {
       "id": "REQ-7",
-      "requirement": "New generated branding assets exist in frontend/public/assets/generated (logo icon, wordmark, hero illustration, and 3 screenshots) and are referenced by the landing page.",
-      "reason": "Landing page and carousel reference the required asset paths under /assets/generated, but the diff summary does not show the actual image files being added under frontend/public/assets/generated (likely binary/non-LLM-readable and omitted).",
+      "requirement": "Store the 4 uploaded screenshot assets in the frontend as static files (under frontend/public/assets/generated or similar) and reference them directly from landing components.",
+      "reason": "The code references new JPG paths under /assets/generated, but the diff summary does not show any new static image files being added under frontend/public (or any public assets directory).",
       "evidence": [
-        "frontend/src/pages/Landing.tsx (truncated)",
+        "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
         "frontend/src/components/LandingScreenshotCarousel.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "requirement": "Update the browser favicon/app icon to match the landing-page logo artwork/style, serve as static assets, and reference from frontend/index.html.",
+      "reason": "frontend/index.html was updated to reference favicon/app icon files, but the diff summary does not show those favicon/app icon image assets being added under frontend/public/assets/generated (or elsewhere).",
+      "evidence": [
+        "frontend/index.html"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Added URL utility for reading an arbitrary \"secret\" query parameter (getSecretParameter) for admin token initialization.",
-      "reason": "BuildRequest only asked for deterministic landing/app mode switching without a router; secret/admin query parameter handling is not requested for the landing page scope.",
+      "description": "Added/modified URL parameter + sessionStorage utility helpers (urlParams).",
+      "reason": "BuildRequest is focused on landing page screenshots/branding/favicon and theme toggle; it does not request new URL parameter parsing/persistence utilities.",
       "evidence": [
-        "frontend/src/utils/urlParams.ts"
-      ]
-    },
-    {
-      "description": "LoginButton behavior enhancements: logout clears the React Query cache; adds variant/size/label props and error recovery flow.",
-      "reason": "BuildRequest only required reusing existing Internet Identity login behavior from the landing page; these additional behaviors/props are not explicitly requested.",
-      "evidence": [
-        "frontend/src/components/LoginButton.tsx"
+        "frontend/src/utils/urlParams.ts (truncated)"
       ]
     }
   ],
-  "confidence": 0.63,
+  "confidence": 0.67,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/components/LandingFooterLinksDialog.tsx",
+    "frontend/index.html",
+    "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
     "frontend/src/components/LandingScreenshotCarousel.tsx",
-    "frontend/src/components/LoginButton.tsx",
-    "frontend/src/content/founderStory.ts",
-    "frontend/src/index.css",
+    "frontend/src/contexts/ThemeContext.tsx",
     "frontend/src/pages/Landing.tsx",
     "frontend/src/utils/urlParams.ts",
     "project_state.json"

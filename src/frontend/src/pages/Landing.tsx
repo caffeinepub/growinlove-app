@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LoginButton } from '@/components/LoginButton';
 import { LandingScreenshotCarousel } from '@/components/LandingScreenshotCarousel';
+import { LandingHeroScreenshotShowcase } from '@/components/LandingHeroScreenshotShowcase';
 import { LandingFooterLinksDialog } from '@/components/LandingFooterLinksDialog';
 import { Heart, Shield, TrendingUp, Calendar, Sparkles, Users } from 'lucide-react';
 import { founderStory } from '@/content/founderStory';
@@ -34,12 +35,12 @@ export function Landing({ onEnterApp }: LandingProps) {
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img
-              src="/assets/generated/landing-logo-icon-transparent.dim_256x256.png"
+              src="/assets/generated/landing-logo-icon-transparent.v2.dim_256x256.png"
               alt="GrowInLove"
               className="h-10 w-10 object-contain"
             />
             <img
-              src="/assets/generated/landing-wordmark-transparent.dim_720x200.png"
+              src="/assets/generated/landing-wordmark-transparent.v2.dim_720x200.png"
               alt="GrowInLove"
               className="h-8 object-contain hidden sm:block"
             />
@@ -75,11 +76,7 @@ export function Landing({ onEnterApp }: LandingProps) {
             </p>
           </div>
           <div className="flex justify-center">
-            <img
-              src="/assets/generated/landing-hero-illustration.dim_1400x900.png"
-              alt="Grow together"
-              className="w-full max-w-md object-contain drop-shadow-2xl"
-            />
+            <LandingHeroScreenshotShowcase />
           </div>
         </div>
       </section>
@@ -277,7 +274,7 @@ export function Landing({ onEnterApp }: LandingProps) {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
               <img
-                src="/assets/generated/landing-logo-icon-transparent.dim_256x256.png"
+                src="/assets/generated/landing-logo-icon-transparent.v2.dim_256x256.png"
                 alt="GrowInLove"
                 className="h-8 w-8 object-contain"
               />

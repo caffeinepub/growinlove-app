@@ -1,157 +1,160 @@
 {
   "kind": "build_request",
-  "title": "Add public marketing landing page with blush theme, CTA, screenshot carousel, and footer investor-interest link",
+  "title": "Landing page refresh: replace carousel with 4 uploaded screenshots, align branding to tree-heart logo style, and update favicon",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Create a new single-page public marketing landing page for GrowInLove that is shown to unauthenticated visitors instead of the current centered login-only welcome screen.",
+      "text": "Replace the landing page product screenshot carousel images with the 4 uploaded app screenshots (IMG_1297.jpeg, IMG_1298.jpeg, IMG_1299.jpeg, IMG_1300.jpeg), removing all existing carousel images and updating the carousel to support 4 slides (swipe, next/prev, dots).",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "great! please proceed"
+          "We should use all 4 photos that were uploaded to replace all the current photos in the carousel.",
+          "Remove all existing photos and redesign to better fit the 4 photos uploaded."
         ]
       },
       "acceptanceCriteria": [
-        "When the user is not authenticated, the app renders a full marketing landing page (not only a login card).",
-        "When the user is authenticated, the existing in-app tab UI (Top Bar + BottomNav + tabs) remains unchanged.",
-        "Landing page is mobile-first and has a sensible desktop layout variant (responsive)."
+        "Landing carousel displays exactly 4 slides sourced from the uploaded files (not the existing /assets/generated/landing-screenshot-*.png files).",
+        "Swipe on mobile moves between all 4 slides; desktop prev/next buttons and dots navigate correctly.",
+        "No old placeholder “Amour Bloom” images appear anywhere in the carousel."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Implement the landing page sections from the approved wireframe and project scope: header (logo + light/dark toggle), hero (tree-inspired branding), benefit trio, product screenshot carousel, founder story section (using the provided founder story content already in the project context), privacy reassurance section, optional feature deep-dives section, final CTA section, and footer. Do not include testimonials/social proof.",
+      "text": "Redesign the landing page hero section to showcase the 4 uploaded screenshots in a clean, modern device-frame style carousel (or equivalent polished screenshot presentation), replacing the current static hero illustration while keeping the existing hero headline, subheadline, and CTA intact.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-1",
+          "msg-2"
         ],
         "quotes": [
-          "Updated Landing Page Wireframe",
-          "Remove testimonials/social proof section from landing page for now (no testimonials available)"
+          "Remove all existing photos and redesign to better fit the 4 photos uploaded.",
+          "please proceed with the landing page changes that we discussed."
         ]
       },
       "acceptanceCriteria": [
-        "Landing page contains: Hero, Benefit Trio (3 blocks), Product Screenshot Carousel, Founder Story, Privacy Reassurance, Optional Feature Deep-dives, Final CTA, Footer.",
-        "No testimonials/social proof section is present on the landing page.",
-        "Each section is reachable via scroll and has stable anchor IDs suitable for footer navigation (e.g., #about, #contact, etc.)."
+        "Hero section no longer renders the current hero illustration image; it instead features the uploaded screenshots in a cohesive presentation optimized for mobile and desktop.",
+        "Hero headline/subheadline/CTA remain present and readable across breakpoints.",
+        "Hero layout remains visually balanced (no overflow/cropping issues on common mobile widths)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add a primary landing-page CTA that links directly to the deployed app experience (the authenticated app shell), and provide a secondary CTA that brings users to sign in (Internet Identity) if they choose. Ensure the CTA behavior is clear and works without introducing a router.",
+      "text": "Ensure the uploaded screenshots are used only within the landing page hero and/or landing screenshot carousel, and are not added to other app pages.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Landing page primary CTA button links directly to the deployed app"
+          "We don't need to add these photos anywhere else on the app."
         ]
       },
       "acceptanceCriteria": [
-        "The landing page includes a prominent primary CTA button.",
-        "Clicking the primary CTA navigates into the app experience (same deployment) in a deterministic way (e.g., hash/query-based mode switch) without breaking the existing tab-based SPA.",
-        "A sign-in affordance exists on the landing page and successfully initiates Internet Identity login (reusing existing LoginButton behavior)."
+        "No new references to the uploaded screenshot assets exist outside landing-page-related components/pages."
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Apply a consistent blush/cream romantic aesthetic to the landing page and ensure it fully supports the existing light/dark theme system (including a visible theme toggle on the landing page).",
+      "text": "Update landing-page branding imagery to match the uploaded tree-and-hearts logo inspiration (86096FC5-864D-4BBF-9400-34F371353585-1.JPG): ensure the landing header logo (top-left), any landing thumbnails/brand marks, and footer logo are visually consistent and use the same logo artwork across the landing page.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Landing page theming: blush aesthetic with mandatory light/dark mode toggle"
+          "We do need to make sure we correct the other images on the landing page to better fit the previous logo design I provided earlier. For example, in the top left corner.",
+          "I'd just like to make sure the design is similar and the same logo is used across the landing page."
         ]
       },
       "acceptanceCriteria": [
-        "Landing page visually matches a blush/cream romantic design and remains readable and visually coherent in both light and dark modes.",
-        "Theme toggle is accessible from the landing page header and correctly switches themes using the existing ThemeProvider/ThemeToggle behavior.",
-        "No edits are made to immutable frontend paths; composition/wrapping is used where needed."
+        "Landing header logo (top-left) and footer logo are visually consistent with the tree-and-hearts inspiration and match each other (no mixed logo styles).",
+        "Any other landing-page brand marks/thumbnails use the same landing logo artwork/style (no mismatched branding on landing)."
       ]
     },
     {
       "id": "REQ-5",
-      "text": "Implement the landing page footer with labeled links: About, Contact, Terms, Privacy, plus an investor-interest link labeled exactly “Interested in supporting our growth?”. Ensure each footer link has a clear text label (including the existing ones) and behaves consistently.",
+      "text": "Update the browser favicon/app icon to match the same landing-page logo artwork/style, and wire it into the static HTML so it appears in the browser tab.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Footer:\n• About\n• Contact\n• Terms\n• Privacy\n• Investor‑Interest Link: “Interested in supporting our growth?”"
+          "I'm thinking we update the landing-page logo and thumbnails, as well as the favicon/app icon in the browser tab."
         ]
       },
       "acceptanceCriteria": [
-        "Footer displays five text labels: About, Contact, Terms, Privacy, and “Interested in supporting our growth?”.",
-        "Clicking About/Contact/Terms/Privacy navigates to a corresponding landing-page section or opens a simple on-page modal/sheet with placeholder content (no dead links).",
-        "Investor-interest link label text matches exactly: “Interested in supporting our growth?” and navigates to a corresponding landing-page section or modal with a clear next step (placeholder text is acceptable if no contact endpoint is provided)."
+        "A favicon is present and visible in the browser tab and matches the landing logo style.",
+        "favicon assets are served as static frontend assets and referenced from frontend/index.html."
       ]
     },
     {
       "id": "REQ-6",
-      "text": "Add a product screenshot carousel to the landing page using static images bundled with the frontend (no backend calls). Include basic controls (swipe on mobile and clickable next/prev on desktop) and ensure images are responsive and performant.",
+      "text": "Fix the landing page light/dark mode toggle so that toggling updates the landing page styling immediately and persistently (via the existing ThemeProvider/ThemeContext), including the landing background gradients and card backgrounds.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Landing page sections: hero, benefit trio, product screenshot carousel..."
+          "Fix the light/dark mode toggle so it works correctly with Tailwind."
         ]
       },
       "acceptanceCriteria": [
-        "Carousel renders at least 3 screenshots from frontend static assets and works in both light and dark modes.",
-        "On mobile, carousel supports swipe/drag; on desktop, carousel supports next/prev controls.",
-        "Images are loaded from the frontend public assets (not fetched from backend)."
+        "Clicking the theme toggle on the landing page reliably switches between light and dark appearance.",
+        "Theme preference persists across refresh (localStorage) and applies on initial load.",
+        "No landing sections remain stuck in the wrong theme after toggling."
       ]
     },
     {
       "id": "REQ-7",
-      "text": "Use the user-uploaded tree-and-hearts image as branding inspiration by generating new logo/wordmark and a hero illustration variant as static assets, and update the landing page header/hero to use them. Keep existing in-app logo usage unchanged unless explicitly replaced on the landing page only.",
+      "text": "Store the 4 uploaded screenshot assets in the frontend as static files and reference them directly from landing components (do not route images through the backend).",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Use uploaded tree-and-hearts image as logo inspiration for landing page branding"
+          "We should use all 4 photos that were uploaded to replace all the current photos in the carousel."
         ]
       },
       "acceptanceCriteria": [
-        "New generated branding assets exist in frontend/public/assets/generated and are referenced by the landing page.",
-        "Landing page header shows the new wordmark/logo assets and the hero section uses the new illustration.",
-        "The authenticated in-app shell continues to work and is not visually broken by landing-page asset changes."
+        "Screenshot image files are placed under frontend/public/assets/generated (or a consistent landing asset folder under public) and loaded via direct /assets/... URLs.",
+        "No backend code changes are required for serving these landing images."
       ]
     }
   ],
   "constraints": [
-    "Backend remains single-actor Motoko architecture; no new backend canisters/services.",
-    "Do not edit any frontend immutable paths (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui/*).",
-    "Do not add third-party authentication providers; only Internet Identity is permitted.",
-    "Do not add a testimonials/social proof section to the landing page."
+    "Do not edit files under frontend/src/components/ui (compose instead).",
+    "Do not edit immutable paths listed in SYSTEM_CONTEXT (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx).",
+    "Backend is single-actor Motoko; avoid backend changes unless strictly required (landing should remain static)."
   ],
   "nonGoals": [
-    "Implementing real Terms/Privacy legal copy (placeholders are acceptable unless provided elsewhere).",
-    "Adding a full routing solution (e.g., React Router) or moving away from the existing tab-based SPA design.",
-    "Changing backend data models or adding backend endpoints for the landing page."
+    "Do not add the uploaded screenshots to authenticated in-app pages (Home/Insights/Memories/etc.).",
+    "Do not introduce routing or additional pages for the landing refresh.",
+    "Do not add testimonials/social proof sections."
   ],
   "imageRequirements": {
     "required": [
-      "Tree-and-hearts inspired logo icon, transparent background (landing-logo-icon-transparent.dim_256x256.png)",
-      "Tree-and-hearts inspired wordmark logo, transparent background (landing-wordmark-transparent.dim_720x200.png)",
-      "Tree-and-hearts inspired hero illustration, soft blush palette (landing-hero-illustration.dim_1400x900.png)",
-      "Mobile app screenshot mock 1, romantic blush UI style (landing-screenshot-1.dim_390x844.png)",
-      "Mobile app screenshot mock 2, romantic blush UI style (landing-screenshot-2.dim_390x844.png)",
-      "Mobile app screenshot mock 3, romantic blush UI style (landing-screenshot-3.dim_390x844.png)"
+      "Favicon icon matching tree-and-hearts style (favicon-32.dim_32x32.png)",
+      "Favicon icon matching tree-and-hearts style (favicon-16.dim_16x16.png)",
+      "Apple touch icon matching tree-and-hearts style (apple-touch-icon.dim_180x180.png)",
+      "Android icon matching tree-and-hearts style (android-chrome.dim_192x192.png)",
+      "Android icon matching tree-and-hearts style (android-chrome.dim_512x512.png)",
+      "Mobile app screenshot image derived from IMG_1297.jpeg, resized/cropped (landing-screenshot-1.dim_390x844.jpg)",
+      "Mobile app screenshot image derived from IMG_1298.jpeg, resized/cropped (landing-screenshot-2.dim_390x844.jpg)",
+      "Mobile app screenshot image derived from IMG_1299.jpeg, resized/cropped (landing-screenshot-3.dim_390x844.jpg)",
+      "Mobile app screenshot image derived from IMG_1300.jpeg, resized/cropped (landing-screenshot-4.dim_390x844.jpg)"
     ],
-    "edits": []
+    "edits": [
+      "Refine the logo icon to better match the tree-and-hearts inspiration and keep it cohesive with the wordmark (landing-logo-icon-transparent.dim_256x256.png > landing-logo-icon-transparent.v2.dim_256x256.png)",
+      "Refine the wordmark to better match the tree-and-hearts inspiration and keep it cohesive with the icon (landing-wordmark-transparent.dim_720x200.png > landing-wordmark-transparent.v2.dim_720x200.png)"
+    ]
   },
   "userProfileUpdate": {
     "goalsToAdd": [],

@@ -8,7 +8,7 @@
   "frontend/src/pages/Activities.tsx": "Activities page with Love Challenges at top, followed by Reward Visuals, Spin the Love Wheel section with \"Coming soon\" note, and Love Language Unlock Packs sections, using insights data for streak tracking and admin override functionality.",
   "frontend/src/pages/Us.tsx": "Us page with pairing flow, admin badge section, and paired-state Relationship Foundations section featuring the Our Love Languages card with dynamic status states, one-time highlight after pairing, and navigation callbacks to Love Languages and Insights tabs.",
   "frontend/src/hooks/useQueries.ts": "React Query hooks for backend integration with A2-enhanced invalidation strategy including aggressive refetch after ritual submission, exponential retry backoff for insights/badge queries, and optimized polling intervals (8s) with 3s stale time to ensure UI updates reflect backend state changes without excessive network calls.",
-  "frontend/index.html": "HTML entry point with mobile-optimized viewport settings and theme color for the GrowInLove app.",
+  "frontend/index.html": "HTML entry point updated with favicon links for all sizes (16x16, 32x32, 180x180, 192x192, 512x512) and pre-React theme initialization script to prevent flash of unstyled content.",
   "frontend/tailwind.config.js": "Tailwind configuration extended with peach and cream color tokens, rounded sans-serif font family (Nunito, Quicksand, Comfortaa), and 18-20pt base font sizes for the romantic design system.",
   "frontend/src/components/LoginButton.tsx": "Login/logout button component with Internet Identity integration, loading states, query cache clearing on logout, and optional variant/size/label props for landing page customization.",
   "frontend/src/components/ProfileSetup.tsx": "Profile setup modal component with form submission, loading states, success animation with checkmark, and automatic navigation callback after successful profile initialization.",
@@ -27,10 +27,11 @@
   "frontend/src/main.tsx": "Application entry point with single QueryClientProvider, Internet Identity provider, and Version 64 build identifier console log for deployment verification.",
   "frontend/src/hooks/useTheme.ts": "Re-exports the useTheme hook from ThemeContext for backward compatibility with existing imports.",
   "frontend/src/components/ThemeToggle.tsx": "Theme toggle button that consumes effectiveTheme from context (no DOM reads during render) and toggles between light/dark modes with correct icon/aria-label synchronization.",
-  "frontend/src/contexts/ThemeContext.tsx": "Global ThemeProvider with centralized theme state management, single DOM mutation point, system preference watcher (only when theme is 'system'), and localStorage persistence only in explicit actions.",
-  "frontend/src/pages/Landing.tsx": "Full marketing landing page with hero, benefits, carousel, founder story, privacy reassurance, feature deep-dives, final CTA, and footer with modal dialogs for terms/privacy/investor links.",
-  "frontend/src/components/LandingScreenshotCarousel.tsx": "Responsive screenshot carousel with touch/mouse swipe support, next/prev desktop controls, and dot indicators for mobile-first navigation.",
+  "frontend/src/contexts/ThemeContext.tsx": "Global ThemeProvider with hardened theme state management, localStorage error handling, and improved initialization to ensure reliable theme toggling and persistence.",
+  "frontend/src/pages/Landing.tsx": "Full marketing landing page updated to use the new v2 logo assets in header and footer, and featuring the new LandingHeroScreenshotShowcase component in the hero section instead of the old illustration.",
+  "frontend/src/components/LandingScreenshotCarousel.tsx": "Responsive screenshot carousel updated to use all 4 uploaded app screenshots with touch/mouse swipe support, next/prev desktop controls, and dot indicators.",
   "frontend/src/components/LandingFooterLinksDialog.tsx": "Modal dialog component for footer links (Contact, Terms, Privacy, Investor) with placeholder content and proper accessibility.",
   "frontend/src/content/founderStory.ts": "Exported constant containing the full founder story text for the landing page.",
-  "frontend/src/utils/urlParams.ts": "URL parameter utilities for landing/app mode switching using hash-based navigation and secret parameter extraction from query strings for admin token initialization."
+  "frontend/src/utils/urlParams.ts": "URL parameter utilities for hash-based navigation, secret parameter handling, and app mode management (landing/app switching) with localStorage persistence and hash change listeners.",
+  "frontend/src/components/LandingHeroScreenshotShowcase.tsx": "Dedicated hero screenshot showcase component that displays the 4 uploaded app screenshots in a polished phone-frame mockup with auto-rotating carousel and dot navigation."
 }

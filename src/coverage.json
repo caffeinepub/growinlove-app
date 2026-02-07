@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-07T21:14:26.764Z",
+  "generatedAt": "2026-02-07T22:35:49.313Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -12,129 +12,135 @@
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Create a new single-page public marketing landing page for GrowInLove that is shown to unauthenticated visitors instead of the current centered login-only welcome screen.",
+        "summary": "Replace the landing page product screenshot carousel images with the 4 uploaded app screenshots (IMG_1297.jpeg, IMG_1298.jpeg, IMG_1299.jpeg, IMG_1300.jpeg), removing all existing carousel images and updating the carousel to support 4 slides (swipe, next/prev, dots).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/Landing.tsx",
-          "frontend/src/App.tsx",
-          "frontend/src/utils/urlParams.ts"
+          "frontend/src/components/LandingScreenshotCarousel.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/Landing.tsx",
-          "frontend/src/App.tsx",
-          "frontend/src/utils/urlParams.ts"
+          "frontend/src/components/LandingScreenshotCarousel.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Implement the landing page sections from the approved wireframe and project scope: header (logo + light/dark toggle), hero (tree-inspired branding), benefit trio, product screenshot carousel, founder story section (using the provided founder story content already in the project context), privacy reassurance section, optional feature deep-dives section, final CTA section, and footer. Do not include testimonials/social proof.",
+        "summary": "Redesign the landing page hero section to showcase the 4 uploaded screenshots in a clean, modern device-frame style carousel (or equivalent polished screenshot presentation), replacing the current static hero illustration while keeping the existing hero headline, subheadline, and CTA intact.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/Landing.tsx",
-          "frontend/src/content/founderStory.ts"
+          "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
+          "frontend/src/pages/Landing.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/Landing.tsx",
-          "frontend/src/content/founderStory.ts"
+          "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
+          "frontend/src/pages/Landing.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Add a primary landing-page CTA that links directly to the deployed app experience (the authenticated app shell), and provide a secondary CTA that brings users to sign in (Internet Identity) if they choose. Ensure the CTA behavior is clear and works without introducing a router.",
+        "summary": "Ensure the uploaded screenshots are used only within the landing page hero and/or landing screenshot carousel, and are not added to other app pages.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/Landing.tsx",
-          "frontend/src/App.tsx",
-          "frontend/src/components/LoginButton.tsx"
+          "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
+          "frontend/src/components/LandingScreenshotCarousel.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/Landing.tsx",
-          "frontend/src/App.tsx",
-          "frontend/src/components/LoginButton.tsx"
+          "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
+          "frontend/src/components/LandingScreenshotCarousel.tsx"
         ]
       },
       {
         "id": "REQ-4",
-        "summary": "Apply a consistent blush/cream romantic aesthetic to the landing page and ensure it fully supports the existing light/dark theme system (including a visible theme toggle on the landing page).",
+        "summary": "Update landing-page branding imagery to match the uploaded tree-and-hearts logo inspiration (86096FC5-864D-4BBF-9400-34F371353585-1.JPG): ensure the landing header logo (top-left), any landing thumbnails/brand marks, and footer logo are visually consistent and use the same logo artwork across the landing page.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/Landing.tsx",
-          "frontend/src/index.css"
+          "frontend/public/assets/generated/landing-logo-icon-transparent.v2.dim_256x256.png",
+          "frontend/public/assets/generated/landing-wordmark-transparent.v2.dim_720x200.png",
+          "frontend/src/pages/Landing.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/Landing.tsx",
-          "frontend/src/index.css"
+          "frontend/public/assets/generated/landing-logo-icon-transparent.v2.dim_256x256.png",
+          "frontend/public/assets/generated/landing-wordmark-transparent.v2.dim_720x200.png",
+          "frontend/src/pages/Landing.tsx"
         ]
       },
       {
         "id": "REQ-5",
-        "summary": "Implement the landing page footer with labeled links: About, Contact, Terms, Privacy, plus an investor-interest link labeled exactly “Interested in supporting our growth?”. Ensure each footer link has a clear text label (including the existing ones) and behaves consistently.",
+        "summary": "Update the browser favicon/app icon to match the same landing-page logo artwork/style, and wire it into the static HTML so it appears in the browser tab.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/Landing.tsx",
-          "frontend/src/components/LandingFooterLinksDialog.tsx"
+          "frontend/public/assets/generated/favicon-32.dim_32x32.png",
+          "frontend/public/assets/generated/favicon-16.dim_16x16.png",
+          "frontend/public/assets/generated/apple-touch-icon.dim_180x180.png",
+          "frontend/public/assets/generated/android-chrome.dim_192x192.png",
+          "frontend/public/assets/generated/android-chrome.dim_512x512.png",
+          "frontend/index.html"
         ],
         "matchedFiles": [
-          "frontend/src/pages/Landing.tsx",
-          "frontend/src/components/LandingFooterLinksDialog.tsx"
+          "frontend/public/assets/generated/favicon-32.dim_32x32.png",
+          "frontend/public/assets/generated/favicon-16.dim_16x16.png",
+          "frontend/public/assets/generated/apple-touch-icon.dim_180x180.png",
+          "frontend/public/assets/generated/android-chrome.dim_192x192.png",
+          "frontend/public/assets/generated/android-chrome.dim_512x512.png",
+          "frontend/index.html"
         ]
       },
       {
         "id": "REQ-6",
-        "summary": "Add a product screenshot carousel to the landing page using static images bundled with the frontend (no backend calls). Include basic controls (swipe on mobile and clickable next/prev on desktop) and ensure images are responsive and performant.",
+        "summary": "Fix the landing page light/dark mode toggle so that toggling updates the landing page styling immediately and persistently (via the existing ThemeProvider/ThemeContext), including the landing background gradients and card backgrounds.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/LandingScreenshotCarousel.tsx",
-          "frontend/src/pages/Landing.tsx",
-          "frontend/public/assets/generated/landing-screenshot-1.dim_390x844.png",
-          "frontend/public/assets/generated/landing-screenshot-2.dim_390x844.png",
-          "frontend/public/assets/generated/landing-screenshot-3.dim_390x844.png"
+          "frontend/index.html",
+          "frontend/src/contexts/ThemeContext.tsx",
+          "frontend/src/pages/Landing.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/LandingScreenshotCarousel.tsx",
-          "frontend/src/pages/Landing.tsx",
-          "frontend/public/assets/generated/landing-screenshot-1.dim_390x844.png",
-          "frontend/public/assets/generated/landing-screenshot-2.dim_390x844.png",
-          "frontend/public/assets/generated/landing-screenshot-3.dim_390x844.png"
+          "frontend/index.html",
+          "frontend/src/contexts/ThemeContext.tsx",
+          "frontend/src/pages/Landing.tsx"
         ]
       },
       {
         "id": "REQ-7",
-        "summary": "Use the user-uploaded tree-and-hearts image as branding inspiration by generating new logo/wordmark and a hero illustration variant as static assets, and update the landing page header/hero to use them. Keep existing in-app logo usage unchanged unless explicitly replaced on the landing page only.",
+        "summary": "Store the 4 uploaded screenshot assets in the frontend as static files and reference them directly from landing components (do not route images through the backend).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/public/assets/generated/landing-logo-icon-transparent.dim_256x256.png",
-          "frontend/public/assets/generated/landing-wordmark-transparent.dim_720x200.png",
-          "frontend/public/assets/generated/landing-hero-illustration.dim_1400x900.png",
-          "frontend/src/pages/Landing.tsx"
+          "frontend/public/assets/generated/landing-screenshot-1.dim_390x844.jpg",
+          "frontend/public/assets/generated/landing-screenshot-2.dim_390x844.jpg",
+          "frontend/public/assets/generated/landing-screenshot-3.dim_390x844.jpg",
+          "frontend/public/assets/generated/landing-screenshot-4.dim_390x844.jpg",
+          "frontend/src/components/LandingScreenshotCarousel.tsx",
+          "frontend/src/components/LandingHeroScreenshotShowcase.tsx"
         ],
         "matchedFiles": [
-          "frontend/public/assets/generated/landing-logo-icon-transparent.dim_256x256.png",
-          "frontend/public/assets/generated/landing-wordmark-transparent.dim_720x200.png",
-          "frontend/public/assets/generated/landing-hero-illustration.dim_1400x900.png",
-          "frontend/src/pages/Landing.tsx"
+          "frontend/public/assets/generated/landing-screenshot-1.dim_390x844.jpg",
+          "frontend/public/assets/generated/landing-screenshot-2.dim_390x844.jpg",
+          "frontend/public/assets/generated/landing-screenshot-3.dim_390x844.jpg",
+          "frontend/public/assets/generated/landing-screenshot-4.dim_390x844.jpg",
+          "frontend/src/components/LandingScreenshotCarousel.tsx",
+          "frontend/src/components/LandingHeroScreenshotShowcase.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
     "build-request.json",
-    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/public/assets/generated/landing-hero-illustration.dim_1400x900.png",
-    "frontend/public/assets/generated/landing-logo-icon-transparent.dim_256x256.png",
-    "frontend/public/assets/generated/landing-screenshot-1.dim_390x844.png",
-    "frontend/public/assets/generated/landing-screenshot-2.dim_390x844.png",
-    "frontend/public/assets/generated/landing-screenshot-3.dim_390x844.png",
-    "frontend/public/assets/generated/landing-wordmark-transparent.dim_720x200.png",
-    "frontend/src/App.tsx",
-    "frontend/src/components/LandingFooterLinksDialog.tsx",
+    "frontend/index.html",
+    "frontend/public/assets/generated/android-chrome.dim_192x192.png",
+    "frontend/public/assets/generated/android-chrome.dim_512x512.png",
+    "frontend/public/assets/generated/apple-touch-icon.dim_180x180.png",
+    "frontend/public/assets/generated/favicon-16.dim_16x16.png",
+    "frontend/public/assets/generated/favicon-32.dim_32x32.png",
+    "frontend/public/assets/generated/landing-logo-icon-transparent.v2.dim_256x256.png",
+    "frontend/public/assets/generated/landing-screenshot-1.dim_390x844.jpg",
+    "frontend/public/assets/generated/landing-screenshot-2.dim_390x844.jpg",
+    "frontend/public/assets/generated/landing-screenshot-3.dim_390x844.jpg",
+    "frontend/public/assets/generated/landing-screenshot-4.dim_390x844.jpg",
+    "frontend/public/assets/generated/landing-wordmark-transparent.v2.dim_720x200.png",
+    "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
     "frontend/src/components/LandingScreenshotCarousel.tsx",
-    "frontend/src/components/LoginButton.tsx",
-    "frontend/src/content/founderStory.ts",
-    "frontend/src/index.css",
+    "frontend/src/contexts/ThemeContext.tsx",
     "frontend/src/pages/Landing.tsx",
     "frontend/src/utils/urlParams.ts",
     "project_state.json",
