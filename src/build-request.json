@@ -1,149 +1,166 @@
 {
   "kind": "build_request",
-  "title": "Implement A2: Fix ritual-history persistence and fully activate backend-driven Insights + badge milestones",
+  "title": "Add public marketing landing page with blush theme, CTA, screenshot carousel, and footer investor-interest link",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Implement real backend computation for `getInsightsData()` so Insights no longer returns placeholder/zero values and correctly reflects the couple’s post-deploy ritual activity.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Great! Please proceed with implementing the updated A2 plan."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Calling `getInsightsData()` returns non-placeholder values derived from stored data (not hard-coded zeros/empty arrays).",
-        "After both partners submit today’s ritual, `getInsightsData().currentStreak` becomes >= 1 and `last14DayTrend` includes `true` for today.",
-        "`last14DayTrend` and `last30DayTrend` are deterministic arrays representing day-by-day completion-by-both (lengths 14 and 30 respectively) ending at the current day.",
-        "`harmonyTrend` is deterministic and aligned with the returned day-trend series (suitable for the frontend’s last-7 slicing)."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Fix streak and completion calculations to be order-stable and couple-based, counting a day as complete only when both partners have submitted a ritual response for that day.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Please proceed with implementing the updated A2 plan."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Current streak and longest streak are computed from day numbers in chronological order (no dependence on Map iteration order).",
-        "A day with only one partner response does not increment streak and is represented as missed in trend arrays.",
-        "If the second partner completes later the same day, the day flips from missed/incomplete to complete without creating duplicate day entries."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Compute and return harmony metrics from real stored data: quiz alignment (from both partners’ saved Love Languages quiz results) + recent ritual consistency (from recent completion trends), and expose them via `quizOverlapScore`, `recentCompletionRate`, `currentHarmony`, and `averageHarmony`.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Please proceed with implementing the updated A2 plan."
-        ]
-      },
-      "acceptanceCriteria": [
-        "When both partners have quiz results saved, `quizOverlapScore` is non-zero and reflects overlap of each partner’s top rankings (backend-driven).",
-        "`recentCompletionRate` reflects completion-by-both over the recent window used by Insights (expressed as 0..1 Float).",
-        "`currentHarmony` and `averageHarmony` are computed from (quiz alignment + recent completion) and are returned as 0..1 Float values.",
-        "If either partner has not completed the quiz, `quizOverlapScore` falls back to 0 without trapping, and other metrics still compute from ritual consistency alone."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Replace `getBadgeMilestones()` default milestone logic with real computed milestone progress (7/30/100 day streaks and harmony elite) derived from the same computations used by `getInsightsData()`.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Please proceed with implementing the updated A2 plan."
-        ]
-      },
-      "acceptanceCriteria": [
-        "`getBadgeMilestones().milestones` reflects real unlocked state for: sevenDayUnlocked, thirtyDayUnlocked, hundredDayUnlocked, harmonyEliteUnlocked.",
-        "After crossing a threshold (e.g., reaching a 7-day streak), the corresponding milestone boolean becomes true for both partners in the couple.",
-        "`getBadgeMilestones()` no longer returns `getDefaultMilestoneProgress()` except as a fallback when the caller is unpaired/unauthorized (and must follow existing authorization rules)."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Ensure ritual submission writes/maintains the canonical daily history used by Insights so that a successful “both completed today” state is reflected consistently across Home, Ritual History, and Insights.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Please proceed with implementing the updated A2 plan."
-        ]
-      },
-      "acceptanceCriteria": [
-        "After both partners submit the daily ritual, `getRitualHistory(7)` includes an entry for today with two responses, and `getInsightsData()` shows today as completed.",
-        "Submitting the second partner response updates the same day entry rather than creating multiple entries for the same day.",
-        "Ritual entries remain accessible via existing access-control rules (only self/partner/admin as currently enforced by the canister)."
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Add lightweight diagnostic logging around ritual submission and daily completion resolution to aid debugging without breaking queries or leaking sensitive content.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Please proceed with implementing the updated A2 plan."
-        ]
-      },
-      "acceptanceCriteria": [
-        "On `submitRitualResponse`, the backend emits minimal logs indicating: caller principal, coupleId, day number, and whether the day is now complete-by-both (do not log ritual text, emoji, or photos).",
-        "Logs do not cause traps and do not change API response shapes."
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "text": "Update frontend data expectations only where needed to display the newly-real backend Insights values (no UI redesign), ensuring the Insights screen updates after ritual submission without requiring a hard reload.",
+      "text": "Create a new single-page public marketing landing page for GrowInLove that is shown to unauthenticated visitors instead of the current centered login-only welcome screen.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Please proceed with implementing the updated A2 plan."
+          "great! please proceed"
         ]
       },
       "acceptanceCriteria": [
-        "After completing a ritual from both accounts, the Insights page shows non-zero streak and a 7-day history row for Today marked Done (not Missed) once polling/refetch completes.",
-        "Milestone badges reflect backend milestone booleans (unlock when backend says unlocked).",
-        "No changes are made to immutable frontend paths listed in SYSTEM_CONTEXT."
+        "When the user is not authenticated, the app renders a full marketing landing page (not only a login card).",
+        "When the user is authenticated, the existing in-app tab UI (Top Bar + BottomNav + tabs) remains unchanged.",
+        "Landing page is mobile-first and has a sensible desktop layout variant (responsive)."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Implement the landing page sections from the approved wireframe and project scope: header (logo + light/dark toggle), hero (tree-inspired branding), benefit trio, product screenshot carousel, founder story section (using the provided founder story content already in the project context), privacy reassurance section, optional feature deep-dives section, final CTA section, and footer. Do not include testimonials/social proof.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Updated Landing Page Wireframe",
+          "Remove testimonials/social proof section from landing page for now (no testimonials available)"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Landing page contains: Hero, Benefit Trio (3 blocks), Product Screenshot Carousel, Founder Story, Privacy Reassurance, Optional Feature Deep-dives, Final CTA, Footer.",
+        "No testimonials/social proof section is present on the landing page.",
+        "Each section is reachable via scroll and has stable anchor IDs suitable for footer navigation (e.g., #about, #contact, etc.)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add a primary landing-page CTA that links directly to the deployed app experience (the authenticated app shell), and provide a secondary CTA that brings users to sign in (Internet Identity) if they choose. Ensure the CTA behavior is clear and works without introducing a router.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Landing page primary CTA button links directly to the deployed app"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The landing page includes a prominent primary CTA button.",
+        "Clicking the primary CTA navigates into the app experience (same deployment) in a deterministic way (e.g., hash/query-based mode switch) without breaking the existing tab-based SPA.",
+        "A sign-in affordance exists on the landing page and successfully initiates Internet Identity login (reusing existing LoginButton behavior)."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Apply a consistent blush/cream romantic aesthetic to the landing page and ensure it fully supports the existing light/dark theme system (including a visible theme toggle on the landing page).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Landing page theming: blush aesthetic with mandatory light/dark mode toggle"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Landing page visually matches a blush/cream romantic design and remains readable and visually coherent in both light and dark modes.",
+        "Theme toggle is accessible from the landing page header and correctly switches themes using the existing ThemeProvider/ThemeToggle behavior.",
+        "No edits are made to immutable frontend paths; composition/wrapping is used where needed."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Implement the landing page footer with labeled links: About, Contact, Terms, Privacy, plus an investor-interest link labeled exactly “Interested in supporting our growth?”. Ensure each footer link has a clear text label (including the existing ones) and behaves consistently.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Footer:\n• About\n• Contact\n• Terms\n• Privacy\n• Investor‑Interest Link: “Interested in supporting our growth?”"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Footer displays five text labels: About, Contact, Terms, Privacy, and “Interested in supporting our growth?”.",
+        "Clicking About/Contact/Terms/Privacy navigates to a corresponding landing-page section or opens a simple on-page modal/sheet with placeholder content (no dead links).",
+        "Investor-interest link label text matches exactly: “Interested in supporting our growth?” and navigates to a corresponding landing-page section or modal with a clear next step (placeholder text is acceptable if no contact endpoint is provided)."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Add a product screenshot carousel to the landing page using static images bundled with the frontend (no backend calls). Include basic controls (swipe on mobile and clickable next/prev on desktop) and ensure images are responsive and performant.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Landing page sections: hero, benefit trio, product screenshot carousel..."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Carousel renders at least 3 screenshots from frontend static assets and works in both light and dark modes.",
+        "On mobile, carousel supports swipe/drag; on desktop, carousel supports next/prev controls.",
+        "Images are loaded from the frontend public assets (not fetched from backend)."
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Use the user-uploaded tree-and-hearts image as branding inspiration by generating new logo/wordmark and a hero illustration variant as static assets, and update the landing page header/hero to use them. Keep existing in-app logo usage unchanged unless explicitly replaced on the landing page only.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Use uploaded tree-and-hearts image as logo inspiration for landing page branding"
+        ]
+      },
+      "acceptanceCriteria": [
+        "New generated branding assets exist in frontend/public/assets/generated and are referenced by the landing page.",
+        "Landing page header shows the new wordmark/logo assets and the hero section uses the new illustration.",
+        "The authenticated in-app shell continues to work and is not visually broken by landing-page asset changes."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
-    "Do not edit files under frontend immutablePaths (compose existing UI components instead).",
-    "Use English for any user-facing text.",
-    "Do not introduce third-party auth providers; Internet Identity remains the only auth mechanism."
+    "Backend remains single-actor Motoko architecture; no new backend canisters/services.",
+    "Do not edit any frontend immutable paths (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui/*).",
+    "Do not add third-party authentication providers; only Internet Identity is permitted.",
+    "Do not add a testimonials/social proof section to the landing page."
   ],
   "nonGoals": [
-    "Implementing new product features outside A2 (e.g., new tabs, new ritual types, push notifications, external analytics).",
-    "Changing the overall UI theme/layout of the Insights page beyond wiring it to real backend values.",
-    "Adding a new database or external storage layer."
+    "Implementing real Terms/Privacy legal copy (placeholders are acceptable unless provided elsewhere).",
+    "Adding a full routing solution (e.g., React Router) or moving away from the existing tab-based SPA design.",
+    "Changing backend data models or adding backend endpoints for the landing page."
   ],
   "imageRequirements": {
-    "required": [],
+    "required": [
+      "Tree-and-hearts inspired logo icon, transparent background (landing-logo-icon-transparent.dim_256x256.png)",
+      "Tree-and-hearts inspired wordmark logo, transparent background (landing-wordmark-transparent.dim_720x200.png)",
+      "Tree-and-hearts inspired hero illustration, soft blush palette (landing-hero-illustration.dim_1400x900.png)",
+      "Mobile app screenshot mock 1, romantic blush UI style (landing-screenshot-1.dim_390x844.png)",
+      "Mobile app screenshot mock 2, romantic blush UI style (landing-screenshot-2.dim_390x844.png)",
+      "Mobile app screenshot mock 3, romantic blush UI style (landing-screenshot-3.dim_390x844.png)"
+    ],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

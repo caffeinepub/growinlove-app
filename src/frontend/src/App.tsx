@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Home } from './pages/Home';
 import { Insights } from './pages/Insights';
 import { LoveLanguages } from './pages/LoveLanguages';
 import { Activities } from './pages/Activities';
 import { Us } from './pages/Us';
 import { Memories } from './pages/Memories';
+import { Landing } from './pages/Landing';
 import { BottomNav } from './components/BottomNav';
 import { LoginButton } from './components/LoginButton';
 import { ProfileSetup } from './components/ProfileSetup';
@@ -14,15 +15,25 @@ import { Toaster } from '@/components/ui/sonner';
 import { Bell, Loader2 } from 'lucide-react';
 import { useInternetIdentity } from './hooks/useInternetIdentity';
 import { useGetCallerUserProfile } from './hooks/useQueries';
+import { getAppMode, setAppMode, listenToModeChanges } from './utils/urlParams';
 
 export type TabId = 'home' | 'insights' | 'love-languages' | 'activities' | 'us' | 'memories';
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState<TabId>('home');
+  const [appMode, setAppModeState] = useState<'landing' | 'app'>(getAppMode());
   const { identity, isInitializing } = useInternetIdentity();
   const { data: userProfile, isLoading: profileLoading, isFetched, refetch } = useGetCallerUserProfile();
 
   const isAuthenticated = !!identity;
+
+  // Listen to URL mode changes
+  useEffect(() => {
+    const cleanup = listenToModeChanges((mode) => {
+      setAppModeState(mode);
+    });
+    return cleanup;
+  }, []);
 
   // Show loading screen while initializing or loading profile
   if (isInitializing || (isAuthenticated && profileLoading)) {
@@ -56,6 +67,10 @@ function AppContent() {
     setActiveTab(tab);
   };
 
+  const handleEnterApp = () => {
+    setAppMode('app');
+  };
+
   if (showProfileSetup) {
     return (
       <>
@@ -65,8 +80,18 @@ function AppContent() {
     );
   }
 
-  // Show main app content only if authenticated and profile exists
-  if (!isAuthenticated) {
+  // Show landing page if not authenticated and in landing mode
+  if (!isAuthenticated && appMode === 'landing') {
+    return (
+      <>
+        <Landing onEnterApp={handleEnterApp} />
+        <Toaster />
+      </>
+    );
+  }
+
+  // Show login screen if not authenticated and in app mode
+  if (!isAuthenticated && appMode === 'app') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/10 to-peach/10 px-6">
         <div className="text-center space-y-6 max-w-md">
@@ -80,6 +105,12 @@ function AppContent() {
             Strengthen your relationship through daily rituals and shared moments
           </p>
           <LoginButton />
+          <button
+            onClick={() => setAppMode('landing')}
+            className="text-sm text-muted-foreground hover:text-primary transition-colors underline"
+          >
+            Back to home
+          </button>
         </div>
         <Toaster />
       </div>

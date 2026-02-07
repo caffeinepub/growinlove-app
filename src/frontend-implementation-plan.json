@@ -1,26 +1,187 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Wire Insights UI to backend-driven metrics and ensure post-ritual refresh",
+  "title": "Public GrowInLove marketing landing page (blush theme) with CTA, carousel, and footer links",
   "requirements": [
     {
-      "id": "REQ-7",
-      "summary": "Update Insights screen to consume backend-driven Insights + milestone values and refresh automatically after ritual submission (no redesign).",
+      "id": "REQ-1",
+      "summary": "Replace unauthenticated centered login-only welcome screen with a full public marketing landing page, while keeping authenticated app shell unchanged.",
       "acceptanceCriteria": [
-        "After completing a ritual from both accounts, the Insights page shows non-zero streak and a 7-day history row for Today marked Done (not Missed) once polling/refetch completes.",
-        "Milestone badges reflect backend milestone booleans (unlock when backend says unlocked).",
-        "No changes are made to immutable frontend paths listed in SYSTEM_CONTEXT."
+        "When the user is not authenticated, the app renders a full marketing landing page (not only a login card).",
+        "When the user is authenticated, the existing in-app tab UI (Top Bar + BottomNav + tabs) remains unchanged.",
+        "Landing page is mobile-first and has a sensible desktop layout variant (responsive)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/Insights.tsx",
-          "operation": "modify",
-          "description": "Align displayed Insights metrics with backend-provided values: use getInsightsData().quizOverlapScore (and related harmony metrics already returned) as the source of truth for quiz alignment/harmony sections; avoid showing misleading 0% placeholders by adding a lightweight loading/empty-state behavior while insights data is still fetching; keep milestone badge unlocked state driven by getBadgeMilestones().milestones booleans and preserve existing UI layout."
+          "path": "frontend/src/pages/Landing.tsx",
+          "operation": "create",
+          "description": "Create the public marketing landing page component with responsive (mobile-first) layout. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Ensure post-ritual submission refresh remains robust: confirm submitRitualResponse success flow invalidates and refetches insightsData and badgeMilestones (and related ritual queries) so Insights updates without hard reload; adjust query options only if needed to reliably reflect new backend values (e.g., staleTime/refetch timing) while keeping polling behavior."
+          "description": "Wire the Landing page into the unauthenticated render path (default), while preserving existing authenticated Top Bar + BottomNav + tab rendering unchanged. Add a deterministic mode switch so unauthenticated users can still reach the existing login/app entry screen when requested."
+        },
+        {
+          "path": "frontend/src/utils/urlParams.ts",
+          "operation": "modify",
+          "description": "Extend URL param helpers (non-router) to support a simple landing-vs-app mode switch (e.g., a dedicated query/hash flag) used by App.tsx and the landing CTAs."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Implement all approved landing sections (header, hero, benefits, carousel, founder story, privacy, optional deep-dives, final CTA, footer) with stable anchor IDs and no testimonials.",
+      "acceptanceCriteria": [
+        "Landing page contains: Hero, Benefit Trio (3 blocks), Product Screenshot Carousel, Founder Story, Privacy Reassurance, Optional Feature Deep-dives, Final CTA, Footer.",
+        "No testimonials/social proof section is present on the landing page.",
+        "Each section is reachable via scroll and has stable anchor IDs suitable for footer navigation (e.g., #about, #contact, etc.)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Landing.tsx",
+          "operation": "modify",
+          "description": "Implement the full section structure from the approved wireframe: header (logo + theme toggle), hero, benefits (3 blocks), carousel, founder story, privacy reassurance, optional deep-dives, final CTA, and footer. Ensure each section has stable anchor IDs and explicitly omit testimonials/social proof. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/content/founderStory.ts",
+          "operation": "create",
+          "description": "Add the founder story copy as a single exported constant (sourced from the existing project context) so Landing.tsx can render it consistently and maintainably."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Add clear landing CTAs: a primary CTA that navigates into the app experience deterministically without a router, and a secondary sign-in CTA that triggers Internet Identity login via existing LoginButton behavior.",
+      "acceptanceCriteria": [
+        "The landing page includes a prominent primary CTA button.",
+        "Clicking the primary CTA navigates into the app experience (same deployment) in a deterministic way (e.g., hash/query-based mode switch) without breaking the existing tab-based SPA.",
+        "A sign-in affordance exists on the landing page and successfully initiates Internet Identity login (reusing existing LoginButton behavior)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Landing.tsx",
+          "operation": "modify",
+          "description": "Add a prominent primary CTA that sets/uses the URL mode switch to enter the app experience (same deployment) without introducing a router, plus a secondary CTA that reuses the existing LoginButton to initiate Internet Identity login. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Ensure unauthenticated users who select the app-mode switch see the existing login/app entry experience (not the marketing landing), and that authenticated users still see the in-app shell without changes."
+        },
+        {
+          "path": "frontend/src/components/LoginButton.tsx",
+          "operation": "modify",
+          "description": "Add an optional prop for clearer landing-page copy/variant (e.g., label override or size) while preserving existing behavior and API compatibility for current in-app usage. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Apply a blush/cream romantic aesthetic to the landing page, fully compatible with existing light/dark theme system and a visible theme toggle in the landing header.",
+      "acceptanceCriteria": [
+        "Landing page visually matches a blush/cream romantic design and remains readable and visually coherent in both light and dark modes.",
+        "Theme toggle is accessible from the landing page header and correctly switches themes using the existing ThemeProvider/ThemeToggle behavior.",
+        "No edits are made to immutable frontend paths; composition/wrapping is used where needed."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Landing.tsx",
+          "operation": "modify",
+          "description": "Use the existing ThemeToggle in the landing header and style the landing sections with blush/cream romantic visuals that remain readable in both themes (leveraging existing Tailwind tokens/CSS variables). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Add minimal, landing-specific utility classes (e.g., soft gradients, section spacing helpers) that leverage existing CSS variables so both light/dark themes remain coherent. Avoid changes to immutable paths."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Implement the landing footer with labeled links (About, Contact, Terms, Privacy, and exact investor-interest label) that all navigate to sections or open on-page modals/sheets (no dead links).",
+      "acceptanceCriteria": [
+        "Footer displays five text labels: About, Contact, Terms, Privacy, and “Interested in supporting our growth?”.",
+        "Clicking About/Contact/Terms/Privacy navigates to a corresponding landing-page section or opens a simple on-page modal/sheet with placeholder content (no dead links).",
+        "Investor-interest link label text matches exactly: “Interested in supporting our growth?” and navigates to a corresponding landing-page section or modal with a clear next step (placeholder text is acceptable if no contact endpoint is provided)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Landing.tsx",
+          "operation": "modify",
+          "description": "Implement footer with five labeled links. Wire About/Contact to section anchors and implement Terms/Privacy/Investor-interest as on-page modal/sheet content (placeholders allowed) ensuring consistent behavior and exact investor link label text. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/LandingFooterLinksDialog.tsx",
+          "operation": "create",
+          "description": "Create a small helper component that renders modal/sheet content for Terms, Privacy, and Investor-interest links (placeholder copy), used by Landing.tsx to avoid dead links. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add a responsive, performant product screenshot carousel using bundled static images with swipe on mobile and next/prev controls on desktop.",
+      "acceptanceCriteria": [
+        "Carousel renders at least 3 screenshots from frontend static assets and works in both light and dark modes.",
+        "On mobile, carousel supports swipe/drag; on desktop, carousel supports next/prev controls.",
+        "Images are loaded from the frontend public assets (not fetched from backend)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/LandingScreenshotCarousel.tsx",
+          "operation": "create",
+          "description": "Implement a lightweight carousel with pointer/touch swipe/drag support and desktop next/prev controls, rendering static screenshots from frontend public assets and ensuring responsive sizing and performance. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/Landing.tsx",
+          "operation": "modify",
+          "description": "Add the LandingScreenshotCarousel into the Product Screenshot Carousel section and ensure it is styled appropriately in both light/dark modes. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/public/assets/generated/landing-screenshot-1.dim_390x844.png",
+          "operation": "create",
+          "description": "Add the generated static screenshot asset for the landing carousel (1 of 3)."
+        },
+        {
+          "path": "frontend/public/assets/generated/landing-screenshot-2.dim_390x844.png",
+          "operation": "create",
+          "description": "Add the generated static screenshot asset for the landing carousel (2 of 3)."
+        },
+        {
+          "path": "frontend/public/assets/generated/landing-screenshot-3.dim_390x844.png",
+          "operation": "create",
+          "description": "Add the generated static screenshot asset for the landing carousel (3 of 3)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Generate and wire new landing-only branding assets (logo icon, wordmark, hero illustration) inspired by the tree-and-hearts image; keep in-app logo usage unchanged.",
+      "acceptanceCriteria": [
+        "New generated branding assets exist in frontend/public/assets/generated and are referenced by the landing page.",
+        "Landing page header shows the new wordmark/logo assets and the hero section uses the new illustration.",
+        "The authenticated in-app shell continues to work and is not visually broken by landing-page asset changes."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/assets/generated/landing-logo-icon-transparent.dim_256x256.png",
+          "operation": "create",
+          "description": "Add the generated landing logo icon asset (transparent background)."
+        },
+        {
+          "path": "frontend/public/assets/generated/landing-wordmark-transparent.dim_720x200.png",
+          "operation": "create",
+          "description": "Add the generated landing wordmark asset (transparent background)."
+        },
+        {
+          "path": "frontend/public/assets/generated/landing-hero-illustration.dim_1400x900.png",
+          "operation": "create",
+          "description": "Add the generated landing hero illustration asset (soft blush palette)."
+        },
+        {
+          "path": "frontend/src/pages/Landing.tsx",
+          "operation": "modify",
+          "description": "Update landing header to use the new landing-wordmark/logo icon assets, and update the hero section to use the new hero illustration. Ensure these assets are used on the landing page only so the authenticated in-app shell remains unchanged. Verify the component's usage instructions before implementing."
         }
       ]
     }

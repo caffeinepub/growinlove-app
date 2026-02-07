@@ -45,6 +45,9 @@
     --chart-3: oklch(85% 0.08 45);
     --chart-4: oklch(65% 0.12 340);
     --chart-5: oklch(80% 0.10 25);
+
+    /* Landing page specific utilities */
+    --peach: oklch(85% 0.08 45);
   }
 
   .dark {
@@ -84,6 +87,9 @@
     --chart-3: oklch(85% 0.08 45);
     --chart-4: oklch(70% 0.12 340);
     --chart-5: oklch(80% 0.10 25);
+
+    /* Landing page specific utilities */
+    --peach: oklch(40% 0.08 45);
   }
 }
 

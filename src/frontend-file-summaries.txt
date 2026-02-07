@@ -1,6 +1,6 @@
 {
-  "frontend/src/index.css": "Global styles with OKLCH color system, romantic design tokens, optimized animations, enhanced reduced-motion support, and improved dialog overlay/content styling with subtle dimming, backdrop blur, and fully opaque modal surfaces for readable presentation in both light and dark modes.",
-  "frontend/src/App.tsx": "Main application component wrapped with ThemeProvider, featuring authentication flow, profile initialization, tab-based routing, and theme toggle in top bar.",
+  "frontend/src/index.css": "Global styles with OKLCH color system, romantic design tokens, optimized animations, enhanced reduced-motion support, improved dialog overlay/content styling, and landing-specific peach utility variable.",
+  "frontend/src/App.tsx": "Main application component with ThemeProvider, authentication flow, profile initialization, tab-based routing, and landing/app mode switching via URL hash.",
   "frontend/src/components/BottomNav.tsx": "Fixed bottom navigation bar component with 6 tabs (Home, Insights, Memories, Activities, Us) featuring icons, labels, active state highlighting with glow effects, and smooth transitions.",
   "frontend/src/pages/Home.tsx": "Home page with daily ritual card, canonical completion attribution, multi-day ritual history with opaque dialog modal (forced bg-card and border-2 for readability in both themes), and inline photo rendering.",
   "frontend/src/pages/Insights.tsx": "Insights page displaying strictly backend-driven analytics including streak, harmony, and badge data with removed simulated Love Language Trends section and updated Quiz Alignment Summary that uses only quiz-derived metrics without claiming measured correlation.",
@@ -10,7 +10,7 @@
   "frontend/src/hooks/useQueries.ts": "React Query hooks for backend integration with A2-enhanced invalidation strategy including aggressive refetch after ritual submission, exponential retry backoff for insights/badge queries, and optimized polling intervals (8s) with 3s stale time to ensure UI updates reflect backend state changes without excessive network calls.",
   "frontend/index.html": "HTML entry point with mobile-optimized viewport settings and theme color for the GrowInLove app.",
   "frontend/tailwind.config.js": "Tailwind configuration extended with peach and cream color tokens, rounded sans-serif font family (Nunito, Quicksand, Comfortaa), and 18-20pt base font sizes for the romantic design system.",
-  "frontend/src/components/LoginButton.tsx": "Login/logout button component with Internet Identity integration, loading states, and query cache clearing on logout.",
+  "frontend/src/components/LoginButton.tsx": "Login/logout button component with Internet Identity integration, loading states, query cache clearing on logout, and optional variant/size/label props for landing page customization.",
   "frontend/src/components/ProfileSetup.tsx": "Profile setup modal component with form submission, loading states, success animation with checkmark, and automatic navigation callback after successful profile initialization.",
   "frontend/src/components/CompletionAnimation.tsx": "Animated floating hearts component with memoized heart generation to avoid unnecessary recalculations and improved performance.",
   "frontend/src/components/SpinWheel.tsx": "Interactive spinning wheel component with deterministic smooth ease-out cubic deceleration, stable per-spin duration stored in ref, weighted selection based on quiz results with localStorage persistence, and \"Coming soon\" note about smoother slow-stop/deceleration polish.",
@@ -27,5 +27,10 @@
   "frontend/src/main.tsx": "Application entry point with single QueryClientProvider, Internet Identity provider, and Version 64 build identifier console log for deployment verification.",
   "frontend/src/hooks/useTheme.ts": "Re-exports the useTheme hook from ThemeContext for backward compatibility with existing imports.",
   "frontend/src/components/ThemeToggle.tsx": "Theme toggle button that consumes effectiveTheme from context (no DOM reads during render) and toggles between light/dark modes with correct icon/aria-label synchronization.",
-  "frontend/src/contexts/ThemeContext.tsx": "Global ThemeProvider with centralized theme state management, single DOM mutation point, system preference watcher (only when theme is 'system'), and localStorage persistence only in explicit actions."
+  "frontend/src/contexts/ThemeContext.tsx": "Global ThemeProvider with centralized theme state management, single DOM mutation point, system preference watcher (only when theme is 'system'), and localStorage persistence only in explicit actions.",
+  "frontend/src/pages/Landing.tsx": "Full marketing landing page with hero, benefits, carousel, founder story, privacy reassurance, feature deep-dives, final CTA, and footer with modal dialogs for terms/privacy/investor links.",
+  "frontend/src/components/LandingScreenshotCarousel.tsx": "Responsive screenshot carousel with touch/mouse swipe support, next/prev desktop controls, and dot indicators for mobile-first navigation.",
+  "frontend/src/components/LandingFooterLinksDialog.tsx": "Modal dialog component for footer links (Contact, Terms, Privacy, Investor) with placeholder content and proper accessibility.",
+  "frontend/src/content/founderStory.ts": "Exported constant containing the full founder story text for the landing page.",
+  "frontend/src/utils/urlParams.ts": "URL parameter utilities for landing/app mode switching using hash-based navigation and secret parameter extraction from query strings for admin token initialization."
 }

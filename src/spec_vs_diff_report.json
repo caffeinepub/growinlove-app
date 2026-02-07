@@ -1,88 +1,63 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T19:28:16.621Z",
-  "summary": "The diff shows a new backend migration module and partial frontend query-hook changes, but it does not include any visible implementation details for the core backend requirements (real Insights computation, couple-based streak/trend logic, harmony metrics, badge milestone computation, canonical ritual history persistence, or diagnostic logging). The frontend summaries also describe broader Insights/Home/LoveLanguages UI/behavior changes beyond the strictly requested wiring to backend values.",
+  "generatedAt": "2026-02-07T21:14:26.761Z",
+  "summary": "Diff adds a new Landing page shown to unauthenticated users (with URL-hash mode switching), blush-themed styling tokens, a static screenshot carousel with swipe + next/prev controls, a founder story content module, and a dialog component intended for footer links. Some requirements (full section set, stable anchor IDs, and exact footer link labeling/behavior) cannot be fully verified from the truncated diff summary; branding asset files themselves are also not evidenced as added.",
   "missing_requirements": [
     {
-      "id": "REQ-1",
-      "requirement": "Implement real backend computation for `getInsightsData()` (no placeholders/zeros) including deterministic 14/30-day completion-by-both trends and aligned `harmonyTrend`.",
-      "reason": "No evidence in the provided backend diff excerpt that `getInsightsData()` was implemented/updated; `backend/main.mo` is truncated before any Insights-related functions or computations are shown.",
-      "evidence": [
-        "backend/main.mo (truncated in diff summary)"
-      ]
-    },
-    {
       "id": "REQ-2",
-      "requirement": "Fix streak and completion calculations to be order-stable and couple-based (complete only when both partners submit for the day), with correct flipping behavior when the second partner completes later.",
-      "reason": "No evidence in the diff summary of changes to streak/trend calculation logic; backend implementation details are not shown in the truncated excerpt.",
+      "requirement": "Landing page contains all required sections (Hero, Benefit Trio, Product Screenshot Carousel, Founder Story, Privacy Reassurance, Optional Feature Deep-dives, Final CTA, Footer) and each section has stable anchor IDs for footer navigation.",
+      "reason": "Only some sections/IDs are visible in the truncated Landing.tsx snippet (e.g., Benefit Trio has id=\"features\"); the rest of the required sections and their anchor IDs are not evidenced in the provided diff summary.",
       "evidence": [
-        "backend/main.mo (truncated in diff summary)"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "requirement": "Compute harmony metrics from stored quiz results + recent ritual consistency, exposing `quizOverlapScore`, `recentCompletionRate`, `currentHarmony`, and `averageHarmony` with proper fallbacks.",
-      "reason": "No evidence in the diff summary that these metrics are computed or returned from backend APIs; only type definitions are visible in the truncated excerpt.",
-      "evidence": [
-        "backend/main.mo (truncated in diff summary)"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "requirement": "Replace `getBadgeMilestones()` default milestone logic with computed milestone progress (7/30/100 streak + harmony elite) derived from the same computations as Insights.",
-      "reason": "No evidence in the diff summary that `getBadgeMilestones()` was updated or that milestone booleans are computed from real streak/harmony values; backend function bodies are not shown.",
-      "evidence": [
-        "backend/main.mo (truncated in diff summary)"
+        "frontend/src/pages/Landing.tsx (truncated)"
       ]
     },
     {
       "id": "REQ-5",
-      "requirement": "Ensure ritual submission maintains canonical daily history used by Insights so both-completed-today is consistent across Home, Ritual History, and Insights (update same day entry, no duplicates).",
-      "reason": "No evidence in the diff summary of changes to `submitRitualResponse` persistence behavior or `getRitualHistory` day-entry merging; backend submission/history code is not shown.",
+      "requirement": "Footer displays five labeled links (About, Contact, Terms, Privacy, and exactly “Interested in supporting our growth?”) and each link navigates to a section or opens an on-page modal/sheet (no dead links).",
+      "reason": "A dialog component for footer link content exists, but the actual footer link UI (including exact link label text and click behavior) is not shown in the diff summary; additionally, the investor dialog title uses different capitalization than the required exact footer link label (title is not the label, but the label cannot be verified).",
       "evidence": [
-        "backend/main.mo (truncated in diff summary)"
+        "frontend/src/components/LandingFooterLinksDialog.tsx (truncated)",
+        "frontend/src/pages/Landing.tsx (truncated)"
       ]
     },
     {
-      "id": "REQ-6",
-      "requirement": "Add lightweight diagnostic logging on `submitRitualResponse` including caller principal, coupleId, day number, and whether day is complete-by-both, without logging sensitive content.",
-      "reason": "No evidence in the diff summary of new logging statements around ritual submission/completion resolution; backend submission function is not visible in the excerpt.",
+      "id": "REQ-7",
+      "requirement": "New generated branding assets exist in frontend/public/assets/generated (logo icon, wordmark, hero illustration, and 3 screenshots) and are referenced by the landing page.",
+      "reason": "Landing page and carousel reference the required asset paths under /assets/generated, but the diff summary does not show the actual image files being added under frontend/public/assets/generated (likely binary/non-LLM-readable and omitted).",
       "evidence": [
-        "backend/main.mo (truncated in diff summary)"
+        "frontend/src/pages/Landing.tsx (truncated)",
+        "frontend/src/components/LandingScreenshotCarousel.tsx (truncated)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Added a `backend/migration.mo` module and wired `Migration.run` into the actor via `(with migration = Migration.run)`.",
-      "reason": "The BuildRequest does not ask for a migration module or state migration work; this appears to be additional infrastructure beyond the listed A2 requirements.",
+      "description": "Added URL utility for reading an arbitrary \"secret\" query parameter (getSecretParameter) for admin token initialization.",
+      "reason": "BuildRequest only asked for deterministic landing/app mode switching without a router; secret/admin query parameter handling is not requested for the landing page scope.",
       "evidence": [
-        "backend/migration.mo",
-        "backend/main.mo"
+        "frontend/src/utils/urlParams.ts"
       ]
     },
     {
-      "description": "Frontend hook `useArePromptsInitialized` explicitly returns `true` with a comment stating the backend method doesn't exist, plus periodic polling for initialization.",
-      "reason": "The BuildRequest does not mention prompts initialization checks, nor does it request adding/altering a prompts-initialization query that returns a hardcoded value.",
+      "description": "LoginButton behavior enhancements: logout clears the React Query cache; adds variant/size/label props and error recovery flow.",
+      "reason": "BuildRequest only required reusing existing Internet Identity login behavior from the landing page; these additional behaviors/props are not explicitly requested.",
       "evidence": [
-        "frontend/src/hooks/useQueries.ts"
-      ]
-    },
-    {
-      "description": "Broader frontend UI/behavior changes described for Insights/Home/LoveLanguages (e.g., 'removed simulated Love Language Trends section', 'enhanced synchronization', 'opaque dialog modal', design/token changes).",
-      "reason": "Non-goals/constraints state no overall Insights UI theme/layout changes beyond wiring to backend values and no new product features outside A2; these described changes appear to go beyond minimal wiring and persistence fixes.",
-      "evidence": [
-        "frontend-file-summaries.txt"
+        "frontend/src/components/LoginButton.tsx"
       ]
     }
   ],
-  "confidence": 0.56,
+  "confidence": 0.63,
   "changed_files": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/App.tsx",
+    "frontend/src/components/LandingFooterLinksDialog.tsx",
+    "frontend/src/components/LandingScreenshotCarousel.tsx",
+    "frontend/src/components/LoginButton.tsx",
+    "frontend/src/content/founderStory.ts",
+    "frontend/src/index.css",
+    "frontend/src/pages/Landing.tsx",
+    "frontend/src/utils/urlParams.ts",
     "project_state.json"
   ]
 }

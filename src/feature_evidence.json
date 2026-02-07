@@ -2,10 +2,138 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-frontend-data-expectations-only-where-needed-to-display-the-newly-real-backend-insights-values-no-ui-redesign-ensuring-the-insights-screen-updates-after-ritual-submission-without-requiring-a-hard-reload",
-      "featureTitle": "Update frontend data expectations only where needed to display the newly-real backend Insights values (no UI redesign), ensuring the Insights screen updates after ritual submission without requiring a hard reload.",
+      "featureId": "feature-create-a-new-single-page-public-marketing-landing-page-for-growinlove-that-is-shown-to-unauthenticated-visitors-instead-of-the-current-centered-login-only-welcome-screen",
+      "featureTitle": "Create a new single-page public marketing landing page for GrowInLove that is shown to unauthenticated visitors instead of the current centered login-only welcome screen.",
       "files": [
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/App.tsx",
+        "frontend/src/pages/Landing.tsx",
+        "frontend/src/utils/urlParams.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-the-landing-page-sections-from-the-approved-wireframe-and-project-scope-header-logo-light-dark-toggle-hero-tree-inspired-branding-benefit-trio-product-screenshot-carousel-founder-story-section-using-the-provided-founder-story-content-already-in-the-project-context-privacy-reassurance-section-optional-feature-deep-dives-section-final-cta-section-and-footer-do-not-include-testimonials-social-proof",
+      "featureTitle": "Implement the landing page sections from the approved wireframe and project scope: header (logo + light/dark toggle), hero (tree-inspired branding), benefit trio, product screenshot carousel, founder story section (using the provided founder story content already in the project context), privacy reassurance section, optional feature deep-dives section, final CTA section, and footer. Do not include testimonials/social proof.",
+      "files": [
+        "frontend/src/content/founderStory.ts",
+        "frontend/src/pages/Landing.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-primary-landing-page-cta-that-links-directly-to-the-deployed-app-experience-the-authenticated-app-shell-and-provide-a-secondary-cta-that-brings-users-to-sign-in-internet-identity-if-they-choose-ensure-the-cta-behavior-is-clear-and-works-without-introducing-a-router",
+      "featureTitle": "Add a primary landing-page CTA that links directly to the deployed app experience (the authenticated app shell), and provide a secondary CTA that brings users to sign in (Internet Identity) if they choose. Ensure the CTA behavior is clear and works without introducing a router.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/LoginButton.tsx",
+        "frontend/src/pages/Landing.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-apply-a-consistent-blush-cream-romantic-aesthetic-to-the-landing-page-and-ensure-it-fully-supports-the-existing-light-dark-theme-system-including-a-visible-theme-toggle-on-the-landing-page",
+      "featureTitle": "Apply a consistent blush/cream romantic aesthetic to the landing page and ensure it fully supports the existing light/dark theme system (including a visible theme toggle on the landing page).",
+      "files": [
+        "frontend/src/index.css",
+        "frontend/src/pages/Landing.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-the-landing-page-footer-with-labeled-links-about-contact-terms-privacy-plus-an-investor-interest-link-labeled-exactly-interested-in-supporting-our-growth-ensure-each-footer-link-has-a-clear-text-label-including-the-existing-ones-and-behaves-consistently",
+      "featureTitle": "Implement the landing page footer with labeled links: About, Contact, Terms, Privacy, plus an investor-interest link labeled exactly “Interested in supporting our growth?”. Ensure each footer link has a clear text label (including the existing ones) and behaves consistently.",
+      "files": [
+        "frontend/src/components/LandingFooterLinksDialog.tsx",
+        "frontend/src/pages/Landing.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-product-screenshot-carousel-to-the-landing-page-using-static-images-bundled-with-the-frontend-no-backend-calls-include-basic-controls-swipe-on-mobile-and-clickable-next-prev-on-desktop-and-ensure-images-are-responsive-and-performant",
+      "featureTitle": "Add a product screenshot carousel to the landing page using static images bundled with the frontend (no backend calls). Include basic controls (swipe on mobile and clickable next/prev on desktop) and ensure images are responsive and performant.",
+      "files": [
+        "frontend/src/components/LandingScreenshotCarousel.tsx",
+        "frontend/src/pages/Landing.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-use-the-user-uploaded-tree-and-hearts-image-as-branding-inspiration-by-generating-new-logo-wordmark-and-a-hero-illustration-variant-as-static-assets-and-update-the-landing-page-header-hero-to-use-them-keep-existing-in-app-logo-usage-unchanged-unless-explicitly-replaced-on-the-landing-page-only",
+      "featureTitle": "Use the user-uploaded tree-and-hearts image as branding inspiration by generating new logo/wordmark and a hero illustration variant as static assets, and update the landing page header/hero to use them. Keep existing in-app logo usage unchanged unless explicitly replaced on the landing page only.",
+      "files": [
+        "frontend/src/pages/Landing.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
