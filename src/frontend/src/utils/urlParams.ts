@@ -208,77 +208,58 @@ export function getSecretParameter(paramName: string): string | null {
 }
 
 /**
- * App mode management for landing/app switching
+ * App mode management
+ * Handles switching between landing page and app mode
  */
 
-type AppMode = 'landing' | 'app';
+const APP_MODE_KEY = 'appMode';
+const APP_MODE_CHANGE_EVENT = 'appModeChange';
 
-const APP_MODE_KEY = 'app-mode';
+export type AppMode = 'landing' | 'app';
 
 /**
- * Gets the current app mode from URL hash or localStorage
- * Defaults to 'landing' if not set
- *
- * @returns The current app mode
+ * Gets the current app mode from localStorage
+ * Defaults to 'landing' for unauthenticated users
  */
 export function getAppMode(): AppMode {
-    // Check URL hash first
-    const hash = window.location.hash;
-    if (hash === '#app' || hash.startsWith('#app?')) {
-        return 'app';
-    }
-    if (hash === '#landing' || hash === '' || hash === '#') {
-        return 'landing';
-    }
-
-    // Fall back to localStorage
     try {
         const stored = localStorage.getItem(APP_MODE_KEY);
         if (stored === 'app' || stored === 'landing') {
             return stored;
         }
-    } catch {
-        // Ignore localStorage errors
+    } catch (error) {
+        console.warn('Failed to get app mode from localStorage:', error);
     }
-
     return 'landing';
 }
 
 /**
- * Sets the app mode and updates URL hash and localStorage
- *
- * @param mode - The mode to set ('landing' or 'app')
+ * Sets the app mode and persists it to localStorage
+ * Dispatches a custom event to notify listeners of the change
  */
 export function setAppMode(mode: AppMode): void {
-    // Update localStorage
     try {
         localStorage.setItem(APP_MODE_KEY, mode);
-    } catch {
-        // Ignore localStorage errors
-    }
-
-    // Update URL hash
-    const newHash = mode === 'app' ? '#app' : '#landing';
-    if (window.location.hash !== newHash) {
-        window.location.hash = newHash;
+        // Dispatch custom event for listeners
+        window.dispatchEvent(new CustomEvent(APP_MODE_CHANGE_EVENT, { detail: mode }));
+    } catch (error) {
+        console.warn('Failed to set app mode in localStorage:', error);
     }
 }
 
 /**
- * Listens for hash changes and calls the callback when app mode changes
- *
- * @param callback - Function to call when mode changes
- * @returns Cleanup function to remove the listener
+ * Listens for app mode changes
+ * Returns a cleanup function to remove the listener
  */
 export function listenToModeChanges(callback: (mode: AppMode) => void): () => void {
-    const handleHashChange = () => {
-        const mode = getAppMode();
-        callback(mode);
+    const handler = (event: Event) => {
+        const customEvent = event as CustomEvent<AppMode>;
+        callback(customEvent.detail);
     };
 
-    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener(APP_MODE_CHANGE_EVENT, handler);
 
     return () => {
-        window.removeEventListener('hashchange', handleHashChange);
+        window.removeEventListener(APP_MODE_CHANGE_EVENT, handler);
     };
 }

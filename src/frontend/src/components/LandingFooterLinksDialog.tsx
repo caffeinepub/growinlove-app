@@ -1,10 +1,11 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from '@/components/ui/dialog';
+import { CONTACT_EMAIL } from '@/content/contact';
 
 interface LandingFooterLinksDialogProps {
   content: 'about' | 'contact' | 'terms' | 'privacy' | 'investor' | null;
@@ -24,9 +25,17 @@ export function LandingFooterLinksDialog({ content, onClose }: LandingFooterLink
                 We'd love to hear from you! Whether you have questions, feedback, or just want to say hello, 
                 feel free to reach out.
               </p>
-              <p className="text-muted-foreground">
-                For general inquiries, please contact us through our social channels or send us a message 
-                via the Internet Computer community forums.
+              <div className="bg-romantic-light/20 dark:bg-romantic-primary/10 rounded-lg p-4 border border-romantic-primary/20">
+                <p className="text-sm font-medium text-foreground mb-2">Email us at:</p>
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="text-romantic-primary hover:text-romantic-primary/80 font-semibold text-lg"
+                >
+                  {CONTACT_EMAIL}
+                </a>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                We typically respond within 24-48 hours.
               </p>
             </div>
           ),
@@ -36,21 +45,19 @@ export function LandingFooterLinksDialog({ content, onClose }: LandingFooterLink
           title: 'Terms of Service',
           description: 'Terms and conditions for using GrowInLove',
           body: (
-            <div className="space-y-4 text-muted-foreground">
+            <div className="space-y-4 text-sm text-muted-foreground">
               <p>
-                By using GrowInLove, you agree to use the service responsibly and in accordance with all 
-                applicable laws and regulations.
+                By using GrowInLove, you agree to use the service responsibly and respectfully. 
+                This app is designed for couples to strengthen their relationship through daily rituals 
+                and shared experiences.
               </p>
               <p>
-                GrowInLove is provided "as is" without warranties of any kind. We reserve the right to 
-                modify or discontinue the service at any time.
+                You are responsible for maintaining the confidentiality of your account and for all 
+                activities that occur under your account.
               </p>
               <p>
-                Your use of the service is at your own risk. We are not liable for any damages arising 
-                from your use of GrowInLove.
-              </p>
-              <p className="text-sm italic">
-                Full terms of service are being finalized and will be available soon.
+                We reserve the right to modify or discontinue the service at any time. For detailed 
+                terms, please contact us at {CONTACT_EMAIL}.
               </p>
             </div>
           ),
@@ -60,47 +67,48 @@ export function LandingFooterLinksDialog({ content, onClose }: LandingFooterLink
           title: 'Privacy Policy',
           description: 'How we protect your data',
           body: (
-            <div className="space-y-4 text-muted-foreground">
+            <div className="space-y-4 text-sm text-muted-foreground">
               <p>
                 Your privacy is our top priority. GrowInLove is built on the Internet Computer, 
-                a decentralized blockchain platform that ensures your data remains secure and private.
+                a decentralized blockchain platform that ensures your data is secure and private.
               </p>
               <p>
-                We do not sell, share, or monetize your personal information. Your ritual responses, 
+                We never sell, share, or monetize your personal information. Your ritual responses, 
                 photos, and quiz results are stored securely and are only accessible to you and your partner.
               </p>
               <p>
-                We do not use tracking cookies, analytics, or third-party advertising networks. 
-                Your relationship data stays between you and your partner.
+                We do not use tracking cookies, analytics, or advertising. Your relationship data 
+                belongs to you and you alone.
               </p>
-              <p className="text-sm italic">
-                A comprehensive privacy policy is being finalized and will be available soon.
+              <p>
+                For more information, contact us at {CONTACT_EMAIL}.
               </p>
             </div>
           ),
         };
       case 'investor':
         return {
-          title: 'Interested in Supporting Our Growth?',
-          description: 'Partner with us to help couples grow closer',
+          title: 'Interested in supporting our growth?',
+          description: 'Investment and partnership opportunities',
           body: (
-            <div className="space-y-4 text-muted-foreground">
+            <div className="space-y-4 text-sm text-muted-foreground">
               <p>
-                GrowInLove started as a passion project built by a couple who wanted to strengthen 
-                their own relationship. Now, we're sharing it with the world.
-              </p>
-              <p>
-                We're exploring opportunities to grow the platform while staying true to our core values: 
-                privacy, authenticity, and meaningful connection.
+                GrowInLove started as a passion project built by a couple for couples. We're exploring 
+                opportunities to grow and reach more people who want to strengthen their relationships.
               </p>
               <p>
-                If you're interested in supporting our mission or learning more about partnership opportunities, 
-                we'd love to hear from you.
+                If you're interested in supporting our mission through investment, partnership, or 
+                collaboration, we'd love to hear from you.
               </p>
-              <p className="font-semibold text-foreground">
-                Please reach out through the Internet Computer community forums or connect with us 
-                via our social channels.
-              </p>
+              <div className="bg-romantic-light/20 dark:bg-romantic-primary/10 rounded-lg p-4 border border-romantic-primary/20">
+                <p className="text-sm font-medium text-foreground mb-2">Reach out to:</p>
+                <a
+                  href={`mailto:${CONTACT_EMAIL}?subject=Investment Inquiry`}
+                  className="text-romantic-primary hover:text-romantic-primary/80 font-semibold"
+                >
+                  {CONTACT_EMAIL}
+                </a>
+              </div>
             </div>
           ),
         };
@@ -111,18 +119,16 @@ export function LandingFooterLinksDialog({ content, onClose }: LandingFooterLink
 
   const dialogContent = getDialogContent();
 
+  if (!dialogContent) return null;
+
   return (
-    <Dialog open={content !== null} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        {dialogContent && (
-          <>
-            <DialogHeader>
-              <DialogTitle className="text-2xl">{dialogContent.title}</DialogTitle>
-              <DialogDescription>{dialogContent.description}</DialogDescription>
-            </DialogHeader>
-            <div className="mt-4">{dialogContent.body}</div>
-          </>
-        )}
+    <Dialog open={!!content} onOpenChange={onClose}>
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{dialogContent.title}</DialogTitle>
+          <DialogDescription>{dialogContent.description}</DialogDescription>
+        </DialogHeader>
+        <div className="mt-4">{dialogContent.body}</div>
       </DialogContent>
     </Dialog>
   );

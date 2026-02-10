@@ -1,192 +1,172 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Landing refresh: 4-screenshot device carousel, tree-heart branding, favicon, and theme toggle fix",
+  "title": "Landing-page corrections: logo reliability, spacing, screenshots fit, Our Story expand/collapse, accordion polish, footer contact",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Replace landing screenshot carousel to use exactly 4 uploaded screenshots with swipe, prev/next, and dots navigation.",
+      "summary": "Ensure landing header/footer brand logo never shows as broken and stays aligned across viewports with a text fallback.",
       "acceptanceCriteria": [
-        "Landing carousel displays exactly 4 slides sourced from the uploaded files (not the existing /assets/generated/landing-screenshot-*.png files).",
-        "Swipe on mobile moves between all 4 slides; desktop prev/next buttons and dots navigate correctly.",
-        "No old placeholder “Amour Bloom” images appear anywhere in the carousel."
+        "On the Landing page header and footer, the logo loads correctly (no broken image icon) in both light and dark mode.",
+        "If the logo asset fails to load for any reason, a readable text fallback (e.g., “GrowInLove”) is still displayed without layout breakage.",
+        "Brand block alignment does not cause excessive header height on mobile (no large empty top padding)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/LandingScreenshotCarousel.tsx",
+          "path": "frontend/src/components/LandingBrand.tsx",
           "operation": "modify",
-          "description": "Update the carousel data source to 4 slides referencing the new static assets at frontend/public/assets/generated/landing-screenshot-1.dim_390x844.jpg, frontend/public/assets/generated/landing-screenshot-2.dim_390x844.jpg, frontend/public/assets/generated/landing-screenshot-3.dim_390x844.jpg, and frontend/public/assets/generated/landing-screenshot-4.dim_390x844.jpg; remove references to the existing .png carousel images; ensure swipe, desktop next/prev, and dots work for 4 slides."
+          "description": "Make LandingBrand resilient: add image onError handling with a text-only fallback, ensure alt text remains, and introduce layout variants (e.g., compact row layout for header/footer) to keep alignment consistent and prevent extra header height on mobile."
+        },
+        {
+          "path": "frontend/src/pages/Landing.tsx",
+          "operation": "modify",
+          "description": "Update header/footer usage of LandingBrand to use the compact/aligned variant and adjust header container spacing so the brand block doesn't inflate vertical height on mobile."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Redesign the landing hero to feature the 4 screenshots in a polished device-frame carousel presentation while keeping existing hero copy and CTA.",
+      "summary": "Reduce excessive vertical whitespace across landing sections on mobile while keeping readability and avoiding overflow.",
       "acceptanceCriteria": [
-        "Hero section no longer renders the current hero illustration image; it instead features the uploaded screenshots in a cohesive presentation optimized for mobile and desktop.",
-        "Hero headline/subheadline/CTA remain present and readable across breakpoints.",
-        "Hero layout remains visually balanced (no overflow/cropping issues on common mobile widths)."
+        "On mobile viewport widths, there is no large blank vertical gap between header/hero and subsequent sections (as seen in the uploaded screenshots).",
+        "Section paddings/margins are consistently smaller on mobile than desktop, without crowding text or clipping content.",
+        "No horizontal overflow is introduced; page does not jitter/scroll sideways."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
-          "operation": "create",
-          "description": "Create a dedicated hero-only screenshot presentation component that renders the 4 static screenshots in a clean device-frame style carousel (or equally polished presentation) using the same 4 assets: frontend/public/assets/generated/landing-screenshot-1.dim_390x844.jpg, frontend/public/assets/generated/landing-screenshot-2.dim_390x844.jpg, frontend/public/assets/generated/landing-screenshot-3.dim_390x844.jpg, frontend/public/assets/generated/landing-screenshot-4.dim_390x844.jpg."
-        },
-        {
           "path": "frontend/src/pages/Landing.tsx",
           "operation": "modify",
-          "description": "Replace the existing hero illustration image with the new LandingHeroScreenshotShowcase component while keeping the hero headline, subheadline, and CTA unchanged; ensure the hero layout remains responsive and visually balanced across breakpoints."
+          "description": "Tighten section paddings/margins with mobile-first values (hero, benefit trio, carousel, story, privacy, features, CTA, footer). Ensure consistent spacing scale, remove any unintentional large gaps, and verify container padding doesn't cause horizontal overflow."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Limit usage of the uploaded screenshots to landing hero and/or landing carousel only.",
+      "summary": "Improve hero showcase and carousel screenshot fitting to prevent noticeable cropping and preserve aspect ratio.",
       "acceptanceCriteria": [
-        "No new references to the uploaded screenshot assets exist outside landing-page-related components/pages."
+        "In LandingHeroScreenshotShowcase and LandingScreenshotCarousel, screenshots are not noticeably cropped at the edges; key UI elements (top/bottom bars and main text) remain visible on typical mobile sizes.",
+        "Screenshot images preserve aspect ratio and do not appear stretched.",
+        "The phone mockup containers remain centered and visually balanced on mobile and desktop."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
           "operation": "modify",
-          "description": "Ensure this component is only imported/used from the landing page (frontend/src/pages/Landing.tsx) and does not introduce exports/usages that would encourage reuse in authenticated app pages."
+          "description": "Adjust screenshot rendering inside the phone mockup to preserve full UI (prefer object-contain over object-cover, add a suitable background behind the image to avoid letterboxing looking broken), and keep the mockup centered/balanced across breakpoints."
         },
         {
           "path": "frontend/src/components/LandingScreenshotCarousel.tsx",
           "operation": "modify",
-          "description": "Keep all screenshot asset references encapsulated within landing-only components (this carousel) and avoid re-exporting/repurposing the screenshot list for use elsewhere."
+          "description": "Update carousel phone mockup image styles to avoid cropping (prefer object-contain), ensure aspect ratio is preserved, and keep the phone container centered while maintaining smooth transitions."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Align landing branding imagery (header logo, footer logo, and any landing brand marks) to the tree-and-hearts logo style with consistent artwork across landing.",
+      "summary": "Add accessible Our Story preview truncation with Read more/Read less expand-collapse behavior.",
       "acceptanceCriteria": [
-        "Landing header logo (top-left) and footer logo are visually consistent with the tree-and-hearts inspiration and match each other (no mixed logo styles).",
-        "Any other landing-page brand marks/thumbnails use the same landing logo artwork/style (no mismatched branding on landing)."
+        "By default, “Our Story” shows a truncated preview (e.g., first 1–3 paragraphs) with a “Read more” control.",
+        "Clicking “Read more” expands to show the full story and changes to “Read less”; clicking “Read less” collapses back.",
+        "The expand/collapse behavior is accessible (keyboard operable) and does not cause layout overlap with adjacent sections."
       ],
       "file_operations": [
         {
-          "path": "frontend/public/assets/generated/landing-logo-icon-transparent.v2.dim_256x256.png",
+          "path": "frontend/src/components/LandingOurStory.tsx",
           "operation": "create",
-          "description": "Add the refined tree-and-hearts-style logo icon asset as a static frontend file (per imageRequirements edit output) so the landing page can use consistent updated branding."
-        },
-        {
-          "path": "frontend/public/assets/generated/landing-wordmark-transparent.v2.dim_720x200.png",
-          "operation": "create",
-          "description": "Add the refined tree-and-hearts-style wordmark asset as a static frontend file (per imageRequirements edit output) so the landing page can use consistent updated branding."
+          "description": "Create a landing-only Our Story component that renders a truncated preview by default with an accessible toggle control (button) for Read more/Read less, using founderStory paragraphs and avoiding layout overlap."
         },
         {
           "path": "frontend/src/pages/Landing.tsx",
           "operation": "modify",
-          "description": "Update landing header (top-left) and footer logo usages to reference the refined assets at frontend/public/assets/generated/landing-logo-icon-transparent.v2.dim_256x256.png and frontend/public/assets/generated/landing-wordmark-transparent.v2.dim_720x200.png; ensure any other landing brand marks use the same updated artwork/style."
+          "description": "Replace the inline Our Story paragraph mapping with LandingOurStory and ensure spacing around the section remains tidy after expansion/collapse."
         }
       ]
     },
     {
       "id": "REQ-5",
-      "summary": "Update favicon/app icons to match landing logo style and wire them into the static HTML head.",
+      "summary": "Polish Explore the features accordion behavior (state cues, compact mobile spacing, stable open/close).",
       "acceptanceCriteria": [
-        "A favicon is present and visible in the browser tab and matches the landing logo style.",
-        "favicon assets are served as static frontend assets and referenced from frontend/index.html."
+        "Collapsible rows clearly indicate open/closed state (e.g., chevron rotates or equivalent).",
+        "Section spacing is compact enough on mobile (no oversized gaps between collapsibles).",
+        "Opening/closing items does not cause content to jump unexpectedly or overflow its container."
       ],
       "file_operations": [
         {
-          "path": "frontend/public/assets/generated/favicon-32.dim_32x32.png",
-          "operation": "create",
-          "description": "Add the generated 32x32 favicon asset matching the tree-and-hearts style as a static frontend file."
-        },
-        {
-          "path": "frontend/public/assets/generated/favicon-16.dim_16x16.png",
-          "operation": "create",
-          "description": "Add the generated 16x16 favicon asset matching the tree-and-hearts style as a static frontend file."
-        },
-        {
-          "path": "frontend/public/assets/generated/apple-touch-icon.dim_180x180.png",
-          "operation": "create",
-          "description": "Add the generated Apple touch icon matching the tree-and-hearts style as a static frontend file."
-        },
-        {
-          "path": "frontend/public/assets/generated/android-chrome.dim_192x192.png",
-          "operation": "create",
-          "description": "Add the generated Android 192x192 icon matching the tree-and-hearts style as a static frontend file."
-        },
-        {
-          "path": "frontend/public/assets/generated/android-chrome.dim_512x512.png",
-          "operation": "create",
-          "description": "Add the generated Android 512x512 icon matching the tree-and-hearts style as a static frontend file."
-        },
-        {
-          "path": "frontend/index.html",
+          "path": "frontend/src/pages/Landing.tsx",
           "operation": "modify",
-          "description": "Wire favicon and app icon assets into the HTML head using the static files at frontend/public/assets/generated/favicon-32.dim_32x32.png, frontend/public/assets/generated/favicon-16.dim_16x16.png, frontend/public/assets/generated/apple-touch-icon.dim_180x180.png, frontend/public/assets/generated/android-chrome.dim_192x192.png, and frontend/public/assets/generated/android-chrome.dim_512x512.png so they appear in the browser tab and on supported platforms."
+          "description": "Refine the Explore the features accordion: control open state (single-open or explicit per-item state), rotate the chevron based on open/closed state, and reduce mobile padding/gaps for a compact layout. Use the existing shadcn-ui Collapsible component to provide the accordion behavior; verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-6",
-      "summary": "Fix landing light/dark toggle to apply immediately and persistently using the existing ThemeProvider/ThemeContext, including landing gradients and card backgrounds.",
+      "summary": "Fix footer layout/branding issues on mobile and implement a working Contact action with a mailto link.",
       "acceptanceCriteria": [
-        "Clicking the theme toggle on the landing page reliably switches between light and dark appearance.",
-        "Theme preference persists across refresh (localStorage) and applies on initial load.",
-        "No landing sections remain stuck in the wrong theme after toggling."
+        "Footer content is neatly stacked on mobile (no cramped overlaps; no excessive whitespace).",
+        "Footer brand/logo renders correctly and does not appear broken.",
+        "Clicking “Contact” reveals contact information that includes a functional mailto link (using a clearly-defined contact email constant in code if needed)."
       ],
       "file_operations": [
         {
-          "path": "frontend/index.html",
-          "operation": "modify",
-          "description": "Add a small pre-React theme initialization script in the HTML head that reads the saved theme from localStorage and applies the effective light/dark class to document.documentElement before the app renders, ensuring the landing page gradients/cards match the selected theme on initial load."
+          "path": "frontend/src/content/contact.ts",
+          "operation": "create",
+          "description": "Add a small landing-only contact constant (e.g., CONTACT_EMAIL) to keep the mailto address defined in one place."
         },
         {
-          "path": "frontend/src/contexts/ThemeContext.tsx",
+          "path": "frontend/src/components/LandingFooterLinksDialog.tsx",
           "operation": "modify",
-          "description": "Harden ThemeProvider behavior so theme toggling updates the DOM class reliably and without landing-only inconsistencies; ensure localStorage persistence remains the source of truth for subsequent reloads."
+          "description": "Update Contact dialog content to include explicit contact information with a functional mailto link built from the shared email constant, while keeping copy in English. Use the existing shadcn-ui Dialog component; verify the component's usage instructions before implementing."
         },
         {
           "path": "frontend/src/pages/Landing.tsx",
           "operation": "modify",
-          "description": "Audit and adjust landing section backgrounds (including the page gradient and card backgrounds) to rely on theme-aware Tailwind tokens/variables (e.g., background/card/border) so the entire landing updates immediately when the ThemeToggle is used."
+          "description": "Tidy footer stacking/spacing on mobile, ensure brand usage is not duplicated/misaligned, and keep Contact button wired to the updated dialog content."
         }
       ]
     },
     {
       "id": "REQ-7",
-      "summary": "Store the 4 uploaded screenshots as static frontend assets and reference them directly from landing components (no backend routing).",
+      "summary": "Keep the changeset small and landing-only with no backend changes, no UI library edits, and no unrelated dependencies.",
       "acceptanceCriteria": [
-        "Screenshot image files are placed under frontend/public/assets/generated (or a consistent landing asset folder under public) and loaded via direct /assets/... URLs.",
-        "No backend code changes are required for serving these landing images."
+        "Only landing-related files/components are modified for this change set (Landing page and its landing components/styles as needed).",
+        "No backend changes are introduced.",
+        "Build succeeds without introducing new dependencies unrelated to the landing UI."
       ],
       "file_operations": [
         {
-          "path": "frontend/public/assets/generated/landing-screenshot-1.dim_390x844.jpg",
-          "operation": "create",
-          "description": "Add the generated/cropped static screenshot derived from IMG_1297.jpeg as a public asset file for direct use by landing components."
-        },
-        {
-          "path": "frontend/public/assets/generated/landing-screenshot-2.dim_390x844.jpg",
-          "operation": "create",
-          "description": "Add the generated/cropped static screenshot derived from IMG_1298.jpeg as a public asset file for direct use by landing components."
-        },
-        {
-          "path": "frontend/public/assets/generated/landing-screenshot-3.dim_390x844.jpg",
-          "operation": "create",
-          "description": "Add the generated/cropped static screenshot derived from IMG_1299.jpeg as a public asset file for direct use by landing components."
-        },
-        {
-          "path": "frontend/public/assets/generated/landing-screenshot-4.dim_390x844.jpg",
-          "operation": "create",
-          "description": "Add the generated/cropped static screenshot derived from IMG_1300.jpeg as a public asset file for direct use by landing components."
-        },
-        {
-          "path": "frontend/src/components/LandingScreenshotCarousel.tsx",
+          "path": "frontend/src/pages/Landing.tsx",
           "operation": "modify",
-          "description": "Ensure screenshots are referenced via direct public asset URLs (from frontend/public/assets/generated) and not fetched via backend calls or blob-storage; keep usage landing-only."
+          "description": "Limit edits in this changeset to landing section spacing, accordion polish, and wiring in the new landing-only components/content. Do not touch unrelated pages."
+        },
+        {
+          "path": "frontend/src/components/LandingBrand.tsx",
+          "operation": "modify",
+          "description": "Constrain logo/alignment fixes to this landing-only brand component (no global or unrelated brand changes)."
         },
         {
           "path": "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
           "operation": "modify",
-          "description": "Ensure hero screenshots are referenced via direct public asset URLs (from frontend/public/assets/generated) and not fetched via backend calls or blob-storage; keep usage landing-only."
+          "description": "Keep screenshot-fit adjustments scoped to the landing hero showcase only."
+        },
+        {
+          "path": "frontend/src/components/LandingScreenshotCarousel.tsx",
+          "operation": "modify",
+          "description": "Keep screenshot-fit adjustments scoped to the landing carousel only."
+        },
+        {
+          "path": "frontend/src/components/LandingFooterLinksDialog.tsx",
+          "operation": "modify",
+          "description": "Keep dialog edits scoped to landing footer link content only."
+        },
+        {
+          "path": "frontend/src/components/LandingOurStory.tsx",
+          "operation": "create",
+          "description": "Add only the minimal landing-specific component needed for Our Story truncation/toggle to reduce deployment risk."
+        },
+        {
+          "path": "frontend/src/content/contact.ts",
+          "operation": "create",
+          "description": "Add a minimal landing-scoped contact constant used only by the landing footer dialog."
         }
       ]
     }

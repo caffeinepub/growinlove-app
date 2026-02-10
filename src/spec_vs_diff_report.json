@@ -1,51 +1,60 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-07T22:35:49.310Z",
-  "summary": "Landing hero and screenshot carousel were updated to use 4 new /assets/generated JPG screenshots, favicon links were wired in index.html, and ThemeContext was reworked to persist/apply light/dark themes. However, the diff summary does not show the required static image assets (screenshots, favicon/app icons, and updated logo files) being added, and it includes at least one unrelated utility change (urlParams).",
+  "generatedAt": "2026-02-10T19:47:17.046Z",
+  "summary": "Diff implements several landing-page UI corrections: adds an expandable/collapsible Our Story component, adds a contact email constant and uses it to render a mailto link in the footer dialog, updates screenshot showcases to use object-contain with fixed aspect ratio, and updates LandingBrand to include an onError text fallback. However, the change set also modifies a non-landing utility file (urlParams.ts), which conflicts with the “landing-only” scope requirement, and some requirements (notably feature accordion polish and full footer/logo/spacing fixes) cannot be fully verified from the truncated diff.",
   "missing_requirements": [
     {
-      "id": "REQ-4",
-      "requirement": "Update landing-page branding imagery so header logo, footer logo, and any other landing brand marks are visually consistent and use the same tree-heart style artwork.",
-      "reason": "The diff shows header logo icon + wordmark updated, but the Landing.tsx diff is truncated before the footer; no evidence in the provided diff summary that the footer logo (or other landing brand marks) was updated to match.",
+      "id": "REQ-5",
+      "requirement": "Clean up the “Explore the features” section UI to match the intended accordion behavior and polish interaction cues (e.g., chevron rotation/state), ensuring it looks consistent on mobile.",
+      "reason": "Landing.tsx shows Collapsible usage and state, but the diff summary does not provide evidence of open/closed visual cues (e.g., chevron rotation) or spacing/jump/overflow fixes for the accordion rows. The relevant portion appears truncated, so the specific AC items cannot be confirmed implemented.",
       "evidence": [
         "frontend/src/pages/Landing.tsx (truncated)"
       ]
     },
     {
-      "id": "REQ-7",
-      "requirement": "Store the 4 uploaded screenshot assets in the frontend as static files (under frontend/public/assets/generated or similar) and reference them directly from landing components.",
-      "reason": "The code references new JPG paths under /assets/generated, but the diff summary does not show any new static image files being added under frontend/public (or any public assets directory).",
+      "id": "REQ-6",
+      "requirement": "Correct landing footer issues: ensure footer spacing is tidy on mobile, fix any duplicated/misaligned branding, and implement a working Contact action that provides an explicit email link (mailto).",
+      "reason": "The mailto Contact action is implemented in LandingFooterLinksDialog, but the diff summary does not show footer layout/spacing changes, nor does it show fixes for duplicated/misaligned branding in the actual footer component/layout. Footer rendering code is not included in the provided diff snippets, so these parts cannot be verified.",
       "evidence": [
-        "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
-        "frontend/src/components/LandingScreenshotCarousel.tsx (truncated)"
+        "frontend/src/components/LandingFooterLinksDialog.tsx (truncated)"
       ]
     },
     {
-      "id": "REQ-5",
-      "requirement": "Update the browser favicon/app icon to match the landing-page logo artwork/style, serve as static assets, and reference from frontend/index.html.",
-      "reason": "frontend/index.html was updated to reference favicon/app icon files, but the diff summary does not show those favicon/app icon image assets being added under frontend/public/assets/generated (or elsewhere).",
+      "id": "REQ-2",
+      "requirement": "Tighten vertical spacing on the landing page sections (hero, benefit cards, carousel section header, story, privacy, final CTA, footer) to reduce excessive empty space on mobile while preserving readability.",
+      "reason": "Hero section padding appears adjusted (py-8 md:py-12), but the diff summary is truncated before showing updates for the other listed sections (benefit cards, carousel header, story, privacy, final CTA, footer). Therefore, full section-wide spacing tightening cannot be confirmed from the provided evidence.",
       "evidence": [
-        "frontend/index.html"
+        "frontend/src/pages/Landing.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-1",
+      "requirement": "Fix the landing page brand/logo rendering so the GrowInLove tree logo never appears as a broken-image placeholder in the header or footer, and the brand block remains visually aligned across mobile/desktop.",
+      "reason": "LandingBrand now includes an image onError fallback to a text/initials block, which addresses broken-image placeholder risk. However, the diff does not explicitly show how the footer uses the brand/logo (or any footer component changes), so meeting the footer-specific portion of the requirement cannot be fully verified from the provided snippets.",
+      "evidence": [
+        "frontend/src/components/LandingBrand.tsx"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Added/modified URL parameter + sessionStorage utility helpers (urlParams).",
-      "reason": "BuildRequest is focused on landing page screenshots/branding/favicon and theme toggle; it does not request new URL parameter parsing/persistence utilities.",
+      "description": "Non-landing utility changes in urlParams helper functions.",
+      "reason": "REQ-7 requires a small landing-only change set; modifying a general utility file is not evidenced as necessary for the landing-page corrections and is outside the explicitly requested landing UI/content fixes.",
       "evidence": [
         "frontend/src/utils/urlParams.ts (truncated)"
       ]
     }
   ],
-  "confidence": 0.67,
+  "confidence": 0.63,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/index.html",
+    "frontend/src/components/LandingBrand.tsx",
+    "frontend/src/components/LandingFooterLinksDialog.tsx",
     "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
+    "frontend/src/components/LandingOurStory.tsx",
     "frontend/src/components/LandingScreenshotCarousel.tsx",
-    "frontend/src/contexts/ThemeContext.tsx",
+    "frontend/src/content/contact.ts",
     "frontend/src/pages/Landing.tsx",
     "frontend/src/utils/urlParams.ts",
     "project_state.json"
