@@ -1,68 +1,27 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Website updates: apply UI/content corrections across hero, features, gallery, Our Story (Read More), and footer; mitigate deployment errors by deploying smaller incremental changes without extra credits.",
-  "architectural_notes": [
-    "To avoid deployment failures, break large updates into smaller incremental deployments (draft builds/deployments) and only push final combined version to production."
-  ],
+  "summary": "GrowInLove landing page and app: update phone mockup hero image to match carousel, and fix Internet Identity login returning to endless loading spinner so app opens normally.",
+  "architectural_notes": [],
   "known_issues": [
-    "Deployments may fail when updates are too large/complex (many files/components changed at once)."
+    "Top phone mockup currently displays wrong (FunnAI Game Nest) image; should match a carousel image.",
+    "After Internet Identity login, app returns showing only a loading spinner instead of opening normally."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-fix-the-landing-page-brand-logo-rendering-so-the-growinlove-tree-logo-never-appears-as-a-broken-image-placeholder-in-the-header-or-footer-and-the-brand-block-remains-visually-aligned-across-mobile-desktop",
-      "title": "Fix the landing page brand/logo rendering so the GrowInLove tree logo never appears as a broken-image placeholder in the header or footer, and the brand block remains visually aligned across mobile/desktop.",
+      "id": "feature-replace-the-incorrect-screenshot-shown-inside-the-landing-page-hero-phone-mockup-currently-showing-the-funnai-game-nest-screen-with-the-user-selected-image-and-ensure-it-visually-matches-the-other-landing-page-carousel-screenshots-same-crop-fit-behavior-and-consistent-phone-screen-presentation",
+      "title": "Replace the incorrect screenshot shown inside the landing-page hero phone mockup (currently showing the FunnAI Game Nest screen) with the user-selected image, and ensure it visually matches the other landing-page carousel screenshots (same crop/fit behavior and consistent phone-screen presentation).",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-tighten-vertical-spacing-on-the-landing-page-sections-hero-benefit-cards-carousel-section-header-story-privacy-final-cta-footer-to-reduce-excessive-empty-space-on-mobile-while-preserving-readability",
-      "title": "Tighten vertical spacing on the landing page sections (hero, benefit cards, carousel section header, story, privacy, final CTA, footer) to reduce excessive empty space on mobile while preserving readability.",
+      "id": "feature-fix-the-internet-identity-login-flow-so-that-after-a-successful-internet-identity-connection-the-growinlove-app-opens-normally-instead-of-getting-stuck-on-an-endless-loading-spinner-if-profile-loading-fails-show-a-clear-error-state-with-a-retry-action-instead-of-an-infinite-spinner",
+      "title": "Fix the Internet Identity login flow so that after a successful Internet Identity connection, the GrowInLove app opens normally instead of getting stuck on an endless loading spinner; if profile loading fails, show a clear error state with a retry action instead of an infinite spinner.",
       "reqIds": [
         "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-adjust-landing-screenshot-presentation-hero-phone-showcase-and-screenshot-carousel-so-screenshots-fit-consistently-without-cropping-important-ui-maintaining-correct-aspect-ratios",
-      "title": "Adjust landing screenshot presentation (hero phone showcase and screenshot carousel) so screenshots fit consistently without cropping important UI, maintaining correct aspect ratios.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-our-story-section-to-show-a-shortened-preview-by-default-and-provide-a-clear-read-more-read-less-interaction-to-expand-collapse-the-full-founder-story-text",
-      "title": "Update the “Our Story” section to show a shortened preview by default and provide a clear “Read more” / “Read less” interaction to expand/collapse the full founder story text.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-clean-up-the-explore-the-features-section-ui-to-match-the-intended-accordion-behavior-and-polish-interaction-cues-e-g-chevron-rotation-state-ensuring-it-looks-consistent-on-mobile",
-      "title": "Clean up the “Explore the features” section UI to match the intended accordion behavior and polish interaction cues (e.g., chevron rotation/state), ensuring it looks consistent on mobile.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-correct-landing-footer-issues-ensure-footer-spacing-is-tidy-on-mobile-fix-any-duplicated-misaligned-branding-and-implement-a-working-contact-action-that-provides-an-explicit-email-link-mailto",
-      "title": "Correct landing footer issues: ensure footer spacing is tidy on mobile, fix any duplicated/misaligned branding, and implement a working Contact action that provides an explicit email link (mailto).",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-the-above-landing-page-corrections-as-a-small-landing-only-change-set-to-reduce-deployment-risk-avoid-touching-unrelated-pages-components",
-      "title": "Implement the above landing-page corrections as a small, landing-only change set to reduce deployment risk (avoid touching unrelated pages/components).",
-      "reqIds": [
-        "REQ-7"
       ],
       "version": 1
     }
@@ -70,36 +29,18 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Apply hero section fixes",
+      "summary": "Replace the incorrect FunnAI Game Nest image inside the top phone mockup with the specified carousel image, matching the style of the other carousel images.",
       "reqIds": [],
       "status": "in_progress"
     },
     {
       "id": "AR-2",
-      "summary": "Apply features section cleanup and content updates",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Restructure screenshot/gallery section",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Update Our Story section and add Read More button",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Fix footer issues (email link, logo, spacing)",
+      "summary": "Fix Internet Identity login flow so after connecting, the GrowInLove app opens normally (no infinite loading spinner).",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Apply landing-page corrections (hero spacing, features, gallery fit, Our Story Read More, footer + logo fixes)",
+  "projectName": "GrowInLove",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

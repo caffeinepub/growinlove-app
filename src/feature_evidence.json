@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-landing-page-brand-logo-rendering-so-the-growinlove-tree-logo-never-appears-as-a-broken-image-placeholder-in-the-header-or-footer-and-the-brand-block-remains-visually-aligned-across-mobile-desktop",
-      "featureTitle": "Fix the landing page brand/logo rendering so the GrowInLove tree logo never appears as a broken-image placeholder in the header or footer, and the brand block remains visually aligned across mobile/desktop.",
+      "featureId": "feature-replace-the-incorrect-screenshot-shown-inside-the-landing-page-hero-phone-mockup-currently-showing-the-funnai-game-nest-screen-with-the-user-selected-image-and-ensure-it-visually-matches-the-other-landing-page-carousel-screenshots-same-crop-fit-behavior-and-consistent-phone-screen-presentation",
+      "featureTitle": "Replace the incorrect screenshot shown inside the landing-page hero phone mockup (currently showing the FunnAI Game Nest screen) with the user-selected image, and ensure it visually matches the other landing-page carousel screenshots (same crop/fit behavior and consistent phone-screen presentation).",
       "files": [
-        "frontend/src/components/LandingBrand.tsx",
-        "frontend/src/pages/Landing.tsx"
+        "frontend/src/components/LandingHeroScreenshotShowcase.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -23,10 +22,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-tighten-vertical-spacing-on-the-landing-page-sections-hero-benefit-cards-carousel-section-header-story-privacy-final-cta-footer-to-reduce-excessive-empty-space-on-mobile-while-preserving-readability",
-      "featureTitle": "Tighten vertical spacing on the landing page sections (hero, benefit cards, carousel section header, story, privacy, final CTA, footer) to reduce excessive empty space on mobile while preserving readability.",
+      "featureId": "feature-fix-the-internet-identity-login-flow-so-that-after-a-successful-internet-identity-connection-the-growinlove-app-opens-normally-instead-of-getting-stuck-on-an-endless-loading-spinner-if-profile-loading-fails-show-a-clear-error-state-with-a-retry-action-instead-of-an-infinite-spinner",
+      "featureTitle": "Fix the Internet Identity login flow so that after a successful Internet Identity connection, the GrowInLove app opens normally instead of getting stuck on an endless loading spinner; if profile loading fails, show a clear error state with a retry action instead of an infinite spinner.",
       "files": [
-        "frontend/src/pages/Landing.tsx"
+        "frontend/src/App.tsx",
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -39,116 +39,6 @@
       ],
       "testIds": [
         "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-adjust-landing-screenshot-presentation-hero-phone-showcase-and-screenshot-carousel-so-screenshots-fit-consistently-without-cropping-important-ui-maintaining-correct-aspect-ratios",
-      "featureTitle": "Adjust landing screenshot presentation (hero phone showcase and screenshot carousel) so screenshots fit consistently without cropping important UI, maintaining correct aspect ratios.",
-      "files": [
-        "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
-        "frontend/src/components/LandingScreenshotCarousel.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "authorization@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-the-our-story-section-to-show-a-shortened-preview-by-default-and-provide-a-clear-read-more-read-less-interaction-to-expand-collapse-the-full-founder-story-text",
-      "featureTitle": "Update the “Our Story” section to show a shortened preview by default and provide a clear “Read more” / “Read less” interaction to expand/collapse the full founder story text.",
-      "files": [
-        "frontend/src/components/LandingOurStory.tsx",
-        "frontend/src/pages/Landing.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "authorization@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-clean-up-the-explore-the-features-section-ui-to-match-the-intended-accordion-behavior-and-polish-interaction-cues-e-g-chevron-rotation-state-ensuring-it-looks-consistent-on-mobile",
-      "featureTitle": "Clean up the “Explore the features” section UI to match the intended accordion behavior and polish interaction cues (e.g., chevron rotation/state), ensuring it looks consistent on mobile.",
-      "files": [
-        "frontend/src/pages/Landing.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "authorization@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-correct-landing-footer-issues-ensure-footer-spacing-is-tidy-on-mobile-fix-any-duplicated-misaligned-branding-and-implement-a-working-contact-action-that-provides-an-explicit-email-link-mailto",
-      "featureTitle": "Correct landing footer issues: ensure footer spacing is tidy on mobile, fix any duplicated/misaligned branding, and implement a working Contact action that provides an explicit email link (mailto).",
-      "files": [
-        "frontend/src/components/LandingFooterLinksDialog.tsx",
-        "frontend/src/content/contact.ts",
-        "frontend/src/pages/Landing.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "authorization@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-6"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-implement-the-above-landing-page-corrections-as-a-small-landing-only-change-set-to-reduce-deployment-risk-avoid-touching-unrelated-pages-components",
-      "featureTitle": "Implement the above landing-page corrections as a small, landing-only change set to reduce deployment risk (avoid touching unrelated pages/components).",
-      "files": [
-        "frontend/src/components/LandingBrand.tsx",
-        "frontend/src/components/LandingFooterLinksDialog.tsx",
-        "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
-        "frontend/src/components/LandingOurStory.tsx",
-        "frontend/src/components/LandingScreenshotCarousel.tsx",
-        "frontend/src/content/contact.ts",
-        "frontend/src/pages/Landing.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "authorization@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-7"
       ],
       "confidence": "high"
     }

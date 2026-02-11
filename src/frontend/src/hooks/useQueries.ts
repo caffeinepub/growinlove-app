@@ -35,7 +35,8 @@ export function useGetCallerUserProfile() {
       return actor.getCallerUserProfile();
     },
     enabled: !!actor && !actorFetching,
-    retry: false,
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
     staleTime: 0, // Always fetch fresh data
   });
 
@@ -330,6 +331,7 @@ export function useGetPhotosByUser(userId: UserId | null) {
       return actor.getPhotosByUser(userId);
     },
     enabled: !!actor && !actorFetching && !!userId,
+    staleTime: 30000, // Cache for 30 seconds
   });
 }
 
@@ -349,110 +351,38 @@ export function useDeletePhoto() {
 }
 
 // Love Languages Quiz Queries
-export function useGetCallerQuizResults() {
+export function useGetLoveLanguageQuizResult() {
   const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<LoveLanguagesQuizResult | null>({
-    queryKey: ['callerQuizResults'],
+    queryKey: ['loveLanguageQuizResult'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
       return actor.getLoveLanguageQuizResult();
     },
     enabled: !!actor && !actorFetching,
-    retry: 3,
-    retryDelay: 1000,
+    staleTime: 60000, // Cache for 1 minute
   });
 }
 
-export function useGetPartnerQuizResults() {
-  const { actor, isFetching: actorFetching } = useActor();
-  const queryClient = useQueryClient();
-
-  return useQuery<PartnerQuizState>({
-    queryKey: ['partnerQuizResults'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      
-      // Get the caller's profile to extract partnerId
-      const profile = await queryClient.ensureQueryData<UserProfile | null>({
-        queryKey: ['currentUserProfile'],
-        queryFn: async () => actor.getCallerUserProfile(),
-      });
-
-      // If no profile or no partner, return not completed
-      if (!profile || !profile.partnerId) {
-        return { partnerCompleted: false, partnerResults: undefined };
-      }
-
-      // Call the backend with the partner's principal
-      try {
-        const partnerState = await actor.getPartnerQuizState(profile.partnerId);
-        return partnerState;
-      } catch (error) {
-        // Defensive fallback: if the backend method fails (e.g., older backend version),
-        // return not completed instead of throwing
-        console.warn('Failed to fetch partner quiz state:', error);
-        return { partnerCompleted: false, partnerResults: undefined };
-      }
-    },
-    enabled: !!actor && !actorFetching,
-    refetchInterval: 5000, // Poll every 5 seconds to check partner completion
-    retry: 3,
-    retryDelay: 1000,
-  });
-}
-
-export function useGetCombinedQuizResultState() {
-  const { actor, isFetching: actorFetching } = useActor();
-
-  return useQuery<{
-    callerResults?: LoveLanguagesQuizResult;
-    partnerCompleted: boolean;
-    partnerResults?: LoveLanguagesQuizResult;
-    callerCompleted: boolean;
-  } | null>({
-    queryKey: ['combinedQuizResultState'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getCombinedQuizResultState();
-    },
-    enabled: !!actor && !actorFetching,
-    refetchInterval: 5000,
-    retry: 3,
-    retryDelay: 1000,
-  });
-}
-
-export function useSaveQuizResults() {
+export function useSaveLoveLanguageQuizResults() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (results: LoveLanguagesQuizResult) => {
+    mutationFn: async (result: LoveLanguagesQuizResult) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.saveLoveLanguageQuizResults(results);
+      return actor.saveLoveLanguageQuizResults(result);
     },
-    onSuccess: async () => {
-      // Wait a moment for backend synchronization to complete
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Invalidate all quiz-related queries to trigger refetch
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['callerQuizResults'] }),
-        queryClient.invalidateQueries({ queryKey: ['partnerQuizResults'] }),
-        queryClient.invalidateQueries({ queryKey: ['combinedQuizResultState'] }),
-        queryClient.invalidateQueries({ queryKey: ['dailyRitual'] }),
-      ]);
-      
-      // Force refetch combined state to check for synchronization
-      await queryClient.refetchQueries({ queryKey: ['combinedQuizResultState'] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['loveLanguageQuizResult'] });
+      queryClient.invalidateQueries({ queryKey: ['combinedQuizResultState'] });
+      queryClient.invalidateQueries({ queryKey: ['partnerQuizState'] });
     },
-    retry: 2,
-    retryDelay: 1000,
   });
 }
 
-export function useResetQuizResults() {
+export function useClearLoveLanguagesQuizResults() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
@@ -462,15 +392,43 @@ export function useResetQuizResults() {
       return actor.clearLoveLanguagesQuizResults();
     },
     onSuccess: () => {
-      // Invalidate all quiz-related queries
-      queryClient.invalidateQueries({ queryKey: ['callerQuizResults'] });
-      queryClient.invalidateQueries({ queryKey: ['partnerQuizResults'] });
+      queryClient.invalidateQueries({ queryKey: ['loveLanguageQuizResult'] });
       queryClient.invalidateQueries({ queryKey: ['combinedQuizResultState'] });
     },
   });
 }
 
-// A2: Insights Data Queries with enhanced polling and retry strategy
+export function useGetCombinedQuizResultState() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery({
+    queryKey: ['combinedQuizResultState'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getCombinedQuizResultState();
+    },
+    enabled: !!actor && !actorFetching,
+    refetchInterval: 8000, // Poll every 8 seconds for partner completion
+    staleTime: 3000, // Consider data stale after 3 seconds
+  });
+}
+
+export function useGetPartnerQuizState(partnerId: UserId | null) {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<PartnerQuizState>({
+    queryKey: ['partnerQuizState', partnerId?.toString()],
+    queryFn: async () => {
+      if (!actor || !partnerId) throw new Error('Actor or partnerId not available');
+      return actor.getPartnerQuizState(partnerId);
+    },
+    enabled: !!actor && !actorFetching && !!partnerId,
+    refetchInterval: 8000, // Poll every 8 seconds
+    staleTime: 3000,
+  });
+}
+
+// Insights and Badge Queries
 export function useGetInsightsData() {
   const { actor, isFetching: actorFetching } = useActor();
 
@@ -481,10 +439,10 @@ export function useGetInsightsData() {
       return actor.getInsightsData();
     },
     enabled: !!actor && !actorFetching,
-    refetchInterval: 8000, // A2: Poll every 8 seconds for real-time updates
-    retry: 3, // A2: Retry up to 3 times on failure
+    retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
-    staleTime: 3000, // A2: Cache for 3 seconds to reduce unnecessary calls
+    staleTime: 3000, // Consider data stale after 3 seconds
+    refetchInterval: 8000, // Poll every 8 seconds
   });
 }
 
@@ -498,9 +456,48 @@ export function useGetBadgeMilestones() {
       return actor.getBadgeMilestones();
     },
     enabled: !!actor && !actorFetching,
-    refetchInterval: 8000, // A2: Poll every 8 seconds for real-time updates
-    retry: 3, // A2: Retry up to 3 times on failure
+    retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
-    staleTime: 3000, // A2: Cache for 3 seconds to reduce unnecessary calls
+    staleTime: 3000,
+    refetchInterval: 8000,
+  });
+}
+
+// Prompts Queries
+export function useFetchPrompts() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<RitualPrompt[]>({
+    queryKey: ['prompts'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.fetchPrompts();
+    },
+    enabled: !!actor && !actorFetching,
+    staleTime: 300000, // Cache for 5 minutes
+  });
+}
+
+export function useGetPromptsByLoveLanguage(language: string | null) {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<RitualPrompt[]>({
+    queryKey: ['promptsByLoveLanguage', language],
+    queryFn: async () => {
+      if (!actor || !language) return [];
+      // Convert string to LoveLanguage enum
+      const loveLanguageMap: Record<string, any> = {
+        'wordsOfAffirmation': { wordsOfAffirmation: null },
+        'actsOfService': { actsOfService: null },
+        'receivingGifts': { receivingGifts: null },
+        'qualityTime': { qualityTime: null },
+        'physicalTouch': { physicalTouch: null },
+      };
+      const loveLanguage = loveLanguageMap[language];
+      if (!loveLanguage) return [];
+      return actor.getPromptsByLoveLanguage(loveLanguage);
+    },
+    enabled: !!actor && !actorFetching && !!language,
+    staleTime: 300000,
   });
 }

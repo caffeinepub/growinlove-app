@@ -4,15 +4,15 @@ import { Button } from '@/components/ui/button';
 
 const slides = [
   {
-    image: '/assets/generated/landing-screenshot-1.dim_390x844.png',
+    image: '/assets/IMG_1322.png',
     caption: 'Your Love Story',
   },
   {
-    image: '/assets/generated/landing-screenshot-2.dim_390x844.png',
+    image: '/assets/IMG_1323.png',
     caption: 'Daily Rituals',
   },
   {
-    image: '/assets/generated/landing-screenshot-3.dim_390x844.png',
+    image: '/assets/IMG_1324.png',
     caption: 'Shared Insights',
   },
 ];
@@ -41,7 +41,7 @@ export function LandingScreenshotCarousel() {
           variant="ghost"
           size="icon"
           onClick={goToPrevious}
-          className="shrink-0 hover:bg-romantic-primary/10"
+          className="shrink-0 hover:bg-romantic-primary/10 text-foreground"
           aria-label="Previous screenshot"
         >
           <ChevronLeft className="w-6 h-6" />
@@ -58,7 +58,7 @@ export function LandingScreenshotCarousel() {
               <img
                 src={slides[currentIndex].image}
                 alt={slides[currentIndex].caption}
-                className="w-full h-full object-contain bg-white dark:bg-gray-950"
+                className="w-full h-full object-cover object-center"
               />
             </div>
           </div>
@@ -74,7 +74,7 @@ export function LandingScreenshotCarousel() {
           variant="ghost"
           size="icon"
           onClick={goToNext}
-          className="shrink-0 hover:bg-romantic-primary/10"
+          className="shrink-0 hover:bg-romantic-primary/10 text-foreground"
           aria-label="Next screenshot"
         >
           <ChevronRight className="w-6 h-6" />

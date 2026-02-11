@@ -1,61 +1,57 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T19:47:17.046Z",
-  "summary": "Diff implements several landing-page UI corrections: adds an expandable/collapsible Our Story component, adds a contact email constant and uses it to render a mailto link in the footer dialog, updates screenshot showcases to use object-contain with fixed aspect ratio, and updates LandingBrand to include an onError text fallback. However, the change set also modifies a non-landing utility file (urlParams.ts), which conflicts with the “landing-only” scope requirement, and some requirements (notably feature accordion polish and full footer/logo/spacing fixes) cannot be fully verified from the truncated diff.",
+  "generatedAt": "2026-02-11T18:26:40.544Z",
+  "summary": "REQ-2 appears to be addressed by adding bounded loading conditions and an explicit error+retry state for profile loading after Internet Identity auth. REQ-1 is partially addressed (hero phone now uses local assets with object-cover/center), but the diff does not show use of a user-provided/uploaded replacement image for the hero mockup.",
   "missing_requirements": [
     {
-      "id": "REQ-5",
-      "requirement": "Clean up the “Explore the features” section UI to match the intended accordion behavior and polish interaction cues (e.g., chevron rotation/state), ensuring it looks consistent on mobile.",
-      "reason": "Landing.tsx shows Collapsible usage and state, but the diff summary does not provide evidence of open/closed visual cues (e.g., chevron rotation) or spacing/jump/overflow fixes for the accordion rows. The relevant portion appears truncated, so the specific AC items cannot be confirmed implemented.",
+      "id": "REQ-1",
+      "requirement": "Replace the landing-page hero phone mockup screenshot with the user-selected image (user-provided upload), matching the carousel’s crop/fit behavior, while keeping the phone frame/notch/dots behavior intact.",
+      "reason": "The hero mockup now cycles through a hardcoded local `screenshots` array of `/assets/IMG_*.png`. There is no evidence of wiring in a user-provided/uploaded image or any selection mechanism beyond the existing dot-controlled index.",
       "evidence": [
-        "frontend/src/pages/Landing.tsx (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "requirement": "Correct landing footer issues: ensure footer spacing is tidy on mobile, fix any duplicated/misaligned branding, and implement a working Contact action that provides an explicit email link (mailto).",
-      "reason": "The mailto Contact action is implemented in LandingFooterLinksDialog, but the diff summary does not show footer layout/spacing changes, nor does it show fixes for duplicated/misaligned branding in the actual footer component/layout. Footer rendering code is not included in the provided diff snippets, so these parts cannot be verified.",
-      "evidence": [
-        "frontend/src/components/LandingFooterLinksDialog.tsx (truncated)"
+        "frontend/src/components/LandingHeroScreenshotShowcase.tsx"
       ]
     },
     {
       "id": "REQ-2",
-      "requirement": "Tighten vertical spacing on the landing page sections (hero, benefit cards, carousel section header, story, privacy, final CTA, footer) to reduce excessive empty space on mobile while preserving readability.",
-      "reason": "Hero section padding appears adjusted (py-8 md:py-12), but the diff summary is truncated before showing updates for the other listed sections (benefit cards, carousel header, story, privacy, final CTA, footer). Therefore, full section-wide spacing tightening cannot be confirmed from the provided evidence.",
+      "requirement": "Manual QA: login from the landing page header Login button and from the app-mode login screen both result in the app opening normally after authentication.",
+      "reason": "The diff shows changes to App initialization/loading/error handling, but does not include evidence of updates/tests ensuring both entry points (landing header login and app-mode login screen) are verified/fixed end-to-end.",
       "evidence": [
-        "frontend/src/pages/Landing.tsx (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-1",
-      "requirement": "Fix the landing page brand/logo rendering so the GrowInLove tree logo never appears as a broken-image placeholder in the header or footer, and the brand block remains visually aligned across mobile/desktop.",
-      "reason": "LandingBrand now includes an image onError fallback to a text/initials block, which addresses broken-image placeholder risk. However, the diff does not explicitly show how the footer uses the brand/logo (or any footer component changes), so meeting the footer-specific portion of the requirement cannot be fully verified from the provided snippets.",
-      "evidence": [
-        "frontend/src/components/LandingBrand.tsx"
+        "frontend/src/App.tsx"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Non-landing utility changes in urlParams helper functions.",
-      "reason": "REQ-7 requires a small landing-only change set; modifying a general utility file is not evidenced as necessary for the landing-page corrections and is outside the explicitly requested landing UI/content fixes.",
+      "description": "Significant Love Languages quiz synchronization and UI/flow enhancements (polling, sync banners, emergency fallback error handling, etc.).",
+      "reason": "Not requested by the BuildRequest (non-goal: no unrelated product features). The diff summary describes broad new behavior in the LoveLanguages page beyond the login-loading and hero screenshot fixes.",
       "evidence": [
-        "frontend/src/utils/urlParams.ts (truncated)"
+        "frontend/src/pages/LoveLanguages.tsx",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Behavior in `useArePromptsInitialized` that returns `true` with a comment indicating the backend method doesn’t exist.",
+      "reason": "Not requested; also introduces potentially misleading logic unrelated to the stated issues.",
+      "evidence": [
+        "frontend/src/hooks/useQueries.ts"
+      ]
+    },
+    {
+      "description": "Additional/expanded URL parameter and sessionStorage management utilities.",
+      "reason": "Not requested by REQ-1/REQ-2; appears unrelated to the hero screenshot replacement or post-login infinite loading fix.",
+      "evidence": [
+        "frontend/src/utils/urlParams.ts"
       ]
     }
   ],
-  "confidence": 0.63,
+  "confidence": 0.64,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/components/LandingBrand.tsx",
-    "frontend/src/components/LandingFooterLinksDialog.tsx",
+    "frontend/src/App.tsx",
     "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
-    "frontend/src/components/LandingOurStory.tsx",
-    "frontend/src/components/LandingScreenshotCarousel.tsx",
-    "frontend/src/content/contact.ts",
-    "frontend/src/pages/Landing.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/LoveLanguages.tsx",
     "frontend/src/utils/urlParams.ts",
     "project_state.json"
   ]

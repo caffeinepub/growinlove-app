@@ -1,172 +1,43 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Landing-page corrections: logo reliability, spacing, screenshots fit, Our Story expand/collapse, accordion polish, footer contact",
+  "title": "Landing hero screenshot fix and post-Internet Identity loading recovery",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Ensure landing header/footer brand logo never shows as broken and stays aligned across viewports with a text fallback.",
+      "summary": "Replace the landing hero phone mockup screenshot with the user-selected image and ensure the hero uses the same crop/fit behavior as the landing carousel.",
       "acceptanceCriteria": [
-        "On the Landing page header and footer, the logo loads correctly (no broken image icon) in both light and dark mode.",
-        "If the logo asset fails to load for any reason, a readable text fallback (e.g., “GrowInLove”) is still displayed without layout breakage.",
-        "Brand block alignment does not cause excessive header height on mobile (no large empty top padding)."
+        "Landing hero phone mockup (component: frontend/src/components/LandingHeroScreenshotShowcase.tsx) no longer displays the FunnAI Game Nest screen.",
+        "The hero phone mockup displays the chosen replacement image (using the user-provided upload) and uses the same fit behavior as the carousel (object-cover / centered) so it looks consistent with the other carousel images.",
+        "Only the hero phone mockup screenshot content is changed; the phone frame, notch, sizing, and dot controls behavior remain intact."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/LandingBrand.tsx",
+          "path": "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
           "operation": "modify",
-          "description": "Make LandingBrand resilient: add image onError handling with a text-only fallback, ensure alt text remains, and introduce layout variants (e.g., compact row layout for header/footer) to keep alignment consistent and prevent extra header height on mobile."
-        },
-        {
-          "path": "frontend/src/pages/Landing.tsx",
-          "operation": "modify",
-          "description": "Update header/footer usage of LandingBrand to use the compact/aligned variant and adjust header container spacing so the brand block doesn't inflate vertical height on mobile."
+          "description": "Update the hero mockup `screenshots` source list to use the selected replacement screenshot (matching one of the landing carousel images) and keep the same `object-cover object-center` presentation so the hero phone screen visually matches the carousel; do not change the phone frame/notch/dot control behavior."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Reduce excessive vertical whitespace across landing sections on mobile while keeping readability and avoiding overflow.",
+      "summary": "Prevent infinite post-login loading by making initialization/profile loading state finite and adding an error + retry UI when profile fetch fails.",
       "acceptanceCriteria": [
-        "On mobile viewport widths, there is no large blank vertical gap between header/hero and subsequent sections (as seen in the uploaded screenshots).",
-        "Section paddings/margins are consistently smaller on mobile than desktop, without crowding text or clipping content.",
-        "No horizontal overflow is introduced; page does not jitter/scroll sideways."
+        "After completing Internet Identity login, the app transitions into a usable state (either main app UI or Profile Setup when no profile exists) rather than remaining on the loading screen indefinitely.",
+        "If loading the caller profile fails (e.g., query error), the UI does not remain stuck on the spinner; it renders an error message in English with a visible “Retry” action that re-attempts loading.",
+        "The loading screen in frontend/src/App.tsx only appears while initialization or profile fetch is actively in progress; it does not persist due to disabled/blocked queries (e.g., missing actor) without surfacing an actionable UI state.",
+        "Manual QA: login from the landing page header Login button and from the app-mode login screen both result in the app opening normally after authentication."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/Landing.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Tighten section paddings/margins with mobile-first values (hero, benefit trio, carousel, story, privacy, features, CTA, footer). Ensure consistent spacing scale, remove any unintentional large gaps, and verify container padding doesn't cause horizontal overflow."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Improve hero showcase and carousel screenshot fitting to prevent noticeable cropping and preserve aspect ratio.",
-      "acceptanceCriteria": [
-        "In LandingHeroScreenshotShowcase and LandingScreenshotCarousel, screenshots are not noticeably cropped at the edges; key UI elements (top/bottom bars and main text) remain visible on typical mobile sizes.",
-        "Screenshot images preserve aspect ratio and do not appear stretched.",
-        "The phone mockup containers remain centered and visually balanced on mobile and desktop."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
-          "operation": "modify",
-          "description": "Adjust screenshot rendering inside the phone mockup to preserve full UI (prefer object-contain over object-cover, add a suitable background behind the image to avoid letterboxing looking broken), and keep the mockup centered/balanced across breakpoints."
+          "description": "Adjust `useGetCallerUserProfile` to expose explicit state for actor dependency readiness (e.g., actor-ready vs actor-unavailable) and ensure loading flags accurately reflect whether a profile fetch is actually in progress (not merely blocked by missing actor). Use the selected \"authorization\" component guidance for actor-dependent queries and profile setup gating; verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/components/LandingScreenshotCarousel.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Update carousel phone mockup image styles to avoid cropping (prefer object-contain), ensure aspect ratio is preserved, and keep the phone container centered while maintaining smooth transitions."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Add accessible Our Story preview truncation with Read more/Read less expand-collapse behavior.",
-      "acceptanceCriteria": [
-        "By default, “Our Story” shows a truncated preview (e.g., first 1–3 paragraphs) with a “Read more” control.",
-        "Clicking “Read more” expands to show the full story and changes to “Read less”; clicking “Read less” collapses back.",
-        "The expand/collapse behavior is accessible (keyboard operable) and does not cause layout overlap with adjacent sections."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/LandingOurStory.tsx",
-          "operation": "create",
-          "description": "Create a landing-only Our Story component that renders a truncated preview by default with an accessible toggle control (button) for Read more/Read less, using founderStory paragraphs and avoiding layout overlap."
-        },
-        {
-          "path": "frontend/src/pages/Landing.tsx",
-          "operation": "modify",
-          "description": "Replace the inline Our Story paragraph mapping with LandingOurStory and ensure spacing around the section remains tidy after expansion/collapse."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "Polish Explore the features accordion behavior (state cues, compact mobile spacing, stable open/close).",
-      "acceptanceCriteria": [
-        "Collapsible rows clearly indicate open/closed state (e.g., chevron rotates or equivalent).",
-        "Section spacing is compact enough on mobile (no oversized gaps between collapsibles).",
-        "Opening/closing items does not cause content to jump unexpectedly or overflow its container."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/Landing.tsx",
-          "operation": "modify",
-          "description": "Refine the Explore the features accordion: control open state (single-open or explicit per-item state), rotate the chevron based on open/closed state, and reduce mobile padding/gaps for a compact layout. Use the existing shadcn-ui Collapsible component to provide the accordion behavior; verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Fix footer layout/branding issues on mobile and implement a working Contact action with a mailto link.",
-      "acceptanceCriteria": [
-        "Footer content is neatly stacked on mobile (no cramped overlaps; no excessive whitespace).",
-        "Footer brand/logo renders correctly and does not appear broken.",
-        "Clicking “Contact” reveals contact information that includes a functional mailto link (using a clearly-defined contact email constant in code if needed)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/content/contact.ts",
-          "operation": "create",
-          "description": "Add a small landing-only contact constant (e.g., CONTACT_EMAIL) to keep the mailto address defined in one place."
-        },
-        {
-          "path": "frontend/src/components/LandingFooterLinksDialog.tsx",
-          "operation": "modify",
-          "description": "Update Contact dialog content to include explicit contact information with a functional mailto link built from the shared email constant, while keeping copy in English. Use the existing shadcn-ui Dialog component; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/Landing.tsx",
-          "operation": "modify",
-          "description": "Tidy footer stacking/spacing on mobile, ensure brand usage is not duplicated/misaligned, and keep Contact button wired to the updated dialog content."
-        }
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "summary": "Keep the changeset small and landing-only with no backend changes, no UI library edits, and no unrelated dependencies.",
-      "acceptanceCriteria": [
-        "Only landing-related files/components are modified for this change set (Landing page and its landing components/styles as needed).",
-        "No backend changes are introduced.",
-        "Build succeeds without introducing new dependencies unrelated to the landing UI."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/Landing.tsx",
-          "operation": "modify",
-          "description": "Limit edits in this changeset to landing section spacing, accordion polish, and wiring in the new landing-only components/content. Do not touch unrelated pages."
-        },
-        {
-          "path": "frontend/src/components/LandingBrand.tsx",
-          "operation": "modify",
-          "description": "Constrain logo/alignment fixes to this landing-only brand component (no global or unrelated brand changes)."
-        },
-        {
-          "path": "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
-          "operation": "modify",
-          "description": "Keep screenshot-fit adjustments scoped to the landing hero showcase only."
-        },
-        {
-          "path": "frontend/src/components/LandingScreenshotCarousel.tsx",
-          "operation": "modify",
-          "description": "Keep screenshot-fit adjustments scoped to the landing carousel only."
-        },
-        {
-          "path": "frontend/src/components/LandingFooterLinksDialog.tsx",
-          "operation": "modify",
-          "description": "Keep dialog edits scoped to landing footer link content only."
-        },
-        {
-          "path": "frontend/src/components/LandingOurStory.tsx",
-          "operation": "create",
-          "description": "Add only the minimal landing-specific component needed for Our Story truncation/toggle to reduce deployment risk."
-        },
-        {
-          "path": "frontend/src/content/contact.ts",
-          "operation": "create",
-          "description": "Add a minimal landing-scoped contact constant used only by the landing footer dialog."
+          "description": "Update initialization gating so the full-screen loading UI renders only when authentication initialization or the profile query is actively running; if profile loading fails (react-query error) or cannot start due to missing actor readiness, render a clear English error state with a visible Retry action that re-attempts loading (e.g., by calling the profile refetch and/or invalidating relevant queries) instead of leaving the user on an infinite spinner. Leverage the existing reusable error UI from frontend/src/components/DataStates.tsx for consistency."
         }
       ]
     }

@@ -16,6 +16,7 @@ import { Bell, Loader2 } from 'lucide-react';
 import { useInternetIdentity } from './hooks/useInternetIdentity';
 import { useGetCallerUserProfile } from './hooks/useQueries';
 import { getAppMode, setAppMode, listenToModeChanges } from './utils/urlParams';
+import { ErrorState } from './components/DataStates';
 
 export type TabId = 'home' | 'insights' | 'love-languages' | 'activities' | 'us' | 'memories';
 
@@ -23,7 +24,14 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState<TabId>('home');
   const [appMode, setAppModeState] = useState<'landing' | 'app'>(getAppMode());
   const { identity, isInitializing } = useInternetIdentity();
-  const { data: userProfile, isLoading: profileLoading, isFetched, refetch } = useGetCallerUserProfile();
+  const { 
+    data: userProfile, 
+    isLoading: profileLoading, 
+    isFetched, 
+    refetch,
+    error: profileError,
+    isError: isProfileError
+  } = useGetCallerUserProfile();
 
   const isAuthenticated = !!identity;
 
@@ -35,14 +43,44 @@ function AppContent() {
     return cleanup;
   }, []);
 
-  // Show loading screen while initializing or loading profile
-  if (isInitializing || (isAuthenticated && profileLoading)) {
+  // Show loading screen while initializing
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/10 to-peach/10">
+        <div className="text-center space-y-4">
+          <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
+          <p className="text-lg text-muted-foreground">Initializing...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading screen while profile is actively loading (only when authenticated)
+  if (isAuthenticated && profileLoading && !isFetched) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/10 to-peach/10">
         <div className="text-center space-y-4">
           <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
           <p className="text-lg text-muted-foreground">Loading your profile...</p>
         </div>
+      </div>
+    );
+  }
+
+  // Show error state if profile loading failed
+  if (isAuthenticated && isProfileError && isFetched) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/10 to-peach/10 px-6">
+        <div className="max-w-md w-full">
+          <ErrorState
+            title="Unable to load profile"
+            message="We couldn't load your profile. This might be a temporary connection issue."
+            details={profileError instanceof Error ? profileError.message : 'Unknown error'}
+            onRetry={() => refetch()}
+            retryLabel="Retry"
+          />
+        </div>
+        <Toaster />
       </div>
     );
   }

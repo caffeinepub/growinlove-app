@@ -40,7 +40,7 @@ export function Landing({ onEnterApp }: LandingProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-romantic-light/20 to-romantic-accent/10">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card/90 backdrop-blur-md border-b border-border/50 shadow-sm">
         <div className="container mx-auto px-4 py-2.5 flex items-center justify-between">
@@ -67,7 +67,7 @@ export function Landing({ onEnterApp }: LandingProps) {
                 Grow closer, one day at a time.
               </h1>
             </div>
-            <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
               A gentle, private space for couples to deepen their connection.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start pt-1">
@@ -79,7 +79,7 @@ export function Landing({ onEnterApp }: LandingProps) {
                 Start your journey
               </Button>
             </div>
-            <p className="text-sm text-muted-foreground/90 italic pt-0.5">
+            <p className="text-sm text-muted-foreground italic pt-0.5">
               Your love story begins here — built by a couple, for couples.
             </p>
           </div>
@@ -148,7 +148,7 @@ export function Landing({ onEnterApp }: LandingProps) {
       <section
         id="about"
         ref={storySection.ref}
-        className={`bg-gradient-to-br from-romantic-light/30 to-romantic-accent/20 py-8 transition-all duration-700 delay-200 ${
+        className={`bg-muted/30 py-8 transition-all duration-700 delay-200 ${
           storySection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
       >
@@ -228,7 +228,7 @@ export function Landing({ onEnterApp }: LandingProps) {
             onOpenChange={(isOpen) => setOpenFeature(isOpen ? 'rituals' : null)}
             className="bg-card/60 backdrop-blur-sm rounded-xl border border-border/50 overflow-hidden hover:border-romantic-primary/50 transition-all"
           >
-            <CollapsibleTrigger className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-romantic-light/10 transition-colors">
+            <CollapsibleTrigger className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-muted/50 transition-colors">
               <h3 className="text-base font-semibold text-foreground">Daily Rituals</h3>
               <ChevronDown 
                 className={`w-5 h-5 text-muted-foreground transition-transform ${
@@ -250,7 +250,7 @@ export function Landing({ onEnterApp }: LandingProps) {
             onOpenChange={(isOpen) => setOpenFeature(isOpen ? 'languages' : null)}
             className="bg-card/60 backdrop-blur-sm rounded-xl border border-border/50 overflow-hidden hover:border-romantic-primary/50 transition-all"
           >
-            <CollapsibleTrigger className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-romantic-light/10 transition-colors">
+            <CollapsibleTrigger className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-muted/50 transition-colors">
               <h3 className="text-base font-semibold text-foreground">Love Languages</h3>
               <ChevronDown 
                 className={`w-5 h-5 text-muted-foreground transition-transform ${
@@ -271,8 +271,8 @@ export function Landing({ onEnterApp }: LandingProps) {
             onOpenChange={(isOpen) => setOpenFeature(isOpen ? 'insights' : null)}
             className="bg-card/60 backdrop-blur-sm rounded-xl border border-border/50 overflow-hidden hover:border-romantic-primary/50 transition-all"
           >
-            <CollapsibleTrigger className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-romantic-light/10 transition-colors">
-              <h3 className="text-base font-semibold text-foreground">Insights</h3>
+            <CollapsibleTrigger className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-muted/50 transition-colors">
+              <h3 className="text-base font-semibold text-foreground">Insights & Harmony</h3>
               <ChevronDown 
                 className={`w-5 h-5 text-muted-foreground transition-transform ${
                   openFeature === 'insights' ? 'rotate-180' : ''
@@ -281,8 +281,8 @@ export function Landing({ onEnterApp }: LandingProps) {
             </CollapsibleTrigger>
             <CollapsibleContent className="px-5 pb-3.5 text-muted-foreground leading-relaxed text-sm">
               <p>
-                Track your relationship journey with beautiful visualizations. See your current streak, 
-                harmony meter, completion trends, and unlock milestone badges as you grow together.
+                Track your relationship journey with beautiful visualizations. See your streak, harmony meter, 
+                milestone badges, and shared memories. Celebrate your progress and discover patterns in how you connect.
               </p>
             </CollapsibleContent>
           </Collapsible>
@@ -292,8 +292,8 @@ export function Landing({ onEnterApp }: LandingProps) {
             onOpenChange={(isOpen) => setOpenFeature(isOpen ? 'memories' : null)}
             className="bg-card/60 backdrop-blur-sm rounded-xl border border-border/50 overflow-hidden hover:border-romantic-primary/50 transition-all"
           >
-            <CollapsibleTrigger className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-romantic-light/10 transition-colors">
-              <h3 className="text-base font-semibold text-foreground">Memories</h3>
+            <CollapsibleTrigger className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-muted/50 transition-colors">
+              <h3 className="text-base font-semibold text-foreground">Shared Scrapbook</h3>
               <ChevronDown 
                 className={`w-5 h-5 text-muted-foreground transition-transform ${
                   openFeature === 'memories' ? 'rotate-180' : ''
@@ -302,8 +302,8 @@ export function Landing({ onEnterApp }: LandingProps) {
             </CollapsibleTrigger>
             <CollapsibleContent className="px-5 pb-3.5 text-muted-foreground leading-relaxed text-sm">
               <p>
-                Your shared scrapbook of every ritual you've completed together. Scroll through your history, 
-                relive special moments, and see how far you've come as a couple.
+                Your Memories tab is a beautiful timeline of all your shared rituals. Revisit past moments, 
+                see photos you've shared, and watch your love story unfold day by day.
               </p>
             </CollapsibleContent>
           </Collapsible>
@@ -313,82 +313,85 @@ export function Landing({ onEnterApp }: LandingProps) {
       {/* Final CTA */}
       <section
         ref={ctaSection.ref}
-        className={`container mx-auto px-4 py-8 transition-all duration-700 delay-200 ${
+        className={`container mx-auto px-4 py-12 transition-all duration-700 delay-200 ${
           ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
       >
-        <div className="max-w-2xl mx-auto text-center space-y-5 bg-gradient-to-br from-romantic-primary/10 via-romantic-accent/10 to-romantic-light/10 rounded-2xl p-8 md:p-10 border border-romantic-primary/20 shadow-xl">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground leading-tight">
-            Start Growing Together
+        <div className="max-w-2xl mx-auto text-center space-y-5">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+            Ready to grow closer?
           </h2>
-          <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-            Join couples who are choosing connection, one day at a time.
+          <p className="text-base md:text-lg text-muted-foreground">
+            Start your journey today. No credit card required.
           </p>
           <Button
             size="lg"
             onClick={onEnterApp}
-            className="rounded-full text-base px-10 py-5 bg-gradient-to-r from-romantic-primary via-romantic-accent to-romantic-deep hover:opacity-90 hover:scale-105 transition-all shadow-lg"
+            className="rounded-full text-base px-8 py-5 bg-gradient-to-r from-romantic-primary via-romantic-accent to-romantic-deep hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:scale-105"
           >
-            Open GrowInLove
+            Begin your love story
           </Button>
         </div>
       </section>
 
       {/* Footer */}
-      <footer id="contact" className="bg-card/60 backdrop-blur-sm border-t border-border/50 py-6">
+      <footer className="bg-card border-t border-border/50 py-6">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <LandingBrand variant="compact" />
-            <span className="text-xs text-muted-foreground text-center">
-              © {new Date().getFullYear()}. Built with <Heart className="inline w-3 h-3 text-romantic-primary" /> using{' '}
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
+              <button
+                onClick={() => setDialogContent('about')}
+                className="hover:text-foreground transition-colors"
+              >
+                About
+              </button>
+              <button
+                onClick={() => setDialogContent('contact')}
+                className="hover:text-foreground transition-colors"
+              >
+                Contact
+              </button>
+              <button
+                onClick={() => setDialogContent('terms')}
+                className="hover:text-foreground transition-colors"
+              >
+                Terms
+              </button>
+              <button
+                onClick={() => setDialogContent('privacy')}
+                className="hover:text-foreground transition-colors"
+              >
+                Privacy
+              </button>
+              <button
+                onClick={() => setDialogContent('investor')}
+                className="hover:text-foreground transition-colors"
+              >
+                Investor
+              </button>
+            </div>
+            <p className="text-sm text-muted-foreground text-center md:text-right">
+              © {new Date().getFullYear()} Built with <Heart className="inline w-4 h-4 text-romantic-accent" /> using{' '}
               <a
                 href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(
                   typeof window !== 'undefined' ? window.location.hostname : 'growinlove'
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-romantic-primary hover:underline"
+                className="hover:text-foreground transition-colors underline"
               >
                 caffeine.ai
               </a>
-            </span>
-            <div className="flex flex-wrap items-center justify-center gap-4 text-xs">
-              <button
-                onClick={() => scrollToSection('about')}
-                className="text-muted-foreground hover:text-romantic-primary transition-colors"
-              >
-                About
-              </button>
-              <button
-                onClick={() => setDialogContent('contact')}
-                className="text-muted-foreground hover:text-romantic-primary transition-colors"
-              >
-                Contact
-              </button>
-              <button
-                onClick={() => setDialogContent('terms')}
-                className="text-muted-foreground hover:text-romantic-primary transition-colors"
-              >
-                Terms
-              </button>
-              <button
-                onClick={() => setDialogContent('privacy')}
-                className="text-muted-foreground hover:text-romantic-primary transition-colors"
-              >
-                Privacy
-              </button>
-              <button
-                onClick={() => setDialogContent('investor')}
-                className="text-muted-foreground hover:text-romantic-primary transition-colors"
-              >
-                Interested in supporting our growth?
-              </button>
-            </div>
+            </p>
           </div>
         </div>
       </footer>
 
-      <LandingFooterLinksDialog content={dialogContent} onClose={() => setDialogContent(null)} />
+      <LandingFooterLinksDialog
+        content={dialogContent}
+        onClose={() => setDialogContent(null)}
+      />
     </div>
   );
 }

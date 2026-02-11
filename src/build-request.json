@@ -1,147 +1,58 @@
 {
   "kind": "build_request",
-  "title": "Apply landing-page corrections (hero spacing, features, gallery fit, Our Story Read More, footer + logo fixes)",
-  "priority": "normal",
+  "title": "Fix landing hero phone screenshot and resolve post-Internet Identity infinite loading",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the landing page brand/logo rendering so the GrowInLove tree logo never appears as a broken-image placeholder in the header or footer, and the brand block remains visually aligned across mobile/desktop.",
+      "text": "Replace the incorrect screenshot shown inside the landing-page hero phone mockup (currently showing the FunnAI Game Nest screen) with the user-selected image, and ensure it visually matches the other landing-page carousel screenshots (same crop/fit behavior and consistent phone-screen presentation).",
       "target": "frontend",
       "source": {
         "messageIds": [
           "recent-messages"
         ],
         "quotes": [
-          "understood. please make those corrections"
+          "The wrong image was used within the phone image. We shouldn’t have used the FunnAI game nest photo.",
+          "the image that will replace the FunnAI game nest photo within the phone image at the top should match one of the images from the other 4 photos in the carousel.",
+          "Let’s use this one for now"
         ]
       },
       "acceptanceCriteria": [
-        "On the Landing page header and footer, the logo loads correctly (no broken image icon) in both light and dark mode.",
-        "If the logo asset fails to load for any reason, a readable text fallback (e.g., “GrowInLove”) is still displayed without layout breakage.",
-        "Brand block alignment does not cause excessive header height on mobile (no large empty top padding)."
+        "Landing hero phone mockup (component: frontend/src/components/LandingHeroScreenshotShowcase.tsx) no longer displays the FunnAI Game Nest screen.",
+        "The hero phone mockup displays the chosen replacement image (using the user-provided upload) and uses the same fit behavior as the carousel (object-cover / centered) so it looks consistent with the other carousel images.",
+        "Only the hero phone mockup screenshot content is changed; the phone frame, notch, sizing, and dot controls behavior remain intact."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Tighten vertical spacing on the landing page sections (hero, benefit cards, carousel section header, story, privacy, final CTA, footer) to reduce excessive empty space on mobile while preserving readability.",
+      "text": "Fix the Internet Identity login flow so that after a successful Internet Identity connection, the GrowInLove app opens normally instead of getting stuck on an endless loading spinner; if profile loading fails, show a clear error state with a retry action instead of an infinite spinner.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "recent-messages"
         ],
         "quotes": [
-          "understood. please make those corrections"
+          "I also noticed that when trying to login to the app, after connecting with Internet identity, your brought back to the app but only a loading spinner appears.",
+          "The GrowInLove app should open normally"
         ]
       },
       "acceptanceCriteria": [
-        "On mobile viewport widths, there is no large blank vertical gap between header/hero and subsequent sections (as seen in the uploaded screenshots).",
-        "Section paddings/margins are consistently smaller on mobile than desktop, without crowding text or clipping content.",
-        "No horizontal overflow is introduced; page does not jitter/scroll sideways."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Adjust landing screenshot presentation (hero phone showcase and screenshot carousel) so screenshots fit consistently without cropping important UI, maintaining correct aspect ratios.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "recent-messages"
-        ],
-        "quotes": [
-          "understood. please make those corrections"
-        ]
-      },
-      "acceptanceCriteria": [
-        "In LandingHeroScreenshotShowcase and LandingScreenshotCarousel, screenshots are not noticeably cropped at the edges; key UI elements (top/bottom bars and main text) remain visible on typical mobile sizes.",
-        "Screenshot images preserve aspect ratio and do not appear stretched.",
-        "The phone mockup containers remain centered and visually balanced on mobile and desktop."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Update the “Our Story” section to show a shortened preview by default and provide a clear “Read more” / “Read less” interaction to expand/collapse the full founder story text.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "recent-messages"
-        ],
-        "quotes": [
-          "understood. please make those corrections"
-        ]
-      },
-      "acceptanceCriteria": [
-        "By default, “Our Story” shows a truncated preview (e.g., first 1–3 paragraphs) with a “Read more” control.",
-        "Clicking “Read more” expands to show the full story and changes to “Read less”; clicking “Read less” collapses back.",
-        "The expand/collapse behavior is accessible (keyboard operable) and does not cause layout overlap with adjacent sections."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Clean up the “Explore the features” section UI to match the intended accordion behavior and polish interaction cues (e.g., chevron rotation/state), ensuring it looks consistent on mobile.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "recent-messages"
-        ],
-        "quotes": [
-          "understood. please make those corrections"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Collapsible rows clearly indicate open/closed state (e.g., chevron rotates or equivalent).",
-        "Section spacing is compact enough on mobile (no oversized gaps between collapsibles).",
-        "Opening/closing items does not cause content to jump unexpectedly or overflow its container."
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Correct landing footer issues: ensure footer spacing is tidy on mobile, fix any duplicated/misaligned branding, and implement a working Contact action that provides an explicit email link (mailto).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "recent-messages"
-        ],
-        "quotes": [
-          "Footer corrections (email link, logo fix, spacing)",
-          "understood. please make those corrections"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Footer content is neatly stacked on mobile (no cramped overlaps; no excessive whitespace).",
-        "Footer brand/logo renders correctly and does not appear broken.",
-        "Clicking “Contact” reveals contact information that includes a functional mailto link (using a clearly-defined contact email constant in code if needed)."
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "text": "Implement the above landing-page corrections as a small, landing-only change set to reduce deployment risk (avoid touching unrelated pages/components).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "recent-messages"
-        ],
-        "quotes": [
-          "the deployment error was caused by the size and complexity of the update",
-          "we break the update into smaller pieces"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Only landing-related files/components are modified for this change set (Landing page and its landing components/styles as needed).",
-        "No backend changes are introduced.",
-        "Build succeeds without introducing new dependencies unrelated to the landing UI."
+        "After completing Internet Identity login, the app transitions into a usable state (either main app UI or Profile Setup when no profile exists) rather than remaining on the loading screen indefinitely.",
+        "If loading the caller profile fails (e.g., query error), the UI does not remain stuck on the spinner; it renders an error message in English with a visible “Retry” action that re-attempts loading.",
+        "The loading screen in frontend/src/App.tsx only appears while initialization or profile fetch is actively in progress; it does not persist due to disabled/blocked queries (e.g., missing actor) without surfacing an actionable UI state.",
+        "Manual QA: login from the landing page header Login button and from the app-mode login screen both result in the app opening normally after authentication."
       ]
     }
   ],
   "constraints": [
-    "Use English for any user-facing text.",
-    "Do not edit files under frontend/src/components/ui (compose them instead).",
-    "Do not edit immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
-    "Backend must remain single-actor; do not add additional backend services."
+    "Do not edit any files under frontend/src/components/ui (read-only).",
+    "Do not edit immutable hook paths listed in SYSTEM_CONTEXT.frontend.immutablePaths.",
+    "Backend must remain a single Motoko actor (no additional backend services)."
   ],
   "nonGoals": [
-    "Adding new product features beyond landing-page UI/content corrections.",
-    "Changing authentication behavior (Internet Identity flows).",
-    "Introducing external analytics, email services, or third-party integrations."
+    "Redesigning the entire landing page layout or changing copy beyond what is required to fix the issues.",
+    "Adding new authentication providers beyond Internet Identity.",
+    "Implementing new product features unrelated to the hero screenshot replacement or the post-login loading issue."
   ],
   "imageRequirements": {
     "required": [],

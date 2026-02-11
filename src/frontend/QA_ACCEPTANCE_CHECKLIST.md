@@ -4,7 +4,7 @@ This document provides step-by-step manual verification steps for the GrowInLove
 
 ---
 
-## 0. Version 64 Verification
+## 0. Version 76 Verification
 
 ### Test Case 0.1: Build Identifier Check
 **Steps:**
@@ -14,24 +14,45 @@ This document provides step-by-step manual verification steps for the GrowInLove
 
 **Expected Outcome:**
 - Console displays: "🚀 GrowInLove Version 64 - Build deployed"
-- This confirms the deployed version is Version 64, not Version 63
+- This confirms the deployed version
 
-### Test Case 0.2: Theme Toggle Functionality
+### Test Case 0.2: Landing Page Theme Toggle Functionality
 **Steps:**
-1. Open the application
-2. Locate the theme toggle button in the top bar (Sun/Moon icon)
+1. Open the landing page (logged out state)
+2. Locate the theme toggle button in the header (Sun/Moon icon)
 3. Click the theme toggle button
-4. Observe the theme change
+4. Observe the entire landing page theme change (background, text, cards, sections)
 5. Reload the page
 6. Verify theme preference persists
 
 **Expected Outcome:**
 - Theme toggles between light and dark mode
+- **Entire landing page** changes theme (not just phone mockup)
+- Background, header, sections, cards, text all respond to theme toggle
 - Theme preference persists across page reloads
 - On first load (no saved preference), app follows OS/browser theme
 - Toggle button icon updates correctly (Sun for dark mode, Moon for light mode)
 
-### Test Case 0.3: Modal Readability (Ritual History Dialog)
+### Test Case 0.3: Landing Page Phone Mockup Screenshot Fit
+**Steps:**
+1. Open the landing page
+2. Observe the hero section phone mockup with screenshots
+3. Verify screenshots fit cleanly inside the rounded phone screen
+4. Scroll to "See it in action" carousel section
+5. Navigate through carousel screenshots
+6. Verify all screenshots fit cleanly inside phone screen
+7. Test on mobile, tablet, and desktop breakpoints
+
+**Expected Outcome:**
+- Hero phone mockup screenshots fill the phone screen area completely
+- Carousel phone mockup screenshots fill the phone screen area completely
+- No letterboxing (black bars) around screenshots
+- No overflow beyond rounded corners
+- Screenshots maintain aspect ratio (not distorted)
+- Consistent appearance across all breakpoints (mobile, tablet, desktop)
+- Screenshots look "placed" naturally within the phone frame
+
+### Test Case 0.4: Modal Readability (Ritual History Dialog)
 **Steps:**
 1. Log in and navigate to Home tab
 2. Complete at least one ritual (both partners)
@@ -47,7 +68,7 @@ This document provides step-by-step manual verification steps for the GrowInLove
 - Text is clearly readable in both light and dark modes
 - Dialog content has proper contrast against backdrop
 
-### Test Case 0.4: Love Wheel "Coming Soon" Note
+### Test Case 0.5: Love Wheel "Coming Soon" Note
 **Steps:**
 1. Log in and navigate to Activities tab
 2. Scroll to "Spin the Love Wheel" section
@@ -629,93 +650,84 @@ This document provides step-by-step manual verification steps for the GrowInLove
 
 Use this summary to quickly verify all critical areas:
 
-**Version 64 Verification:**
+**Version 76 Verification:**
 - [ ] Console shows Version 64 build identifier
-- [ ] Theme toggle works and persists
+- [ ] Landing page theme toggle affects entire page (not just phone mockup)
+- [ ] Landing page responds to light/dark mode in all sections
+- [ ] Phone mockup screenshots fit cleanly inside rounded screen (hero + carousel)
+- [ ] No letterboxing or overflow on phone mockup screenshots
+- [ ] Screenshots maintain aspect ratio across all breakpoints
 - [ ] Modal dialogs are opaque and readable in both themes
 - [ ] Love Wheel shows "Coming soon" note
 
 **Authentication & Profile:**
 - [ ] Login flow works correctly
-- [ ] Profile setup saves and persists
-- [ ] Logout clears data correctly
+- [ ] Profile setup saves and navigates automatically
+- [ ] Logout clears cache and re-login remembers profile
 
 **Pairing:**
 - [ ] Pairing code generation works
 - [ ] Pairing completion succeeds
-- [ ] Both partners can access rituals after pairing
+- [ ] Mutual partnership verified
 
 **Daily Rituals:**
-- [ ] Text submission works with loading states
-- [ ] Photo upload works with progress indication
-- [ ] Ritual history shows loading/empty states correctly
-- [ ] Completion animation is smooth
+- [ ] Text submission with loading state
+- [ ] Photo upload with progress
+- [ ] Ritual history loading state
+- [ ] Empty ritual history state
 
 **Insights:**
-- [ ] Loading states display correctly
-- [ ] Empty states have clear messaging
-- [ ] Error recovery works
-- [ ] Badge animations are smooth
+- [ ] Loading states for all metrics
+- [ ] Empty state messaging
+- [ ] Error recovery with retry
 
 **Memories:**
-- [ ] Loading states display correctly
-- [ ] Empty states have clear messaging
-- [ ] Load More works with loading indicator
+- [ ] Loading state
+- [ ] Empty state
+- [ ] Load more functionality
 
 **Activities:**
-- [ ] Gated states have clear messaging
-- [ ] Quiz requirement is explained clearly
+- [ ] Unpaired user gating
+- [ ] Quiz incomplete gating
 
 **Us Tab:**
-- [ ] Pairing interface is clear
-- [ ] Love Languages card shows correct states
-- [ ] Loading states are handled gracefully
+- [ ] Unpaired state guidance
+- [ ] Love Languages card states
 
-**Love Languages Quiz:**
-- [ ] Quiz saves with loading indication
-- [ ] Sync errors are handled with retry
-- [ ] Waiting for partner state is clear
+**Quiz:**
+- [ ] Results loading
+- [ ] Sync error recovery
+- [ ] Waiting for partner state
 
 **Error Handling:**
-- [ ] Failed submissions can be retried
-- [ ] Failed uploads can be retried
-- [ ] Pairing errors are clear and recoverable
+- [ ] Failed submission recovery
+- [ ] Failed photo upload recovery
+- [ ] Pairing error handling
 
 **Performance:**
-- [ ] Tab navigation is responsive
-- [ ] List scrolling is smooth
-- [ ] Insights animations are smooth
-- [ ] Completion animation is smooth
+- [ ] Tab navigation responsiveness
+- [ ] List rendering performance
+- [ ] Insights page performance
+- [ ] Completion animation performance
 
 **Accessibility:**
-- [ ] Reduced motion is respected
-- [ ] Keyboard navigation works
+- [ ] Reduced motion support
+- [ ] Keyboard navigation
 
 **Cross-Device:**
-- [ ] Data persists across reloads
-- [ ] Data syncs across devices
+- [ ] Reload verification
+- [ ] Second-device synchronization
 
 **Edge Cases:**
-- [ ] Long text is handled correctly
-- [ ] Large photos are handled gracefully
-- [ ] Rapid navigation works correctly
+- [ ] Very long text input
+- [ ] Large photo upload
+- [ ] Rapid tab switching
 
 **UX Copy:**
-- [ ] Terminology is consistent
-- [ ] Empty states are clear and helpful
-- [ ] Error messages are clear and actionable
+- [ ] Consistent terminology
+- [ ] Empty state messaging
+- [ ] Error message clarity
 
 ---
 
-## Notes
-
-- **Loading States:** All data-fetching operations should show clear loading indicators (spinners, skeletons, or loading messages).
-- **Empty States:** All empty data scenarios should show helpful messaging with next-step guidance.
-- **Error States:** All errors should be recoverable with clear messaging and retry actions.
-- **Performance:** Animations should be smooth and respect reduced motion preferences.
-- **UX Copy:** All user-facing text should be clear, consistent, and in English.
-- **No Blank Screens:** The app should never show confusing blank areas; always provide context and guidance.
-
----
-
-**Last Updated:** February 5, 2026 (Version 64: Theme toggle + modal readability + Love Wheel note + single React Query provider)
+**Last Updated:** Version 76 - Landing Page Theme & Screenshot Fit Update

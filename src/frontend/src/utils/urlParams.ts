@@ -208,18 +208,16 @@ export function getSecretParameter(paramName: string): string | null {
 }
 
 /**
- * App mode management
- * Handles switching between landing page and app mode
+ * App mode management for landing/app switching
  */
-
 const APP_MODE_KEY = 'appMode';
-const APP_MODE_CHANGE_EVENT = 'appModeChange';
+const MODE_CHANGE_EVENT = 'appModeChange';
 
 export type AppMode = 'landing' | 'app';
 
 /**
  * Gets the current app mode from localStorage
- * Defaults to 'landing' for unauthenticated users
+ * Defaults to 'landing' if not set
  */
 export function getAppMode(): AppMode {
     try {
@@ -227,23 +225,24 @@ export function getAppMode(): AppMode {
         if (stored === 'app' || stored === 'landing') {
             return stored;
         }
+        return 'landing';
     } catch (error) {
-        console.warn('Failed to get app mode from localStorage:', error);
+        console.warn('Failed to get app mode:', error);
+        return 'landing';
     }
-    return 'landing';
 }
 
 /**
  * Sets the app mode and persists it to localStorage
- * Dispatches a custom event to notify listeners of the change
+ * Dispatches a custom event to notify listeners
  */
 export function setAppMode(mode: AppMode): void {
     try {
         localStorage.setItem(APP_MODE_KEY, mode);
         // Dispatch custom event for listeners
-        window.dispatchEvent(new CustomEvent(APP_MODE_CHANGE_EVENT, { detail: mode }));
+        window.dispatchEvent(new CustomEvent(MODE_CHANGE_EVENT, { detail: mode }));
     } catch (error) {
-        console.warn('Failed to set app mode in localStorage:', error);
+        console.warn('Failed to set app mode:', error);
     }
 }
 
@@ -257,9 +256,9 @@ export function listenToModeChanges(callback: (mode: AppMode) => void): () => vo
         callback(customEvent.detail);
     };
 
-    window.addEventListener(APP_MODE_CHANGE_EVENT, handler);
+    window.addEventListener(MODE_CHANGE_EVENT, handler);
 
     return () => {
-        window.removeEventListener(APP_MODE_CHANGE_EVENT, handler);
+        window.removeEventListener(MODE_CHANGE_EVENT, handler);
     };
 }

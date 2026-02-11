@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
 const screenshots = [
-  '/assets/generated/landing-screenshot-1.dim_390x844.png',
-  '/assets/generated/landing-screenshot-2.dim_390x844.png',
-  '/assets/generated/landing-screenshot-3.dim_390x844.png',
+  '/assets/IMG_1332.png',
+  '/assets/IMG_1320.png',
+  '/assets/IMG_1321.png',
 ];
 
 export function LandingHeroScreenshotShowcase() {
@@ -21,7 +21,7 @@ export function LandingHeroScreenshotShowcase() {
           <img
             src={screenshots[currentIndex]}
             alt={`GrowInLove app screenshot ${currentIndex + 1}`}
-            className="w-full h-full object-contain bg-white dark:bg-gray-950"
+            className="w-full h-full object-cover object-center"
           />
         </div>
       </div>

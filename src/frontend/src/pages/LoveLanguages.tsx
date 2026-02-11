@@ -17,10 +17,10 @@ import {
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { 
   useGetCallerUserProfile, 
-  useGetCallerQuizResults, 
+  useGetLoveLanguageQuizResult, 
   useGetCombinedQuizResultState,
-  useSaveQuizResults,
-  useResetQuizResults
+  useSaveLoveLanguageQuizResults,
+  useClearLoveLanguagesQuizResults
 } from '../hooks/useQueries';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
@@ -152,10 +152,10 @@ const quizQuestions: QuizQuestion[] = [
 export function LoveLanguages() {
   const { identity } = useInternetIdentity();
   const { data: userProfile } = useGetCallerUserProfile();
-  const { data: savedResults, isLoading: loadingResults, error: resultsError, refetch: refetchResults } = useGetCallerQuizResults();
+  const { data: savedResults, isLoading: loadingResults, error: resultsError, refetch: refetchResults } = useGetLoveLanguageQuizResult();
   const { data: combinedState, isLoading: loadingCombined, error: combinedError, refetch: refetchCombined } = useGetCombinedQuizResultState();
-  const saveQuizMutation = useSaveQuizResults();
-  const resetQuizMutation = useResetQuizResults();
+  const saveQuizMutation = useSaveLoveLanguageQuizResults();
+  const resetQuizMutation = useClearLoveLanguagesQuizResults();
 
   const [quizStarted, setQuizStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -298,84 +298,88 @@ export function LoveLanguages() {
 
   const handleRetakeConfirmed = async () => {
     setShowRetakeConfirm(false);
+    
     try {
       await resetQuizMutation.mutateAsync();
+      
+      // Reset local state
       setQuizStarted(false);
-      setQuizCompleted(false);
       setCurrentQuestion(0);
       setAnswers({});
+      setQuizCompleted(false);
       setResults([]);
       setSyncError(false);
-      toast.success('Ready to retake the quiz!', {
-        description: 'Your previous results have been cleared.',
+      
+      // Refetch to ensure clean state
+      await refetchResults();
+      await refetchCombined();
+      
+      toast.success('Quiz reset successfully', {
+        description: 'You can now retake the quiz.',
       });
     } catch (error) {
       console.error('Failed to reset quiz:', error);
-      toast.error('Failed to reset quiz');
-    }
-  };
-
-  const handleShare = () => {
-    const topLanguage = results[0];
-    const shareText = `My top love language is ${topLanguage.language} (${topLanguage.percentage}%)! Discover yours on GrowInLove 💕`;
-    
-    if (navigator.share) {
-      navigator.share({
-        title: 'My Love Language Results',
-        text: shareText,
-      }).catch(() => {
-        navigator.clipboard.writeText(shareText);
-        toast.success('Copied to clipboard!');
+      toast.error('Failed to reset quiz', {
+        description: 'Please try again or refresh the page.',
       });
-    } else {
-      navigator.clipboard.writeText(shareText);
-      toast.success('Copied to clipboard!');
     }
   };
 
-  const handleRetrySync = async () => {
-    setSyncError(false);
+  const handleRetrySave = async () => {
     try {
-      await Promise.all([refetchResults(), refetchCombined()]);
-      toast.success('Refreshed successfully!');
+      setSyncError(false);
+      
+      const backendRankings: LoveLanguageRanking[] = results.map(result => ({
+        language: mapToBackendLanguage(result.language),
+        score: result.percentage,
+      }));
+
+      const quizResult: LoveLanguagesQuizResult = {
+        userId: identity!.getPrincipal(),
+        rankings: backendRankings,
+        completionTime: BigInt(Date.now() * 1000000),
+      };
+
+      await saveQuizMutation.mutateAsync(quizResult);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await refetchCombined();
+      
+      toast.success('Results saved successfully!');
     } catch (error) {
-      console.error('Failed to refresh:', error);
+      console.error('Retry save failed:', error);
       setSyncError(true);
-      toast.error('Failed to refresh. Please try again.');
+      toast.error('Save failed again', {
+        description: 'Please check your connection and try again.',
+      });
     }
   };
 
-  const progress = quizStarted && !quizCompleted 
-    ? ((currentQuestion + 1) / quizQuestions.length) * 100 
-    : 0;
-
+  const progress = ((currentQuestion + 1) / quizQuestions.length) * 100;
   const currentQuestionData = quizQuestions[currentQuestion];
-  const currentAnswer = answers[currentQuestion];
+  const hasAnsweredCurrent = answers[currentQuestion] !== undefined;
 
-  // Calculate harmony score if both partners completed
-  const calculateHarmonyScore = (): number => {
-    if (!combinedState?.callerResults || !combinedState?.partnerResults) return 0;
+  // Loading state
+  if (loadingResults || loadingCombined) {
+    return (
+      <div className="container mx-auto px-6 py-8 max-w-4xl">
+        <div className="flex flex-col items-center justify-center py-16 space-y-4">
+          <Loader2 className="w-12 h-12 text-primary animate-spin" />
+          <p className="text-lg text-muted-foreground">Loading your quiz...</p>
+        </div>
+      </div>
+    );
+  }
 
-    const callerTop3 = combinedState.callerResults.rankings.slice(0, 3).map(r => r.language);
-    const partnerTop3 = combinedState.partnerResults.rankings.slice(0, 3).map(r => r.language);
-
-    let overlap = 0;
-    callerTop3.forEach(lang => {
-      if (partnerTop3.includes(lang)) overlap++;
-    });
-
-    return Math.round((overlap / 3) * 100);
-  };
-
+  // Not authenticated
   if (!isAuthenticated) {
     return (
-      <div className="min-h-full flex items-center justify-center px-6 py-8">
-        <Card className="w-full max-w-md border-2 border-primary/20 shadow-lg">
+      <div className="container mx-auto px-6 py-8 max-w-4xl">
+        <Card className="border-2 border-romantic-primary/30">
           <CardContent className="p-8 text-center space-y-4">
-            <Heart className="w-16 h-16 text-primary fill-primary mx-auto" />
-            <h2 className="text-2xl font-bold text-primary">Welcome to GrowInLove</h2>
+            <Heart className="w-16 h-16 text-romantic-primary mx-auto" />
+            <h2 className="text-2xl font-bold text-foreground">Login Required</h2>
             <p className="text-muted-foreground">
-              Please log in to discover your love languages
+              Please log in to take the Love Languages quiz and discover how you and your partner express love.
             </p>
           </CardContent>
         </Card>
@@ -383,348 +387,180 @@ export function LoveLanguages() {
     );
   }
 
+  // Not paired
   if (!isPaired) {
     return (
-      <div className="min-h-full flex items-center justify-center px-6 py-8">
-        <Card className="w-full max-w-md border-2 border-primary/20 shadow-lg">
-          <CardContent className="p-8 text-center space-y-6">
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
-              <Heart className="w-20 h-20 text-primary fill-primary mx-auto relative glow-pulse" />
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-primary">Connect with Your Partner</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                To discover your love languages together, please connect with your partner in the <span className="font-semibold text-primary">Us</span> tab
-              </p>
-            </div>
-            <div className="pt-4">
-              <p className="text-sm text-muted-foreground">
-                💡 Go to the Us tab to generate or enter a pairing code
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Loading state
-  if (loadingResults || loadingCombined) {
-    return (
-      <div className="min-h-full flex items-center justify-center px-6 py-8">
-        <Card className="w-full max-w-md border-2 border-primary/20 shadow-lg">
+      <div className="container mx-auto px-6 py-8 max-w-4xl">
+        <Card className="border-2 border-romantic-accent/30">
           <CardContent className="p-8 text-center space-y-4">
-            <Loader2 className="w-16 h-16 text-primary animate-spin mx-auto" />
-            <p className="text-muted-foreground">Loading your love languages...</p>
+            <Heart className="w-16 h-16 text-romantic-accent mx-auto" />
+            <h2 className="text-2xl font-bold text-foreground">Partner Required</h2>
+            <p className="text-muted-foreground">
+              The Love Languages quiz is designed for couples. Please pair with your partner in the "Us" tab first.
+            </p>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  // Quiz Results View - Show synced results if both completed
-  if (quizCompleted && results.length > 0) {
-    const topLanguage = results[0];
-    const bothCompleted = combinedState?.callerCompleted && combinedState?.partnerCompleted;
-    const harmonyScore = bothCompleted ? calculateHarmonyScore() : 0;
-
-    return (
-      <div className="min-h-full px-6 py-8 space-y-6 stagger-entrance">
-        {/* Header */}
-        <div className="text-center space-y-3">
-          <div className="relative inline-block">
-            <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
-            <Heart className="w-16 h-16 text-primary fill-primary mx-auto relative glow-pulse" />
-          </div>
-          <h1 className="text-3xl font-bold text-primary tracking-tight">
-            {bothCompleted ? 'Your Love Languages - Synced!' : 'Your Love Languages'}
-          </h1>
-          <p className="text-muted-foreground">
-            {bothCompleted ? 'Combined insights for your relationship' : 'Here\'s how you feel most loved'}
+  // Sync error banner
+  const syncErrorBanner = syncError && (
+    <div className="mb-6 bg-destructive/10 border-2 border-destructive/30 rounded-xl p-4">
+      <div className="flex items-start gap-3">
+        <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+        <div className="flex-1 space-y-2">
+          <p className="text-sm font-semibold text-foreground">Sync Error</p>
+          <p className="text-sm text-muted-foreground">
+            We couldn't save or sync your results. Please check your connection and try again.
           </p>
-        </div>
-
-        {/* Sync Error Banner - Emergency Fallback */}
-        {syncError && (
-          <Card className="border-2 border-amber-500/50 bg-gradient-to-r from-amber-500/10 to-red-500/10 animate-in slide-in-from-top duration-500">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                <div className="flex-1 space-y-2">
-                  <p className="font-semibold text-amber-900 dark:text-amber-100">
-                    Sync Issue Detected
-                  </p>
-                  <p className="text-sm text-amber-800 dark:text-amber-200">
-                    We're having trouble syncing your results. Your data is saved, but synchronization may be delayed.
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-2 gap-2 border-amber-500 text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-950"
-                    onClick={handleRetrySync}
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                    Retry Sync
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Sync Status Banner - Animated */}
-        {showSyncBanner && bothCompleted && !syncError && (
-          <Card className="border-2 border-green-500/50 bg-gradient-to-r from-green-500/10 to-primary/10 animate-in slide-in-from-top duration-500">
-            <CardContent className="p-4 text-center">
-              <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 font-semibold">
-                <Check className="w-5 h-5" />
-                <span>Results Synced! Both partners completed 🎉</span>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Persistent Sync Status */}
-        {bothCompleted && !showSyncBanner && !syncError && (
-          <Card className="border-2 border-accent/50 bg-gradient-to-r from-accent/10 to-primary/10">
-            <CardContent className="p-4 text-center">
-              <div className="flex items-center justify-center gap-2 text-accent font-semibold">
-                <Check className="w-5 h-5" />
-                <span>Results Synced - Both Partners Completed!</span>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Waiting for Partner Banner */}
-        {!bothCompleted && !syncError && (
-          <Card className="border border-primary/30 bg-primary/5">
-            <CardContent className="p-4 text-center">
-              <p className="text-sm text-muted-foreground">
-                ⏳ Waiting for your partner to complete the quiz...
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Top Love Language Card */}
-        <Card className="border-2 border-primary/30 shadow-lg bg-gradient-to-br from-primary/5 via-card to-accent/5">
-          <CardContent className="p-8 text-center space-y-4">
-            <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto glow-pulse">
-              <Heart className="w-10 h-10 text-primary fill-primary" />
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground font-semibold uppercase tracking-wide">
-                Your Primary Love Language
-              </p>
-              <h2 className="text-3xl font-bold text-primary">
-                {topLanguage.language}
-              </h2>
-              <p className="text-5xl font-bold text-accent">
-                {topLanguage.percentage}%
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* All Results */}
-        <Card className="border border-border/50 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-accent" />
-              Your Complete Rankings
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {results.map((result, index) => (
-              <div key={result.language} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
-                      {index + 1}
-                    </div>
-                    <span className="font-semibold text-foreground">
-                      {result.language}
-                    </span>
-                  </div>
-                  <span className="text-lg font-bold text-primary">
-                    {result.percentage}%
-                  </span>
-                </div>
-                <Progress value={result.percentage} className="h-2" />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Partner's Results - Show if both completed */}
-        {bothCompleted && combinedState?.partnerResults && (
-          <Card className="border border-border/50 shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="w-5 h-5 text-primary fill-primary" />
-                Your Partner's Rankings
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {combinedState.partnerResults.rankings
-                .sort((a, b) => b.score - a.score)
-                .map((ranking, index) => (
-                  <div key={ranking.language} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
-                          {index + 1}
-                        </div>
-                        <span className="font-semibold text-foreground">
-                          {mapToUILanguage(ranking.language)}
-                        </span>
-                      </div>
-                      <span className="text-lg font-bold text-primary">
-                        {Math.round(ranking.score)}%
-                      </span>
-                    </div>
-                    <Progress value={ranking.score} className="h-2" />
-                  </div>
-                ))}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Harmony Score Ring */}
-        {bothCompleted && (
-          <Card className="border border-accent/30 shadow-sm bg-gradient-to-br from-accent/5 to-primary/5">
-            <CardContent className="p-6 text-center space-y-4">
-              <div className="relative w-32 h-32 mx-auto">
-                <img 
-                  src="/assets/generated/harmony-ring-transparent.dim_200x200.png" 
-                  alt="Harmony Ring" 
-                  className="w-full h-full object-contain glow-pulse"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-3xl font-bold text-accent">{harmonyScore}%</span>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-bold text-foreground">Harmony Score</h3>
-                <p className="text-sm text-muted-foreground">
-                  You share {harmonyScore}% overlap in your top love languages!
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-4">
           <Button
             variant="outline"
-            className="rounded-2xl h-12 gap-2"
-            onClick={handleRetakeClick}
-            disabled={resetQuizMutation.isPending}
+            size="sm"
+            onClick={handleRetrySave}
+            className="gap-2"
           >
-            {resetQuizMutation.isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <RotateCcw className="w-4 h-4" />
-            )}
-            Re-take Quiz
-          </Button>
-          <Button
-            className="rounded-2xl h-12 gap-2 bg-primary hover:bg-primary/90"
-            onClick={handleShare}
-          >
-            <Share2 className="w-4 h-4" />
-            Share Results
+            <RefreshCw className="w-4 h-4" />
+            Retry Save
           </Button>
         </div>
+      </div>
+    </div>
+  );
 
-        {/* Info Card */}
-        <Card className="border border-border/50 bg-secondary/20">
-          <CardContent className="p-6 space-y-3">
-            <div className="flex items-start gap-3">
-              <Sparkles className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-              <div className="space-y-2">
-                <p className="text-sm font-semibold text-foreground">
-                  What's Next?
-                </p>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {bothCompleted 
-                    ? 'Your daily rituals are now personalized based on both your love languages! Prompts will resonate with your shared preferences.'
-                    : 'Your daily rituals will be personalized once your partner completes the quiz. Results are saved and will sync automatically!'}
-                </p>
+  // Sync success banner
+  const syncSuccessBanner = showSyncBanner && (
+    <div className="mb-6 bg-romantic-primary/10 border-2 border-romantic-primary/30 rounded-xl p-4 animate-in fade-in slide-in-from-top-2 duration-500">
+      <div className="flex items-start gap-3">
+        <Check className="w-5 h-5 text-romantic-primary flex-shrink-0 mt-0.5" />
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-foreground">Synced! 🎉</p>
+          <p className="text-sm text-muted-foreground">
+            Both you and your partner have completed the quiz. Your results are now synchronized!
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Quiz not started - show intro
+  if (!quizStarted && !quizCompleted) {
+    return (
+      <div className="container mx-auto px-6 py-8 max-w-4xl">
+        {syncErrorBanner}
+        <Card className="border-2 border-romantic-primary/30 overflow-hidden">
+          <div className="bg-gradient-to-br from-romantic-primary/10 via-romantic-accent/10 to-romantic-deep/10 p-8">
+            <div className="flex items-center justify-center mb-6">
+              <div className="w-20 h-20 rounded-full bg-romantic-primary/20 flex items-center justify-center glow-pulse">
+                <Heart className="w-10 h-10 text-romantic-primary fill-romantic-primary" />
               </div>
             </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-center mb-4 bg-gradient-to-r from-romantic-primary via-romantic-accent to-romantic-deep bg-clip-text text-transparent">
+              Discover Your Love Languages
+            </h1>
+            <p className="text-center text-muted-foreground text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
+              Understanding how you and your partner express and receive love can transform your relationship. 
+              Take this quiz to unlock personalized insights and activities.
+            </p>
+          </div>
+
+          <CardContent className="p-8 space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <Sparkles className="w-5 h-5 text-romantic-accent flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="font-semibold text-foreground mb-1">7 thoughtful questions</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Each question helps us understand your unique love language preferences.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Heart className="w-5 h-5 text-romantic-primary flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="font-semibold text-foreground mb-1">Personalized results</h3>
+                  <p className="text-sm text-muted-foreground">
+                    See your top love languages ranked by importance to you.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Share2 className="w-5 h-5 text-romantic-deep flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="font-semibold text-foreground mb-1">Sync with your partner</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Once both of you complete the quiz, you'll unlock shared insights and activities.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4">
+              <Button
+                size="lg"
+                onClick={handleStartQuiz}
+                className="w-full rounded-2xl text-lg py-6 bg-gradient-to-r from-romantic-primary via-romantic-accent to-romantic-deep hover:opacity-90 transition-all shadow-lg hover:shadow-xl"
+              >
+                Start Quiz
+              </Button>
+            </div>
+
+            {combinedState && (
+              <div className="pt-4 border-t border-border/50">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Your progress:</span>
+                  <span className="font-semibold text-foreground">
+                    {combinedState.callerCompleted ? 'Completed ✓' : 'Not started'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm mt-2">
+                  <span className="text-muted-foreground">Partner's progress:</span>
+                  <span className="font-semibold text-foreground">
+                    {combinedState.partnerCompleted ? 'Completed ✓' : 'Not started'}
+                  </span>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
-
-        {/* Retake Confirmation Dialog */}
-        <AlertDialog open={showRetakeConfirm} onOpenChange={setShowRetakeConfirm}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-amber-500" />
-                Retake Quiz?
-              </AlertDialogTitle>
-              <AlertDialogDescription className="space-y-2">
-                <p>
-                  Are you sure you want to retake the quiz? This will:
-                </p>
-                <ul className="list-disc list-inside space-y-1 text-sm">
-                  <li>Clear your current results</li>
-                  <li>Reset your love language rankings</li>
-                  <li>Update your partner's synced view when you complete it again</li>
-                </ul>
-                <p className="text-sm font-semibold text-foreground pt-2">
-                  Your partner will be notified when you complete the new quiz.
-                </p>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleRetakeConfirmed} className="bg-primary hover:bg-primary/90">
-                Yes, Retake Quiz
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </div>
     );
   }
 
-  // Quiz In Progress View
+  // Quiz in progress
   if (quizStarted && !quizCompleted) {
     return (
-      <div className="min-h-full px-6 py-8 space-y-6">
-        {/* Progress Header */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-primary">
-              Question {currentQuestion + 1} of {quizQuestions.length}
-            </h2>
-            <span className="text-sm text-muted-foreground font-semibold">
-              {Math.round(progress)}%
-            </span>
-          </div>
-          <Progress value={progress} className="h-2" />
-        </div>
+      <div className="container mx-auto px-6 py-8 max-w-3xl">
+        <Card className="border-2 border-romantic-primary/30">
+          <CardHeader>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl">Love Languages Quiz</CardTitle>
+                <span className="text-sm text-muted-foreground">
+                  Question {currentQuestion + 1} of {quizQuestions.length}
+                </span>
+              </div>
+              <Progress value={progress} className="h-2" />
+            </div>
+          </CardHeader>
 
-        {/* Question Card */}
-        <Card className="border-2 border-primary/20 shadow-lg">
-          <CardContent className="p-8 space-y-6">
-            <h3 className="text-xl font-semibold text-foreground leading-relaxed">
-              {currentQuestionData.question}
-            </h3>
+          <CardContent className="space-y-6">
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold text-foreground leading-relaxed">
+                {currentQuestionData.question}
+              </h2>
 
-            <RadioGroup value={currentAnswer} onValueChange={handleAnswer}>
-              <div className="space-y-3">
+              <RadioGroup
+                value={answers[currentQuestion] || ''}
+                onValueChange={(value) => handleAnswer(value as LoveLanguageUI)}
+                className="space-y-3"
+              >
                 {currentQuestionData.options.map((option, index) => (
                   <div
                     key={index}
-                    className={`flex items-start space-x-3 p-4 rounded-xl border-2 transition-all cursor-pointer hover:border-primary/50 hover:bg-primary/5 ${
-                      currentAnswer === option.language
-                        ? 'border-primary bg-primary/10'
+                    className={`flex items-start space-x-3 p-4 rounded-xl border-2 transition-all cursor-pointer hover:border-romantic-primary/50 hover:bg-romantic-primary/5 ${
+                      answers[currentQuestion] === option.language
+                        ? 'border-romantic-primary bg-romantic-primary/10'
                         : 'border-border/50'
                     }`}
                     onClick={() => handleAnswer(option.language)}
@@ -732,124 +568,174 @@ export function LoveLanguages() {
                     <RadioGroupItem value={option.language} id={`option-${index}`} className="mt-0.5" />
                     <Label
                       htmlFor={`option-${index}`}
-                      className="flex-1 text-base leading-relaxed cursor-pointer"
+                      className="flex-1 cursor-pointer text-sm leading-relaxed"
                     >
                       {option.text}
                     </Label>
                   </div>
                 ))}
-              </div>
-            </RadioGroup>
+              </RadioGroup>
+            </div>
+
+            <div className="flex items-center justify-between pt-4">
+              <Button
+                variant="outline"
+                onClick={handlePrevious}
+                disabled={currentQuestion === 0}
+                className="gap-2"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Previous
+              </Button>
+
+              <Button
+                onClick={handleNext}
+                disabled={!hasAnsweredCurrent}
+                className="gap-2 bg-gradient-to-r from-romantic-primary to-romantic-accent hover:opacity-90"
+              >
+                {currentQuestion === quizQuestions.length - 1 ? 'Finish' : 'Next'}
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
           </CardContent>
         </Card>
-
-        {/* Navigation Buttons */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            className="rounded-2xl h-12 gap-2 flex-1"
-            onClick={handlePrevious}
-            disabled={currentQuestion === 0}
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Previous
-          </Button>
-          <Button
-            className="rounded-2xl h-12 gap-2 flex-1 bg-primary hover:bg-primary/90"
-            onClick={handleNext}
-            disabled={!currentAnswer || saveQuizMutation.isPending}
-          >
-            {saveQuizMutation.isPending ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Saving...
-              </>
-            ) : currentQuestion === quizQuestions.length - 1 ? (
-              <>
-                <Check className="w-4 h-4" />
-                Complete
-              </>
-            ) : (
-              <>
-                Next
-                <ChevronRight className="w-4 h-4" />
-              </>
-            )}
-          </Button>
-        </div>
       </div>
     );
   }
 
-  // Initial Welcome View
+  // Quiz completed - show results
   return (
-    <div className="min-h-full px-6 py-8 space-y-8 stagger-entrance">
-      {/* Header Section */}
-      <div className="text-center space-y-3">
-        <h1 className="text-4xl font-bold text-primary tracking-tight">
-          Our Love Languages
-        </h1>
-        <p className="text-lg text-muted-foreground max-w-md mx-auto">
-          Discover how you both feel most loved
-        </p>
-      </div>
+    <div className="container mx-auto px-6 py-8 max-w-4xl">
+      {syncSuccessBanner}
+      {syncErrorBanner}
 
-      {/* Central Content Card */}
-      <Card className="border-2 border-primary/20 shadow-lg bg-gradient-to-br from-card via-card to-secondary/10 overflow-hidden relative max-w-2xl mx-auto">
-        {/* Decorative floating hearts */}
-        <div className="absolute top-4 right-4 text-primary/20 float-heart">
-          <Heart className="w-6 h-6" fill="currentColor" />
-        </div>
-        <div className="absolute bottom-8 left-6 text-primary/15 float-heart-delayed">
-          <Heart className="w-5 h-5" fill="currentColor" />
+      <Card className="border-2 border-romantic-primary/30 overflow-hidden">
+        <div className="bg-gradient-to-br from-romantic-primary/10 via-romantic-accent/10 to-romantic-deep/10 p-8">
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-20 h-20 rounded-full bg-romantic-primary/20 flex items-center justify-center glow-pulse">
+              <Heart className="w-10 h-10 text-romantic-primary fill-romantic-primary" />
+            </div>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-center mb-4 bg-gradient-to-r from-romantic-primary via-romantic-accent to-romantic-deep bg-clip-text text-transparent">
+            Your Love Languages
+          </h1>
+          <p className="text-center text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
+            Here's how you prefer to give and receive love. Share these results with your partner to deepen your connection.
+          </p>
         </div>
 
         <CardContent className="p-8 space-y-6">
-          {/* Illustration */}
-          <div className="flex justify-center">
-            <img 
-              src="/assets/generated/two-curious-doges.dim_400x300.png" 
-              alt="Two curious doges" 
-              className="w-full max-w-sm h-auto rounded-2xl"
-            />
+          <div className="space-y-4">
+            {results.map((result, index) => (
+              <div
+                key={result.language}
+                className={`p-5 rounded-xl border-2 transition-all ${
+                  index === 0
+                    ? 'border-romantic-primary bg-romantic-primary/10'
+                    : 'border-border/50 bg-card'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    {index === 0 && (
+                      <div className="w-8 h-8 rounded-full bg-romantic-primary/20 flex items-center justify-center">
+                        <Sparkles className="w-4 h-4 text-romantic-primary" />
+                      </div>
+                    )}
+                    <h3 className="font-semibold text-foreground">{result.language}</h3>
+                  </div>
+                  <span className="text-lg font-bold text-romantic-primary">{result.percentage}%</span>
+                </div>
+                <Progress value={result.percentage} className="h-2" />
+                {index === 0 && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    This is your primary love language!
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
 
-          {/* Description */}
-          <div className="space-y-4 text-center">
-            <p className="text-base text-muted-foreground leading-relaxed">
-              Understanding each other's love language helps you express love in ways that truly resonate. 
-              Take this quick quiz together to discover what makes each of you feel most cherished.
-            </p>
-            
-            <div className="bg-secondary/30 rounded-xl p-4 space-y-2">
-              <div className="flex items-center justify-center gap-2 text-primary font-semibold">
-                <Sparkles className="w-5 h-5" />
-                <span>What to Expect</span>
-              </div>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>✨ 5–7 minutes to complete</li>
-                <li>💕 Both partners answer separately</li>
-                <li>🔄 Results sync instantly</li>
-                <li>💖 Personalized insights for your relationship</li>
+          <div className="pt-6 border-t border-border/50 space-y-4">
+            <div className="bg-muted/50 rounded-xl p-5 space-y-3">
+              <h3 className="font-semibold text-foreground flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-romantic-accent" />
+                What's next?
+              </h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="text-romantic-primary mt-0.5">•</span>
+                  <span>Share your results with your partner and discuss what they mean to you</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-romantic-primary mt-0.5">•</span>
+                  <span>Encourage your partner to take the quiz if they haven't already</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-romantic-primary mt-0.5">•</span>
+                  <span>Once both of you complete it, you'll unlock personalized activities and insights</span>
+                </li>
               </ul>
             </div>
+
+            {combinedState && (
+              <div className="bg-card rounded-xl p-5 border border-border/50">
+                <h3 className="font-semibold text-foreground mb-3">Completion Status</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">You:</span>
+                    <span className="font-semibold text-romantic-primary flex items-center gap-1">
+                      <Check className="w-4 h-4" />
+                      Completed
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Partner:</span>
+                    <span className={`font-semibold ${combinedState.partnerCompleted ? 'text-romantic-primary' : 'text-muted-foreground'}`}>
+                      {combinedState.partnerCompleted ? (
+                        <span className="flex items-center gap-1">
+                          <Check className="w-4 h-4" />
+                          Completed
+                        </span>
+                      ) : (
+                        'Waiting...'
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <Button
+              variant="outline"
+              onClick={handleRetakeClick}
+              className="w-full gap-2"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Retake Quiz
+            </Button>
           </div>
-
-          {/* CTA Button */}
-          <Button 
-            className="w-full rounded-2xl h-14 text-lg font-semibold shadow-md hover:shadow-lg transition-all hover:scale-[1.02] bg-primary hover:bg-primary/90"
-            onClick={handleStartQuiz}
-          >
-            <Heart className="w-5 h-5 mr-2" />
-            Start the Quiz (5–7 min)
-          </Button>
-
-          {/* Supporting Note */}
-          <p className="text-sm text-muted-foreground text-center">
-            Both partners answer separately → results sync instantly
-          </p>
         </CardContent>
       </Card>
+
+      {/* Retake Confirmation Dialog */}
+      <AlertDialog open={showRetakeConfirm} onOpenChange={setShowRetakeConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Retake the quiz?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will clear your current results and allow you to retake the quiz. 
+              Your partner's results will not be affected.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleRetakeConfirmed}>
+              Yes, retake quiz
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

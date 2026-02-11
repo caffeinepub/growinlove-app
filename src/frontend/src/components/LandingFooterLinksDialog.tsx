@@ -1,9 +1,9 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { CONTACT_EMAIL } from '@/content/contact';
 
@@ -15,27 +15,35 @@ interface LandingFooterLinksDialogProps {
 export function LandingFooterLinksDialog({ content, onClose }: LandingFooterLinksDialogProps) {
   const getDialogContent = () => {
     switch (content) {
+      case 'about':
+        return {
+          title: 'About GrowInLove',
+          description: (
+            <div className="space-y-3 text-muted-foreground">
+              <p>
+                GrowInLove is a private, couples-only app designed to help you deepen your connection through daily rituals, 
+                love language insights, and shared memories.
+              </p>
+              <p>
+                Built by a couple, for couples — we understand the importance of intentional connection in relationships.
+              </p>
+            </div>
+          ),
+        };
       case 'contact':
         return {
           title: 'Contact Us',
-          description: 'Get in touch with the GrowInLove team',
-          body: (
-            <div className="space-y-4">
-              <p className="text-muted-foreground">
-                We'd love to hear from you! Whether you have questions, feedback, or just want to say hello, 
-                feel free to reach out.
-              </p>
-              <div className="bg-romantic-light/20 dark:bg-romantic-primary/10 rounded-lg p-4 border border-romantic-primary/20">
-                <p className="text-sm font-medium text-foreground mb-2">Email us at:</p>
+          description: (
+            <div className="space-y-3 text-muted-foreground">
+              <p>We'd love to hear from you!</p>
+              <p>
+                Email us at:{' '}
                 <a
                   href={`mailto:${CONTACT_EMAIL}`}
-                  className="text-romantic-primary hover:text-romantic-primary/80 font-semibold text-lg"
+                  className="text-romantic-primary hover:underline"
                 >
                   {CONTACT_EMAIL}
                 </a>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                We typically respond within 24-48 hours.
               </p>
             </div>
           ),
@@ -43,21 +51,27 @@ export function LandingFooterLinksDialog({ content, onClose }: LandingFooterLink
       case 'terms':
         return {
           title: 'Terms of Service',
-          description: 'Terms and conditions for using GrowInLove',
-          body: (
-            <div className="space-y-4 text-sm text-muted-foreground">
+          description: (
+            <div className="space-y-3 text-muted-foreground text-sm max-h-[60vh] overflow-y-auto">
+              <p className="font-semibold text-foreground">Last Updated: {new Date().toLocaleDateString()}</p>
               <p>
-                By using GrowInLove, you agree to use the service responsibly and respectfully. 
-                This app is designed for couples to strengthen their relationship through daily rituals 
-                and shared experiences.
+                By using GrowInLove, you agree to these terms. GrowInLove is provided "as is" for personal, 
+                non-commercial use by couples.
               </p>
+              <p className="font-semibold text-foreground">User Responsibilities</p>
               <p>
-                You are responsible for maintaining the confidentiality of your account and for all 
-                activities that occur under your account.
+                You are responsible for maintaining the confidentiality of your account and for all activities 
+                that occur under your account. You agree to use the service only for lawful purposes.
               </p>
+              <p className="font-semibold text-foreground">Privacy</p>
               <p>
-                We reserve the right to modify or discontinue the service at any time. For detailed 
-                terms, please contact us at {CONTACT_EMAIL}.
+                Your data is stored securely on the Internet Computer blockchain. We do not sell or share your 
+                personal information with third parties.
+              </p>
+              <p className="font-semibold text-foreground">Limitation of Liability</p>
+              <p>
+                GrowInLove is provided without warranties of any kind. We are not liable for any damages arising 
+                from your use of the service.
               </p>
             </div>
           ),
@@ -65,50 +79,54 @@ export function LandingFooterLinksDialog({ content, onClose }: LandingFooterLink
       case 'privacy':
         return {
           title: 'Privacy Policy',
-          description: 'How we protect your data',
-          body: (
-            <div className="space-y-4 text-sm text-muted-foreground">
+          description: (
+            <div className="space-y-3 text-muted-foreground text-sm max-h-[60vh] overflow-y-auto">
+              <p className="font-semibold text-foreground">Last Updated: {new Date().toLocaleDateString()}</p>
               <p>
-                Your privacy is our top priority. GrowInLove is built on the Internet Computer, 
-                a decentralized blockchain platform that ensures your data is secure and private.
+                GrowInLove is committed to protecting your privacy. This policy explains how we collect, use, 
+                and protect your information.
               </p>
+              <p className="font-semibold text-foreground">Data Collection</p>
               <p>
-                We never sell, share, or monetize your personal information. Your ritual responses, 
-                photos, and quiz results are stored securely and are only accessible to you and your partner.
+                We collect only the information necessary to provide the service: your name, ritual responses, 
+                photos you upload, and quiz results. We use Internet Identity for authentication, which provides 
+                privacy-preserving login.
               </p>
+              <p className="font-semibold text-foreground">Data Storage</p>
               <p>
-                We do not use tracking cookies, analytics, or advertising. Your relationship data 
-                belongs to you and you alone.
+                All data is stored on the Internet Computer blockchain, a decentralized network. Your data is 
+                encrypted and accessible only to you and your partner.
               </p>
+              <p className="font-semibold text-foreground">Data Sharing</p>
               <p>
-                For more information, contact us at {CONTACT_EMAIL}.
+                We never sell or share your personal information with third parties. Your data is visible only 
+                to you and your paired partner.
+              </p>
+              <p className="font-semibold text-foreground">Your Rights</p>
+              <p>
+                You have the right to access, modify, or delete your data at any time through the app.
               </p>
             </div>
           ),
         };
       case 'investor':
         return {
-          title: 'Interested in supporting our growth?',
-          description: 'Investment and partnership opportunities',
-          body: (
-            <div className="space-y-4 text-sm text-muted-foreground">
+          title: 'Investor Information',
+          description: (
+            <div className="space-y-3 text-muted-foreground">
               <p>
-                GrowInLove started as a passion project built by a couple for couples. We're exploring 
-                opportunities to grow and reach more people who want to strengthen their relationships.
+                GrowInLove is currently in early development. We're focused on building a product that truly 
+                helps couples grow closer.
               </p>
               <p>
-                If you're interested in supporting our mission through investment, partnership, or 
-                collaboration, we'd love to hear from you.
-              </p>
-              <div className="bg-romantic-light/20 dark:bg-romantic-primary/10 rounded-lg p-4 border border-romantic-primary/20">
-                <p className="text-sm font-medium text-foreground mb-2">Reach out to:</p>
+                For investment inquiries, please contact us at:{' '}
                 <a
-                  href={`mailto:${CONTACT_EMAIL}?subject=Investment Inquiry`}
-                  className="text-romantic-primary hover:text-romantic-primary/80 font-semibold"
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="text-romantic-primary hover:underline"
                 >
                   {CONTACT_EMAIL}
                 </a>
-              </div>
+              </p>
             </div>
           ),
         };
@@ -119,16 +137,19 @@ export function LandingFooterLinksDialog({ content, onClose }: LandingFooterLink
 
   const dialogContent = getDialogContent();
 
-  if (!dialogContent) return null;
-
   return (
     <Dialog open={!!content} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{dialogContent.title}</DialogTitle>
-          <DialogDescription>{dialogContent.description}</DialogDescription>
-        </DialogHeader>
-        <div className="mt-4">{dialogContent.body}</div>
+      <DialogContent className="bg-card border-border">
+        {dialogContent && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-foreground">{dialogContent.title}</DialogTitle>
+            </DialogHeader>
+            <DialogDescription asChild>
+              <div>{dialogContent.description}</div>
+            </DialogDescription>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
