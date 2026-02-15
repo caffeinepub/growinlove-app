@@ -15,14 +15,13 @@ import {
 } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
 import { useSectionEntrance } from '@/hooks/useSectionEntrance';
+import { getDraftBuildLabel } from '@/config/draftBuildLabel';
+import { useInternetIdentity } from '../hooks/useInternetIdentity';
 
-interface LandingProps {
-  onEnterApp: () => void;
-}
-
-export function Landing({ onEnterApp }: LandingProps) {
+export function Landing() {
   const [dialogContent, setDialogContent] = useState<'about' | 'contact' | 'terms' | 'privacy' | 'investor' | null>(null);
   const [openFeature, setOpenFeature] = useState<string | null>(null);
+  const { login } = useInternetIdentity();
 
   const heroSection = useSectionEntrance({ threshold: 0.2 });
   const benefitSection = useSectionEntrance({ threshold: 0.15 });
@@ -39,12 +38,21 @@ export function Landing({ onEnterApp }: LandingProps) {
     }
   };
 
+  const handleGetStarted = () => {
+    login();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card/90 backdrop-blur-md border-b border-border/50 shadow-sm">
         <div className="container mx-auto px-4 py-2.5 flex items-center justify-between">
-          <LandingBrand variant="compact" />
+          <div className="flex items-center gap-3">
+            <LandingBrand variant="compact" />
+            <span className="text-xs text-muted-foreground/70 font-mono">
+              {getDraftBuildLabel()}
+            </span>
+          </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <LoginButton />
@@ -73,7 +81,7 @@ export function Landing({ onEnterApp }: LandingProps) {
             <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start pt-1">
               <Button
                 size="lg"
-                onClick={onEnterApp}
+                onClick={handleGetStarted}
                 className="rounded-full text-base px-8 py-5 bg-gradient-to-r from-romantic-primary via-romantic-accent to-romantic-deep hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:scale-105"
               >
                 Start your journey
@@ -221,89 +229,102 @@ export function Landing({ onEnterApp }: LandingProps) {
         }`}
       >
         <div className="max-w-3xl mx-auto space-y-3">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-6">Explore the features</h2>
-          
-          <Collapsible 
+          <h2 className="text-2xl md:text-3xl font-bold text-center text-foreground mb-6">
+            Everything you need to grow together
+          </h2>
+
+          <Collapsible
             open={openFeature === 'rituals'}
-            onOpenChange={(isOpen) => setOpenFeature(isOpen ? 'rituals' : null)}
-            className="bg-card/60 backdrop-blur-sm rounded-xl border border-border/50 overflow-hidden hover:border-romantic-primary/50 transition-all"
+            onOpenChange={(open) => setOpenFeature(open ? 'rituals' : null)}
           >
-            <CollapsibleTrigger className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-muted/50 transition-colors">
-              <h3 className="text-base font-semibold text-foreground">Daily Rituals</h3>
-              <ChevronDown 
+            <CollapsibleTrigger className="w-full bg-card/60 backdrop-blur-sm rounded-xl p-4 border border-border/50 hover:border-romantic-primary/50 transition-all flex items-center justify-between group">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-romantic-primary/10 flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-romantic-primary" />
+                </div>
+                <span className="text-base font-semibold text-foreground">Daily Rituals</span>
+              </div>
+              <ChevronDown
                 className={`w-5 h-5 text-muted-foreground transition-transform ${
                   openFeature === 'rituals' ? 'rotate-180' : ''
-                }`} 
+                }`}
               />
             </CollapsibleTrigger>
-            <CollapsibleContent className="px-5 pb-3.5 text-muted-foreground leading-relaxed text-sm">
-              <p>
-                Every day, you and your partner receive a thoughtful prompt designed to spark connection. 
-                Share your responses through text, emojis, or photos. Complete rituals together to build 
-                your streak and deepen your bond.
+            <CollapsibleContent className="px-4 pt-3 pb-1">
+              <p className="text-muted-foreground leading-relaxed text-sm">
+                Start each day with a thoughtful prompt designed to spark meaningful conversation and connection. Share your thoughts, feelings, and moments through text, emojis, or photos.
               </p>
             </CollapsibleContent>
           </Collapsible>
 
-          <Collapsible 
+          <Collapsible
             open={openFeature === 'languages'}
-            onOpenChange={(isOpen) => setOpenFeature(isOpen ? 'languages' : null)}
-            className="bg-card/60 backdrop-blur-sm rounded-xl border border-border/50 overflow-hidden hover:border-romantic-primary/50 transition-all"
+            onOpenChange={(open) => setOpenFeature(open ? 'languages' : null)}
           >
-            <CollapsibleTrigger className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-muted/50 transition-colors">
-              <h3 className="text-base font-semibold text-foreground">Love Languages</h3>
-              <ChevronDown 
+            <CollapsibleTrigger className="w-full bg-card/60 backdrop-blur-sm rounded-xl p-4 border border-border/50 hover:border-romantic-accent/50 transition-all flex items-center justify-between group">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-romantic-accent/10 flex items-center justify-center">
+                  <Heart className="w-5 h-5 text-romantic-accent" />
+                </div>
+                <span className="text-base font-semibold text-foreground">Love Languages</span>
+              </div>
+              <ChevronDown
                 className={`w-5 h-5 text-muted-foreground transition-transform ${
                   openFeature === 'languages' ? 'rotate-180' : ''
-                }`} 
+                }`}
               />
             </CollapsibleTrigger>
-            <CollapsibleContent className="px-5 pb-3.5 text-muted-foreground leading-relaxed text-sm">
-              <p>
-                Take the Love Languages quiz together to discover how you each prefer to give and receive love. 
-                Your results unlock personalized prompts and activities tailored to your unique relationship dynamic.
+            <CollapsibleContent className="px-4 pt-3 pb-1">
+              <p className="text-muted-foreground leading-relaxed text-sm">
+                Discover how you and your partner give and receive love. Take the quiz together to unlock personalized insights and activities tailored to your unique relationship.
               </p>
             </CollapsibleContent>
           </Collapsible>
 
-          <Collapsible 
+          <Collapsible
             open={openFeature === 'insights'}
-            onOpenChange={(isOpen) => setOpenFeature(isOpen ? 'insights' : null)}
-            className="bg-card/60 backdrop-blur-sm rounded-xl border border-border/50 overflow-hidden hover:border-romantic-primary/50 transition-all"
+            onOpenChange={(open) => setOpenFeature(open ? 'insights' : null)}
           >
-            <CollapsibleTrigger className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-muted/50 transition-colors">
-              <h3 className="text-base font-semibold text-foreground">Insights & Harmony</h3>
-              <ChevronDown 
+            <CollapsibleTrigger className="w-full bg-card/60 backdrop-blur-sm rounded-xl p-4 border border-border/50 hover:border-romantic-deep/50 transition-all flex items-center justify-between group">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-romantic-deep/10 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-romantic-deep" />
+                </div>
+                <span className="text-base font-semibold text-foreground">Insights & Milestones</span>
+              </div>
+              <ChevronDown
                 className={`w-5 h-5 text-muted-foreground transition-transform ${
                   openFeature === 'insights' ? 'rotate-180' : ''
-                }`} 
+                }`}
               />
             </CollapsibleTrigger>
-            <CollapsibleContent className="px-5 pb-3.5 text-muted-foreground leading-relaxed text-sm">
-              <p>
-                Track your relationship journey with beautiful visualizations. See your streak, harmony meter, 
-                milestone badges, and shared memories. Celebrate your progress and discover patterns in how you connect.
+            <CollapsibleContent className="px-4 pt-3 pb-1">
+              <p className="text-muted-foreground leading-relaxed text-sm">
+                Track your journey with beautiful visualizations of your streak, harmony meter, and milestone badges. Celebrate your progress and see how your relationship grows over time.
               </p>
             </CollapsibleContent>
           </Collapsible>
 
-          <Collapsible 
+          <Collapsible
             open={openFeature === 'memories'}
-            onOpenChange={(isOpen) => setOpenFeature(isOpen ? 'memories' : null)}
-            className="bg-card/60 backdrop-blur-sm rounded-xl border border-border/50 overflow-hidden hover:border-romantic-primary/50 transition-all"
+            onOpenChange={(open) => setOpenFeature(open ? 'memories' : null)}
           >
-            <CollapsibleTrigger className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-muted/50 transition-colors">
-              <h3 className="text-base font-semibold text-foreground">Shared Scrapbook</h3>
-              <ChevronDown 
+            <CollapsibleTrigger className="w-full bg-card/60 backdrop-blur-sm rounded-xl p-4 border border-border/50 hover:border-romantic-primary/50 transition-all flex items-center justify-between group">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-romantic-primary/10 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-romantic-primary" />
+                </div>
+                <span className="text-base font-semibold text-foreground">Shared Scrapbook</span>
+              </div>
+              <ChevronDown
                 className={`w-5 h-5 text-muted-foreground transition-transform ${
                   openFeature === 'memories' ? 'rotate-180' : ''
-                }`} 
+                }`}
               />
             </CollapsibleTrigger>
-            <CollapsibleContent className="px-5 pb-3.5 text-muted-foreground leading-relaxed text-sm">
-              <p>
-                Your Memories tab is a beautiful timeline of all your shared rituals. Revisit past moments, 
-                see photos you've shared, and watch your love story unfold day by day.
+            <CollapsibleContent className="px-4 pt-3 pb-1">
+              <p className="text-muted-foreground leading-relaxed text-sm">
+                Revisit your favorite moments together in your private scrapbook. Every ritual response, photo, and memory is preserved for you to cherish and reflect on.
               </p>
             </CollapsibleContent>
           </Collapsible>
@@ -317,25 +338,25 @@ export function Landing({ onEnterApp }: LandingProps) {
           ctaSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}
       >
-        <div className="max-w-2xl mx-auto text-center space-y-5">
+        <div className="max-w-2xl mx-auto text-center space-y-6 bg-gradient-to-br from-romantic-primary/5 via-romantic-accent/5 to-romantic-deep/5 rounded-3xl p-8 border border-romantic-primary/20">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground">
             Ready to grow closer?
           </h2>
-          <p className="text-base md:text-lg text-muted-foreground">
-            Start your journey today. No credit card required.
+          <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+            Join couples who are strengthening their relationships, one day at a time.
           </p>
           <Button
             size="lg"
-            onClick={onEnterApp}
+            onClick={handleGetStarted}
             className="rounded-full text-base px-8 py-5 bg-gradient-to-r from-romantic-primary via-romantic-accent to-romantic-deep hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:scale-105"
           >
-            Begin your love story
+            Start your journey
           </Button>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-card border-t border-border/50 py-6">
+      <footer className="bg-muted/30 border-t border-border/50 py-8">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <LandingBrand variant="compact" />
@@ -371,19 +392,22 @@ export function Landing({ onEnterApp }: LandingProps) {
                 Investor
               </button>
             </div>
-            <p className="text-sm text-muted-foreground text-center md:text-right">
-              © {new Date().getFullYear()} Built with <Heart className="inline w-4 h-4 text-romantic-accent" /> using{' '}
-              <a
-                href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(
-                  typeof window !== 'undefined' ? window.location.hostname : 'growinlove'
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors underline"
-              >
-                caffeine.ai
-              </a>
-            </p>
+            <div className="text-sm text-muted-foreground text-center md:text-right">
+              <p>© {new Date().getFullYear()} GrowInLove</p>
+              <p className="mt-1">
+                Built with <Heart className="inline w-3.5 h-3.5 text-romantic-primary fill-romantic-primary" /> using{' '}
+                <a
+                  href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(
+                    typeof window !== 'undefined' ? window.location.hostname : 'growinlove-app'
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground transition-colors underline"
+                >
+                  caffeine.ai
+                </a>
+              </p>
+            </div>
           </div>
         </div>
       </footer>

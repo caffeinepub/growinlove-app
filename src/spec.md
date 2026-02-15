@@ -1,10 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the landing-page hero phone mockup to show the correct GrowInLove screenshot, and prevent the app from getting stuck on an infinite loading spinner after Internet Identity login.
+**Goal:** Restore the current draft development workspace to exactly match snapshot Version 66 (with no redeploy), then verify the restored workspace using the existing Version 66 reset checklist.
 
 **Planned changes:**
-- Update the landing hero phone mockup (frontend/src/components/LandingHeroScreenshotShowcase.tsx) to use the user-selected GrowInLove screenshot instead of the FunnAI Game Nest screen, matching the carousel’s crop/fit behavior for consistent presentation.
-- Fix the post–Internet Identity login initialization/profile-loading flow so the app transitions into a usable state; if profile loading fails, show an English error state with a “Retry” action instead of an infinite spinner (frontend/src/App.tsx).
+- Restore/reset the draft workspace state to snapshot Version 66, discarding any draft-only changes made after Version 66.
+- Ensure the restore operation does not trigger any new build artifacts or live deployments.
+- Run the “Version 66 Reset Verification” checklist in `frontend/QA_ACCEPTANCE_CHECKLIST.md` and report pass/fail for each checklist section.
 
-**User-visible outcome:** The landing hero phone mockup shows the correct GrowInLove screen, and after logging in with Internet Identity (from either login entry point) the app opens normally or shows a clear retryable error rather than spinning forever.
+**User-visible outcome:** The draft workspace matches Version 66 with no later-version changes present, and a verification report confirms checklist pass/fail without triggering a new build/deployment.

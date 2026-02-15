@@ -20,6 +20,7 @@ export function LoginButton({ variant, size = 'sm', label }: LoginButtonProps) {
   const handleAuth = async () => {
     if (isAuthenticated) {
       await clear();
+      // Clear all cached queries including profile data
       queryClient.clear();
     } else {
       try {

@@ -2,31 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-replace-the-incorrect-screenshot-shown-inside-the-landing-page-hero-phone-mockup-currently-showing-the-funnai-game-nest-screen-with-the-user-selected-image-and-ensure-it-visually-matches-the-other-landing-page-carousel-screenshots-same-crop-fit-behavior-and-consistent-phone-screen-presentation",
-      "featureTitle": "Replace the incorrect screenshot shown inside the landing-page hero phone mockup (currently showing the FunnAI Game Nest screen) with the user-selected image, and ensure it visually matches the other landing-page carousel screenshots (same crop/fit behavior and consistent phone-screen presentation).",
+      "featureId": "feature-after-the-workspace-restore-completes-verify-the-restored-workspace-against-the-existing-version-66-reset-verification-checklist-in-frontend-qa-acceptance-checklist-md-and-report-pass-fail-for-each-checklist-section",
+      "featureTitle": "After the workspace restore completes, verify the restored workspace against the existing “Version 66 Reset Verification” checklist in frontend/QA_ACCEPTANCE_CHECKLIST.md and report pass/fail for each checklist section.",
       "files": [
-        "frontend/src/components/LandingHeroScreenshotShowcase.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "authorization@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-fix-the-internet-identity-login-flow-so-that-after-a-successful-internet-identity-connection-the-growinlove-app-opens-normally-instead-of-getting-stuck-on-an-endless-loading-spinner-if-profile-loading-fails-show-a-clear-error-state-with-a-retry-action-instead-of-an-infinite-spinner",
-      "featureTitle": "Fix the Internet Identity login flow so that after a successful Internet Identity connection, the GrowInLove app opens normally instead of getting stuck on an endless loading spinner; if profile loading fails, show a clear error state with a retry action instead of an infinite spinner.",
-      "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/QA_VERSION_66_RESET_REPORT.md"
       ],
       "components": [
         "core-infrastructure@1.0.2",

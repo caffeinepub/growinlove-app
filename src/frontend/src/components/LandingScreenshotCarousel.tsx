@@ -1,31 +1,17 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-const slides = [
-  {
-    image: '/assets/IMG_1322.png',
-    caption: 'Your Love Story',
-  },
-  {
-    image: '/assets/IMG_1323.png',
-    caption: 'Daily Rituals',
-  },
-  {
-    image: '/assets/IMG_1324.png',
-    caption: 'Shared Insights',
-  },
-];
+import { landingScreenshots } from '../content/landingScreenshots';
 
 export function LandingScreenshotCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+    setCurrentIndex((prev) => (prev === 0 ? landingScreenshots.length - 1 : prev - 1));
   };
 
   const goToNext = () => {
-    setCurrentIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+    setCurrentIndex((prev) => (prev === landingScreenshots.length - 1 ? 0 : prev + 1));
   };
 
   useEffect(() => {
@@ -56,8 +42,8 @@ export function LandingScreenshotCarousel() {
             {/* Screen */}
             <div className="relative bg-white dark:bg-gray-950 rounded-[2rem] overflow-hidden aspect-[390/844]">
               <img
-                src={slides[currentIndex].image}
-                alt={slides[currentIndex].caption}
+                src={landingScreenshots[currentIndex].image}
+                alt={landingScreenshots[currentIndex].caption}
                 className="w-full h-full object-cover object-center"
               />
             </div>
@@ -65,7 +51,7 @@ export function LandingScreenshotCarousel() {
 
           {/* Caption */}
           <p className="text-center mt-3 text-sm font-medium text-foreground">
-            {slides[currentIndex].caption}
+            {landingScreenshots[currentIndex].caption}
           </p>
         </div>
 
@@ -83,7 +69,7 @@ export function LandingScreenshotCarousel() {
 
       {/* Dot indicators */}
       <div className="flex justify-center gap-2 mt-4">
-        {slides.map((_, index) => (
+        {landingScreenshots.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}

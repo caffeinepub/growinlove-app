@@ -1,733 +1,434 @@
-# GrowInLove QA Acceptance Checklist
+# QA Acceptance Checklist
 
-This document provides step-by-step manual verification steps for the GrowInLove application. Use this checklist to verify core functionality, data integrity, partner synchronization, and the combined pre-launch polish (UX copy, loading/empty/error states, and performance).
+## Version 66 Reset Verification
 
----
+### Draft Build Label Display
+- [ ] The draft preview shows "Draft Version 66" label in the app header (authenticated view)
+- [ ] The draft preview shows "Draft Version 66" label in the landing page header (unauthenticated view)
+- [ ] The label is visible but non-intrusive (small, muted styling)
+- [ ] The label does not interfere with existing UI elements or navigation
 
-## 0. Version 76 Verification
+### Build Stability
+- [ ] The app loads without build errors
+- [ ] The app loads without runtime errors in the browser console
+- [ ] All existing Version 66 functionality works as expected:
+  - [ ] Landing page displays correctly
+  - [ ] Login/logout flow works
+  - [ ] Profile setup works
+  - [ ] Daily ritual submission works
+  - [ ] Love Languages quiz works
+  - [ ] All tabs (Home, Insights, Love Languages, Activities, Us, Memories) are accessible
+  - [ ] Theme toggle works (light/dark mode)
 
-### Test Case 0.1: Build Identifier Check
-**Steps:**
-1. Open the application
-2. Open browser developer console (F12)
-3. Look for the build identifier message in the console
-
-**Expected Outcome:**
-- Console displays: "🚀 GrowInLove Version 64 - Build deployed"
-- This confirms the deployed version
-
-### Test Case 0.2: Landing Page Theme Toggle Functionality
-**Steps:**
-1. Open the landing page (logged out state)
-2. Locate the theme toggle button in the header (Sun/Moon icon)
-3. Click the theme toggle button
-4. Observe the entire landing page theme change (background, text, cards, sections)
-5. Reload the page
-6. Verify theme preference persists
-
-**Expected Outcome:**
-- Theme toggles between light and dark mode
-- **Entire landing page** changes theme (not just phone mockup)
-- Background, header, sections, cards, text all respond to theme toggle
-- Theme preference persists across page reloads
-- On first load (no saved preference), app follows OS/browser theme
-- Toggle button icon updates correctly (Sun for dark mode, Moon for light mode)
-
-### Test Case 0.3: Landing Page Phone Mockup Screenshot Fit
-**Steps:**
-1. Open the landing page
-2. Observe the hero section phone mockup with screenshots
-3. Verify screenshots fit cleanly inside the rounded phone screen
-4. Scroll to "See it in action" carousel section
-5. Navigate through carousel screenshots
-6. Verify all screenshots fit cleanly inside phone screen
-7. Test on mobile, tablet, and desktop breakpoints
-
-**Expected Outcome:**
-- Hero phone mockup screenshots fill the phone screen area completely
-- Carousel phone mockup screenshots fill the phone screen area completely
-- No letterboxing (black bars) around screenshots
-- No overflow beyond rounded corners
-- Screenshots maintain aspect ratio (not distorted)
-- Consistent appearance across all breakpoints (mobile, tablet, desktop)
-- Screenshots look "placed" naturally within the phone frame
-
-### Test Case 0.4: Modal Readability (Ritual History Dialog)
-**Steps:**
-1. Log in and navigate to Home tab
-2. Complete at least one ritual (both partners)
-3. Scroll to Ritual History section
-4. Click on a ritual entry to open the detail dialog
-5. Verify dialog content is opaque and readable in light mode
-6. Toggle to dark mode
-7. Verify dialog content is opaque and readable in dark mode
-
-**Expected Outcome:**
-- Dialog content has fully opaque background (not see-through)
-- Dialog backdrop has subtle dimming and blur
-- Text is clearly readable in both light and dark modes
-- Dialog content has proper contrast against backdrop
-
-### Test Case 0.5: Love Wheel "Coming Soon" Note
-**Steps:**
-1. Log in and navigate to Activities tab
-2. Scroll to "Spin the Love Wheel" section
-3. Verify "Coming soon" note is visible
-
-**Expected Outcome:**
-- Blue info banner displays above the wheel
-- Message reads: "Coming soon - Smoother slow-stop and deceleration polish is on the way!"
-- Note is readable in both light and dark modes
+### Version 66 Feature Verification
+- [ ] No features from Versions 77-79 are present
+- [ ] The codebase matches the last live release (Version 66)
+- [ ] All Version 66 components render correctly
+- [ ] All Version 66 API calls function properly
 
 ---
 
-## 1. Authentication & Profile Setup
+## Previous Version Checklists (for reference)
 
-### Test Case 1.1: Login Flow
-**Steps:**
-1. Open the application
-2. Click "Login" button
-3. Complete Internet Identity authentication
-4. Verify successful login
+### Version 76 - Landing Page Global Theme Toggle & Phone Mockup Screenshot Fit
 
-**Expected Outcome:**
-- User is authenticated successfully
-- Profile setup modal appears if first-time user
-- No errors or blank screens
+#### Global Theme Toggle Functionality
+- [ ] Theme toggle button is visible in the landing page header
+- [ ] Clicking the theme toggle switches between light and dark modes
+- [ ] Theme preference persists across page reloads
+- [ ] Theme toggle icon updates correctly (sun for light mode, moon for dark mode)
+- [ ] All landing page sections respect the selected theme
+- [ ] No flash of unstyled content (FOUC) on page load
 
-### Test Case 1.2: Profile Setup
-**Steps:**
-1. After first login, enter your name in the profile setup modal
-2. Click "Save"
-3. Verify success animation and automatic navigation
+#### Phone Mockup Screenshot Fit
+- [ ] Screenshots fit properly within phone mockup on mobile (320px-640px)
+- [ ] Screenshots fit properly within phone mockup on tablet (641px-1024px)
+- [ ] Screenshots fit properly within phone mockup on desktop (1025px+)
+- [ ] No overflow or cropping of screenshot content
+- [ ] Aspect ratio is maintained across all breakpoints
+- [ ] Phone mockup border/frame is visible and properly styled
 
-**Expected Outcome:**
-- Profile is saved successfully
-- Success checkmark animation plays
-- User is automatically navigated to main app
-- Profile name is displayed throughout the app
-
-### Test Case 1.3: Logout and Re-login
-**Steps:**
-1. Click "Logout" button
-2. Verify logout success
-3. Click "Login" again
-4. Verify profile is remembered (no setup modal)
-
-**Expected Outcome:**
-- Logout clears all cached data
-- Re-login loads existing profile
-- No profile setup modal on subsequent logins
+#### Cross-browser Testing
+- [ ] Theme toggle works in Chrome
+- [ ] Theme toggle works in Firefox
+- [ ] Theme toggle works in Safari
+- [ ] Phone mockup displays correctly in Chrome
+- [ ] Phone mockup displays correctly in Firefox
+- [ ] Phone mockup displays correctly in Safari
 
 ---
 
-## 2. Pairing Flow
+### Version 64 - Harmony Breakdown Trend Card Data Availability Guard
 
-### Test Case 2.1: Generate Pairing Code
-**Steps:**
-1. Log in as User A
-2. Navigate to the "Us" tab
-3. Verify pairing code is automatically generated
-4. Verify a 6-digit code is displayed
+#### Data Availability Guard
+- [ ] When backend trend data is insufficient, the card displays "Not enough data yet" message
+- [ ] When backend trend data is available, the card displays the harmony breakdown with trend indicators
+- [ ] The guard prevents displaying misleading or placeholder data
+- [ ] The message is clear and user-friendly
 
-**Expected Outcome:**
-- A unique 6-digit pairing code is generated and displayed
-- Code remains visible until pairing is completed
-- Copy and Share buttons are functional
-
-### Test Case 2.2: Complete Pairing
-**Steps:**
-1. Log in as User B (different browser/device)
-2. Navigate to the "Us" tab
-3. Enter the pairing code from User A
-4. Click "Connect"
-5. Verify success message appears
-
-**Expected Outcome:**
-- User B successfully pairs with User A
-- Both users see "Connected" status in the Us tab
-- Both users can now access daily rituals
-- One-time highlight animation triggers on Love Languages card
-
-### Test Case 2.3: Verify Mutual Partnership
-**Steps:**
-1. As User A, navigate to the "Home" tab
-2. Verify you can see the daily ritual prompt
-3. As User B, navigate to the "Home" tab
-4. Verify you can see the same daily ritual prompt
-
-**Expected Outcome:**
-- Both users see the same ritual prompt for the current day
-- Both users can submit responses
-- No errors or blank screens
+#### Harmony Breakdown Display
+- [ ] Harmony percentage is displayed correctly
+- [ ] Trend direction (up/down/stable) is shown with appropriate icon
+- [ ] Trend label matches the backend data
+- [ ] All visual elements (colors, icons, spacing) are consistent with the design system
 
 ---
 
-## 3. Daily Ritual Submission & Loading States
+### Version 63 - Quiz Alignment Summary Update
 
-### Test Case 3.1: Text-Only Submission with Loading State
-**Steps:**
-1. Log in as User A
-2. Navigate to "Home" tab
-3. Type a text response in the textarea
-4. Click "Submit"
-5. Observe loading state on submit button
-6. Verify submission success
-
-**Expected Outcome:**
-- Submit button shows "Submitting..." with spinner during submission
-- After submission, UI shows "Waiting for Partner..." state with clear messaging
-- Text response is saved and visible in Ritual History
-- No blank or confusing states
-
-### Test Case 3.2: Photo Upload with Progress Indication
-**Steps:**
-1. Log in as User B
-2. Navigate to "Home" tab
-3. Click "Photo" button
-4. Select an image file
-5. Observe photo preview
-6. Click "Submit"
-7. Observe upload progress
-
-**Expected Outcome:**
-- Photo preview displays immediately
-- Submit button shows "Submitting..." during upload
-- Upload completes successfully
-- Photo appears in ritual response
-- No blank screens during upload
-
-### Test Case 3.3: Ritual History Loading State
-**Steps:**
-1. Navigate to "Home" tab
-2. Scroll to "Ritual History" section
-3. Observe loading state while history loads
-4. Verify history displays after loading
-
-**Expected Outcome:**
-- Loading spinner with "Loading your love story...💫" message appears
-- History loads and displays correctly
-- No flash of empty content before loading
-
-### Test Case 3.4: Empty Ritual History State
-**Steps:**
-1. Create a new couple (no rituals completed)
-2. Navigate to "Home" tab
-3. Scroll to "Ritual History" section
-4. Verify empty state message
-
-**Expected Outcome:**
-- Clear empty state message: "No rituals yet — your story begins today 💞"
-- Helpful guidance for next steps
-- No confusing blank areas
+#### Quiz Alignment Summary
+- [ ] The Quiz Alignment Summary section displays only quiz-derived metrics
+- [ ] No claims about measured correlation or behavioral tracking are present
+- [ ] The section title and description are accurate and truthful
+- [ ] The overlap score is calculated correctly from quiz results
+- [ ] The UI clearly indicates this is based on quiz responses, not measured behavior
 
 ---
 
-## 4. Insights Tab: Loading, Empty, and Error States
+### Version 62 - Love Language Trends Removal
 
-### Test Case 4.1: Insights Loading State
-**Steps:**
-1. Log in as User A
-2. Navigate to "Insights" tab
-3. Observe loading states for metrics and badges
-4. Verify data loads correctly
-
-**Expected Outcome:**
-- Consistent loading indicators for all data sections
-- No flash of zero values before real data loads
-- Smooth transition from loading to loaded state
-
-### Test Case 4.2: Insights Empty State (New Couple)
-**Steps:**
-1. Create a new couple (no rituals completed)
-2. Navigate to "Insights" tab
-3. Verify empty state messaging for badges and history
-
-**Expected Outcome:**
-- Clear messaging: "Start your journey to unlock milestone badges!"
-- Empty history shows helpful guidance
-- No misleading zero values presented as real data
-
-### Test Case 4.3: Insights Error Recovery
-**Steps:**
-1. Simulate network error (disconnect internet)
-2. Navigate to "Insights" tab
-3. Observe error state
-4. Reconnect internet
-5. Click retry button
-6. Verify data loads successfully
-
-**Expected Outcome:**
-- Clear error message explaining the issue
-- Retry button is functional
-- Data loads successfully after retry
-- No stuck loading states
+#### Insights Page
+- [ ] The Love Language Trends section is completely removed from the Insights page
+- [ ] No placeholder or "coming soon" message for Love Language Trends
+- [ ] The Insights page layout is clean and well-organized without the removed section
+- [ ] All other Insights sections (Streak, Harmony, Badges, Quiz Alignment) display correctly
 
 ---
 
-## 5. Memories Tab: Loading and Empty States
+### Version 61 - Harmony Home Echo Indicator
 
-### Test Case 5.1: Memories Loading State
-**Steps:**
-1. Navigate to "Memories" tab
-2. Observe loading state while history loads
-3. Verify memories display after loading
-
-**Expected Outcome:**
-- Loading spinner with "Loading your memories..." message
-- Memories load and display correctly
-- No blank content flash
-
-### Test Case 5.2: Empty Memories State
-**Steps:**
-1. Create a new couple (no rituals completed)
-2. Navigate to "Memories" tab
-3. Verify empty state message
-
-**Expected Outcome:**
-- Clear empty state: "No Memories Yet"
-- Helpful description: "Start completing daily rituals together to build your love story..."
-- No confusing blank areas
-
-### Test Case 5.3: Load More with Loading Indicator
-**Steps:**
-1. Complete 15+ rituals
-2. Navigate to "Memories" tab
-3. Scroll to bottom
-4. Click "Load More Memories"
-5. Observe loading state on button
-
-**Expected Outcome:**
-- Button shows "Loading..." with spinner
-- Additional memories load correctly
-- No duplicate entries
+#### Home Page Harmony Echo
+- [ ] Harmony echo indicator is visible on the Home page
+- [ ] Current harmony percentage is displayed correctly
+- [ ] Trend direction (up/down/stable) is shown with appropriate icon
+- [ ] Tapping the indicator navigates to the Insights page harmony section
+- [ ] The indicator is visually distinct but not intrusive
+- [ ] The indicator updates when harmony data changes
 
 ---
 
-## 6. Activities Tab: Gated States and Clear Messaging
+### Version 60 - Multi-day Ritual History with Opaque Dialog Modal
 
-### Test Case 6.1: Unpaired User Access
-**Steps:**
-1. Log in as unpaired user
-2. Navigate to "Activities" tab
-3. Verify gating message
+#### Ritual History Display
+- [ ] Multi-day ritual history is displayed in reverse-chronological order (newest first)
+- [ ] Each day's ritual entry shows the prompt, date, and both partners' responses
+- [ ] Photos are rendered inline using ExternalBlob direct URLs
+- [ ] Expand/collapse functionality works for each day's entry
 
-**Expected Outcome:**
-- Clear message: "Connect to Explore Activities"
-- Guidance to visit Us tab for pairing
-- No confusing disabled UI
-
-### Test Case 6.2: Quiz Incomplete Gating
-**Steps:**
-1. Log in as paired user (quiz not completed)
-2. Navigate to "Activities" tab
-3. Verify spin wheel and unlock packs show clear gating
-
-**Expected Outcome:**
-- Clear messaging explaining quiz requirement
-- No ambiguous disabled states
-- Helpful next-step guidance
+#### Dialog Modal Readability
+- [ ] Dialog modal has opaque background (forced bg-card)
+- [ ] Dialog modal has visible border (border-2)
+- [ ] Text is readable in both light and dark themes
+- [ ] No transparency issues that affect readability
 
 ---
 
-## 7. Us Tab: Pairing and Love Languages Card States
+### Version 59 - Step 2A Limit-based Fetching
 
-### Test Case 7.1: Unpaired State with Clear Guidance
-**Steps:**
-1. Log in as unpaired user
-2. Navigate to "Us" tab
-3. Verify pairing interface is clear
-
-**Expected Outcome:**
-- Clear instructions for generating/entering code
-- No confusing blank areas
-- Profile requirement warning if profile not set up
-
-### Test Case 7.2: Love Languages Card Loading State
-**Steps:**
-1. Log in as paired user
-2. Navigate to "Us" tab
-3. Observe Love Languages card while quiz state loads
-4. Verify card displays safe fallback
-
-**Expected Outcome:**
-- Card shows "Check your quiz status" while loading
-- No blank or broken content
-- Smooth transition to actual state
-
-### Test Case 7.3: Love Languages Card Status States
-**Steps:**
-1. Verify card shows correct status for:
-   - None completed: "Not started yet"
-   - One completed: "Waiting for your partner"
-   - Both completed: "Both completed"
-2. Verify button labels match state
-
-**Expected Outcome:**
-- All states display clear, understandable copy
-- Button labels are action-oriented
-- No confusing terminology
+#### Memories Page
+- [ ] Initial load shows a limited number of ritual entries (e.g., 10)
+- [ ] "Load more" button is visible when more entries are available
+- [ ] Clicking "Load more" fetches additional entries
+- [ ] "Load more" button is hidden when all entries are loaded
+- [ ] Progressive loading works smoothly without UI jumps
 
 ---
 
-## 8. Love Languages Quiz: Loading and Error States
+### Version 58 - Enhanced Synchronization
 
-### Test Case 8.1: Quiz Results Loading
-**Steps:**
-1. Complete quiz
-2. Observe loading state while results save
-3. Verify results display correctly
-
-**Expected Outcome:**
-- Button shows "Saving..." during save
-- Results display after successful save
-- No stuck loading states
-
-### Test Case 8.2: Quiz Sync Error Recovery
-**Steps:**
-1. Complete quiz
-2. Simulate sync error (disconnect internet during save)
-3. Observe error banner
-4. Reconnect internet
-5. Click "Retry Sync"
-6. Verify sync succeeds
-
-**Expected Outcome:**
-- Clear error banner: "Sync Issue Detected"
-- Explanation that data is saved but sync delayed
-- Retry button works correctly
-- Success message after retry
-
-### Test Case 8.3: Waiting for Partner State
-**Steps:**
-1. Complete quiz as User A
-2. Log in as User B (quiz not completed)
-3. Verify waiting state is clear
-
-**Expected Outcome:**
-- Clear message: "⏳ Waiting for your partner to complete the quiz..."
-- No confusing blank areas
-- User B can still complete their quiz
+#### Love Languages Quiz Synchronization
+- [ ] Animated sync confirmation banner appears after both partners complete the quiz
+- [ ] Emergency fallback error handling with retry mechanism works
+- [ ] Real-time partner synchronization with polling updates the UI
+- [ ] Persistent result storage with automatic loading works
+- [ ] Comprehensive synced/waiting state management with visual feedback
+- [ ] Proper error detection for sync issues
 
 ---
 
-## 9. Error Handling and Recovery
+### Version 57 - Admin Override Functionality
 
-### Test Case 9.1: Failed Ritual Submission Recovery
-**Steps:**
-1. Navigate to "Home" tab
-2. Enter ritual response
-3. Simulate network error
-4. Click "Submit"
-5. Observe error handling
-6. Reconnect network
-7. Retry submission
-
-**Expected Outcome:**
-- Clear error message displayed
-- Form remains usable (not cleared)
-- Retry succeeds after reconnection
-- No data loss
-
-### Test Case 9.2: Failed Photo Upload Recovery
-**Steps:**
-1. Navigate to "Home" tab
-2. Select photo
-3. Simulate network error
-4. Click "Submit"
-5. Observe error handling
-6. Reconnect network
-7. Retry submission
-
-**Expected Outcome:**
-- Clear error message
-- Photo preview remains visible
-- Retry succeeds without re-selecting photo
-- No stuck loading states
-
-### Test Case 9.3: Pairing Error Handling
-**Steps:**
-1. Navigate to "Us" tab
-2. Enter invalid pairing code
-3. Click "Connect"
-4. Observe error message
-5. Enter valid code
-6. Verify successful pairing
-
-**Expected Outcome:**
-- Clear error message for invalid code
-- Error clears when entering new code
-- Successful pairing after valid code
-- No stuck error states
+#### Activities Page Admin Override
+- [ ] Admin users see all packs unlocked regardless of streak progress
+- [ ] Admin badges are displayed on unlocked packs for admin users
+- [ ] Non-admin users see packs locked/unlocked based on streak progress
+- [ ] Admin override does not affect non-admin users' experience
 
 ---
 
-## 10. Performance and Responsiveness
+### Version 56 - Love Challenges Placeholder
 
-### Test Case 10.1: Tab Navigation Responsiveness
-**Steps:**
-1. Navigate between all tabs (Home, Insights, Memories, Activities, Us)
-2. Observe navigation speed and smoothness
-3. Verify no janky animations or scroll issues
-
-**Expected Outcome:**
-- Tab switches are instant (< 100ms)
-- No scroll jank during navigation
-- Smooth transitions between tabs
-
-### Test Case 10.2: List Rendering Performance
-**Steps:**
-1. Complete 20+ rituals
-2. Navigate to "Memories" tab
-3. Scroll through list
-4. Observe scroll performance
-
-**Expected Outcome:**
-- Smooth scrolling with no jank
-- List items render quickly
-- No performance degradation with many items
-
-### Test Case 10.3: Insights Page Performance
-**Steps:**
-1. Navigate to "Insights" tab
-2. Scroll through all sections
-3. Observe animation performance
-4. Verify no layout thrashing
-
-**Expected Outcome:**
-- Smooth scrolling and animations
-- Progress rings animate smoothly
-- No janky badge animations
-- Reduced motion respected if enabled
-
-### Test Case 10.4: Completion Animation Performance
-**Steps:**
-1. Complete daily ritual (both partners)
-2. Observe completion animation
-3. Verify animation is smooth
-
-**Expected Outcome:**
-- Floating hearts animate smoothly
-- No frame drops or stuttering
-- Animation respects reduced motion preference
+#### Love Challenges Component
+- [ ] Love Challenges section displays "coming soon" placeholder message
+- [ ] No backend challenge system is called
+- [ ] The placeholder is clear and user-friendly
 
 ---
 
-## 11. Accessibility and Reduced Motion
+### Version 55 - Reward Visuals Placeholder
 
-### Test Case 11.1: Reduced Motion Support
-**Steps:**
-1. Enable "Reduce Motion" in OS settings
-2. Navigate through all tabs
-3. Verify animations are minimal or disabled
-
-**Expected Outcome:**
-- All animations are significantly reduced or disabled
-- App remains fully functional
-- No jarring motion
-
-### Test Case 11.2: Keyboard Navigation
-**Steps:**
-1. Navigate app using only keyboard (Tab, Enter, Arrow keys)
-2. Verify all interactive elements are reachable
-3. Verify focus indicators are visible
-
-**Expected Outcome:**
-- All buttons and links are keyboard accessible
-- Focus indicators are clear and visible
-- No keyboard traps
+#### Reward Visuals Component
+- [ ] Reward Visuals section displays placeholder state
+- [ ] Message indicates backend couple progress tracking is not yet implemented
+- [ ] The placeholder is clear and user-friendly
 
 ---
 
-## 12. Cross-Device and Reload Verification
+### Version 54 - Harmony UI Helper Utilities
 
-### Test Case 12.1: Reload Verification (All Tabs)
-**Steps:**
-1. Navigate to each tab (Home, Insights, Memories, Activities, Us)
-2. Hard reload page (Ctrl+Shift+R)
-3. Verify data persists and displays correctly
-
-**Expected Outcome:**
-- All data persists across reloads
-- No data loss or reset
-- Loading states display correctly on reload
-
-### Test Case 12.2: Second-Device Synchronization
-**Steps:**
-1. Log in as User A on Device 1
-2. Complete a ritual
-3. Log in as User A on Device 2
-4. Verify ritual completion is reflected
-
-**Expected Outcome:**
-- Data syncs across devices
-- Both devices show identical state
-- No data divergence
+#### Harmony Utilities
+- [ ] Percent rounding is consistent across all harmony displays
+- [ ] 7-day trend normalization works correctly
+- [ ] Trend label computation displays correct labels (e.g., "Rising", "Stable", "Declining")
+- [ ] Display formatting is consistent with the design system
 
 ---
 
-## 13. Edge Cases and Boundary Conditions
+### Version 53 - Spin Wheel Deceleration
 
-### Test Case 13.1: Very Long Text Input
-**Steps:**
-1. Navigate to "Home" tab
-2. Enter very long text (500+ characters) in ritual response
-3. Submit
-4. Verify handling
-
-**Expected Outcome:**
-- Long text is accepted and saved
-- Text displays correctly in history
-- No truncation or errors
-
-### Test Case 13.2: Large Photo Upload
-**Steps:**
-1. Navigate to "Home" tab
-2. Attempt to upload very large image (>10MB)
-3. Observe handling
-
-**Expected Outcome:**
-- If upload fails, clear error message is shown
-- Form remains usable
-- User can retry with smaller image
-
-### Test Case 13.3: Rapid Tab Switching
-**Steps:**
-1. Rapidly switch between tabs multiple times
-2. Verify no errors or stuck states
-
-**Expected Outcome:**
-- App handles rapid navigation gracefully
-- No errors or crashes
-- Data loads correctly for each tab
+#### Spin Wheel Component
+- [ ] Deterministic smooth ease-out cubic deceleration works
+- [ ] Stable per-spin duration stored in ref
+- [ ] Weighted selection based on quiz results with localStorage persistence
+- [ ] "Coming soon" note about smoother slow-stop/deceleration polish is visible
 
 ---
 
-## 14. UX Copy Consistency
+### Version 52 - Completion Animation Performance
 
-### Test Case 14.1: Consistent Terminology Across Tabs
-**Steps:**
-1. Navigate through all tabs
-2. Note terminology used for:
-   - Partner (not "user", "other person", etc.)
-   - Rituals (not "tasks", "activities", etc.)
-   - Completion states
-3. Verify consistency
-
-**Expected Outcome:**
-- Terminology is consistent across all tabs
-- English is clear and understandable
-- No confusing or ambiguous terms
-
-### Test Case 14.2: Empty State Messaging Consistency
-**Steps:**
-1. Verify empty state messages across:
-   - Home (no rituals)
-   - Insights (no data)
-   - Memories (no memories)
-   - Activities (not paired/quiz incomplete)
-2. Verify all messages provide clear next steps
-
-**Expected Outcome:**
-- All empty states have clear, helpful messaging
-- Next-step guidance is provided
-- Tone is consistent and encouraging
-
-### Test Case 14.3: Error Message Clarity
-**Steps:**
-1. Trigger various errors (network, invalid input, etc.)
-2. Verify error messages are clear and actionable
-3. Verify technical details are optional
-
-**Expected Outcome:**
-- Error messages explain what happened
-- Clear guidance on how to recover
-- Technical details available but not prominent
+#### Completion Animation
+- [ ] Animated floating hearts component renders without performance issues
+- [ ] Memoized heart generation avoids unnecessary recalculations
+- [ ] Animation is smooth and visually appealing
 
 ---
 
-## 15. Summary Checklist
+### Version 51 - Profile Setup Success Animation
 
-Use this summary to quickly verify all critical areas:
-
-**Version 76 Verification:**
-- [ ] Console shows Version 64 build identifier
-- [ ] Landing page theme toggle affects entire page (not just phone mockup)
-- [ ] Landing page responds to light/dark mode in all sections
-- [ ] Phone mockup screenshots fit cleanly inside rounded screen (hero + carousel)
-- [ ] No letterboxing or overflow on phone mockup screenshots
-- [ ] Screenshots maintain aspect ratio across all breakpoints
-- [ ] Modal dialogs are opaque and readable in both themes
-- [ ] Love Wheel shows "Coming soon" note
-
-**Authentication & Profile:**
-- [ ] Login flow works correctly
-- [ ] Profile setup saves and navigates automatically
-- [ ] Logout clears cache and re-login remembers profile
-
-**Pairing:**
-- [ ] Pairing code generation works
-- [ ] Pairing completion succeeds
-- [ ] Mutual partnership verified
-
-**Daily Rituals:**
-- [ ] Text submission with loading state
-- [ ] Photo upload with progress
-- [ ] Ritual history loading state
-- [ ] Empty ritual history state
-
-**Insights:**
-- [ ] Loading states for all metrics
-- [ ] Empty state messaging
-- [ ] Error recovery with retry
-
-**Memories:**
-- [ ] Loading state
-- [ ] Empty state
-- [ ] Load more functionality
-
-**Activities:**
-- [ ] Unpaired user gating
-- [ ] Quiz incomplete gating
-
-**Us Tab:**
-- [ ] Unpaired state guidance
-- [ ] Love Languages card states
-
-**Quiz:**
-- [ ] Results loading
-- [ ] Sync error recovery
-- [ ] Waiting for partner state
-
-**Error Handling:**
-- [ ] Failed submission recovery
-- [ ] Failed photo upload recovery
-- [ ] Pairing error handling
-
-**Performance:**
-- [ ] Tab navigation responsiveness
-- [ ] List rendering performance
-- [ ] Insights page performance
-- [ ] Completion animation performance
-
-**Accessibility:**
-- [ ] Reduced motion support
-- [ ] Keyboard navigation
-
-**Cross-Device:**
-- [ ] Reload verification
-- [ ] Second-device synchronization
-
-**Edge Cases:**
-- [ ] Very long text input
-- [ ] Large photo upload
-- [ ] Rapid tab switching
-
-**UX Copy:**
-- [ ] Consistent terminology
-- [ ] Empty state messaging
-- [ ] Error message clarity
+#### Profile Setup Modal
+- [ ] Form submission works correctly
+- [ ] Loading states are displayed during submission
+- [ ] Success animation with checkmark appears after successful profile initialization
+- [ ] Automatic navigation callback to Us tab after successful profile setup
 
 ---
 
-**Last Updated:** Version 76 - Landing Page Theme & Screenshot Fit Update
+### Version 50 - Login Button Query Cache Clearing
+
+#### Login/Logout Flow
+- [ ] Login button displays correct state (Login/Logout)
+- [ ] Loading states are displayed during login/logout
+- [ ] Comprehensive query cache clearing on logout ensures clean state transitions
+- [ ] No stale data is displayed after logout
+
+---
+
+### Version 49 - Rounded Sans-serif Font Family
+
+#### Typography
+- [ ] Rounded sans-serif font family (Nunito, Quicksand, Comfortaa) is applied
+- [ ] Font family is consistent across all pages and components
+- [ ] Font rendering is smooth and readable
+
+---
+
+### Version 48 - Fade-in-up Animation
+
+#### Landing Page Animations
+- [ ] Fade-in-up animation keyframes are defined
+- [ ] Sections animate on scroll with fade-in-up effect
+- [ ] Animation respects prefers-reduced-motion preference
+
+---
+
+### Version 47 - Romantic Color Palette
+
+#### Color System
+- [ ] Romantic color palette (romantic-primary, romantic-accent, romantic-deep, romantic-light) is applied
+- [ ] Peach/cream tones are used for warmth
+- [ ] Colors are consistent across light and dark modes
+- [ ] OKLCH color system is used for all color tokens
+
+---
+
+### Version 46 - Theme Flash Prevention
+
+#### Theme Initialization
+- [ ] Pre-React theme initialization script prevents theme flash on load
+- [ ] Only 'dark' class is applied for dark mode (Tailwind-compatible)
+- [ ] Light mode is default (no class applied)
+- [ ] Theme preference is loaded from localStorage
+
+---
+
+### Version 45 - Our Love Languages Card
+
+#### Us Page
+- [ ] Our Love Languages card displays dynamic subtitle
+- [ ] Status line shows current state (e.g., "Both completed", "Waiting for partner")
+- [ ] Primary action button navigates to Love Languages tab
+- [ ] Insights shortcut link navigates to Insights tab
+- [ ] Optional one-time highlight animation after pairing
+
+---
+
+### Version 44 - Data States Components
+
+#### Shared UI Building Blocks
+- [ ] Loading state component displays correctly
+- [ ] Empty state component displays correctly
+- [ ] Error state component displays correctly
+- [ ] Section headers are consistent across all tabs
+- [ ] Inline variants for lists/panels work correctly
+
+---
+
+### Version 43 - Version 64 Build Identifier
+
+#### Main Entry Point
+- [ ] Version 64 build identifier is logged to console on app load
+- [ ] Console log is visible in browser developer tools
+
+---
+
+### Version 42 - Theme Context
+
+#### Theme Management
+- [ ] ThemeProvider wraps the app correctly
+- [ ] useTheme hook is available for backward compatibility
+- [ ] Theme toggle works correctly
+- [ ] Theme preference persists across page reloads
+
+---
+
+### Version 41 - Theme Toggle Component
+
+#### Theme Toggle Button
+- [ ] Theme toggle button displays correct icon (sun/moon)
+- [ ] Clicking the button toggles between light and dark modes
+- [ ] Aria-label is correct and accessible
+- [ ] Icon synchronization with theme state works correctly
+
+---
+
+### Version 40 - Landing Page Theme-aware Styling
+
+#### Landing Page
+- [ ] All sections use theme-aware styling (bg-background, bg-card, bg-muted, text-foreground, text-muted-foreground)
+- [ ] Controlled accordion state with chevron rotation works
+- [ ] Compact header/footer brand displays correctly
+- [ ] Our Story expand/collapse functionality works
+- [ ] Improved screenshot fitting in phone mockups
+
+---
+
+### Version 39 - Landing Screenshot Carousel
+
+#### Screenshot Carousel
+- [ ] Responsive screenshot carousel displays correctly
+- [ ] Phone mockup is visible and properly styled
+- [ ] Navigation buttons work correctly
+- [ ] Auto-advance functionality works
+- [ ] Dot indicators show current slide
+
+---
+
+### Version 38 - Landing Footer Links Dialog
+
+#### Footer Links Dialog
+- [ ] Modal dialog opens when clicking footer links (Contact, Terms, Privacy, Investor)
+- [ ] Theme-aware bg-card and border-border styling
+- [ ] Functional mailto link using CONTACT_EMAIL constant
+- [ ] Dialog closes correctly
+
+---
+
+### Version 37 - Founder Story Content
+
+#### Our Story Section
+- [ ] Full founder story text is displayed
+- [ ] Text references "GrowInLove" consistently
+- [ ] Story is engaging and well-formatted
+
+---
+
+### Version 36 - URL Parameter Utilities
+
+#### URL Parameter Management
+- [ ] Hash-based routing support works
+- [ ] Session storage persistence works
+- [ ] Secret parameter handling works
+- [ ] App mode management (landing/app switching) with localStorage persistence
+- [ ] Custom event-based change listeners work correctly
+
+---
+
+### Version 35 - Landing Hero Screenshot Showcase
+
+#### Hero Screenshot Showcase
+- [ ] Hero screenshot showcase displays correctly
+- [ ] Phone mockup is visible and properly styled
+- [ ] Dot indicators show current slide
+- [ ] Shared landing screenshots from landingScreenshots.ts are used
+
+---
+
+### Version 34 - Prefers Reduced Motion Hook
+
+#### Accessibility
+- [ ] usePrefersReducedMotion hook detects user preference
+- [ ] Animations respect prefers-reduced-motion preference
+- [ ] No animations play when user prefers reduced motion
+
+---
+
+### Version 33 - Section Entrance Hook
+
+#### Landing Page Animations
+- [ ] useSectionEntrance hook provides intersection-observer-based entrance animations
+- [ ] Automatic reduced-motion support works
+- [ ] Sections animate on scroll
+
+---
+
+### Version 32 - Landing Brand Component
+
+#### Landing Brand
+- [ ] Resilient landing brand component with image error handling
+- [ ] Text-only fallback works when image fails to load
+- [ ] Compact/default layout variants for header/footer use
+
+---
+
+### Version 31 - Tree Logo Asset
+
+#### Logo Asset
+- [ ] Transparent PNG of the tree logo displays correctly
+- [ ] Logo is used in landing header and footer branding
+- [ ] Logo is 256x256px and properly sized
+
+---
+
+### Version 30 - Contact Email Constant
+
+#### Contact Information
+- [ ] CONTACT_EMAIL constant is exported
+- [ ] Contact email is used in landing footer dialog contact section
+
+---
+
+### Version 29 - Landing Our Story Component
+
+#### Our Story Component
+- [ ] Landing-only Our Story component displays correctly
+- [ ] Truncated preview (first 3 paragraphs) is shown
+- [ ] Accessible Read more/Read less toggle button works
+
+---
+
+### Version 28 - Landing Screenshots Configuration
+
+#### Landing Screenshots
+- [ ] Shared landing screenshot configuration array is used
+- [ ] Both hero and carousel components use consistent GrowInLove app screenshots
+- [ ] Screenshots display correctly across all landing page mockups

@@ -1,58 +1,84 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T18:26:40.544Z",
-  "summary": "REQ-2 appears to be addressed by adding bounded loading conditions and an explicit error+retry state for profile loading after Internet Identity auth. REQ-1 is partially addressed (hero phone now uses local assets with object-cover/center), but the diff does not show use of a user-provided/uploaded replacement image for the hero mockup.",
+  "generatedAt": "2026-02-14T20:36:40.113Z",
+  "summary": "The diff does not demonstrate a workspace snapshot restore to Version 66; instead it shows application code/content changes and a newly added verification report. REQ-1 (restore without build/deploy and without later-version changes) is not evidenced, and REQ-2’s verification is not clearly tied to the required checklist file.",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "Replace the landing-page hero phone mockup screenshot with the user-selected image (user-provided upload), matching the carousel’s crop/fit behavior, while keeping the phone frame/notch/dots behavior intact.",
-      "reason": "The hero mockup now cycles through a hardcoded local `screenshots` array of `/assets/IMG_*.png`. There is no evidence of wiring in a user-provided/uploaded image or any selection mechanism beyond the existing dot-controlled index.",
+      "requirement": "Restore/reset the current draft development workspace to exactly match snapshot Version 66 (discarding post-66 draft changes) without triggering any new build or live deployment and without consuming additional credits.",
+      "reason": "The diff shows multiple code/file modifications (e.g., backend/main.mo and many frontend components described in frontend-file-summaries.txt), which is inconsistent with a pure workspace snapshot restore. There is also no evidence in the diff summary of any snapshot restore mechanism or steps ensuring no build/deploy/credit consumption.",
       "evidence": [
-        "frontend/src/components/LandingHeroScreenshotShowcase.tsx"
+        "backend/main.mo",
+        "frontend-file-summaries.txt",
+        "project_state.json"
       ]
     },
     {
       "id": "REQ-2",
-      "requirement": "Manual QA: login from the landing page header Login button and from the app-mode login screen both result in the app opening normally after authentication.",
-      "reason": "The diff shows changes to App initialization/loading/error handling, but does not include evidence of updates/tests ensuring both entry points (landing header login and app-mode login screen) are verified/fixed end-to-end.",
+      "requirement": "Verify the restored workspace against the existing “Version 66 Reset Verification” checklist in frontend/QA_ACCEPTANCE_CHECKLIST.md and report pass/fail for each checklist section.",
+      "reason": "A new report file was added, but the diff summary does not show the required checklist file being referenced or used, nor does it show pass/fail mapped to the checklist sections in frontend/QA_ACCEPTANCE_CHECKLIST.md. The checklist file itself is not modified or quoted in the diff summary, so compliance cannot be confirmed from evidence provided.",
       "evidence": [
-        "frontend/src/App.tsx"
+        "frontend/QA_VERSION_66_RESET_REPORT.md"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Significant Love Languages quiz synchronization and UI/flow enhancements (polling, sync banners, emergency fallback error handling, etc.).",
-      "reason": "Not requested by the BuildRequest (non-goal: no unrelated product features). The diff summary describes broad new behavior in the LoveLanguages page beyond the login-loading and hero screenshot fixes.",
+      "description": "Romantic theme/palette and Tailwind config extensions (new colors, fonts, animations).",
+      "reason": "Not requested by the BuildRequest (non-goal: new UI changes/refactoring).",
       "evidence": [
-        "frontend/src/pages/LoveLanguages.tsx",
         "frontend-file-summaries.txt"
       ]
     },
     {
-      "description": "Behavior in `useArePromptsInitialized` that returns `true` with a comment indicating the backend method doesn’t exist.",
-      "reason": "Not requested; also introduces potentially misleading logic unrelated to the stated issues.",
+      "description": "Love Challenges, Reward Visuals, Spin the Love Wheel sections and related functionality.",
+      "reason": "Not requested; introduces new UI/features unrelated to restoring Version 66 snapshot state.",
       "evidence": [
-        "frontend/src/hooks/useQueries.ts"
+        "frontend-file-summaries.txt"
       ]
     },
     {
-      "description": "Additional/expanded URL parameter and sessionStorage management utilities.",
-      "reason": "Not requested by REQ-1/REQ-2; appears unrelated to the hero screenshot replacement or post-login infinite loading fix.",
+      "description": "Enhanced Love Languages quiz synchronization UI/logic (animated banners, emergency fallback, polling enhancements).",
+      "reason": "Not requested; appears to implement/extend functionality rather than restore snapshot.",
       "evidence": [
-        "frontend/src/utils/urlParams.ts"
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Insights page changes (removing simulated trends, changing analytics summaries).",
+      "reason": "Not requested; constitutes feature/content changes beyond snapshot restoration.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Authentication/profile flow changes (timeout-driven error handling and retry; React Query timeout changes).",
+      "reason": "Not requested; represents application logic modifications instead of workspace restore.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Backend Motoko canister code modifications in backend/main.mo.",
+      "reason": "Explicitly disallowed by constraints/non-goals (do not modify application code as a substitute; no Motoko data/schema migrations/refactors). Also unrelated to demonstrating a snapshot restore operation.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "description": "Creation of a Version 66 reset verification report claiming PASS and asserting code matches snapshot and no post-66 features are present.",
+      "reason": "The BuildRequest asked to verify against a specific checklist and report pass/fail per checklist section; the added report makes broad claims without evidence in the diff summary that the checklist was used or that the workspace was actually restored.",
+      "evidence": [
+        "frontend/QA_VERSION_66_RESET_REPORT.md"
       ]
     }
   ],
-  "confidence": 0.64,
+  "confidence": 0.83,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/LoveLanguages.tsx",
-    "frontend/src/utils/urlParams.ts",
+    "frontend/QA_VERSION_66_RESET_REPORT.md",
     "project_state.json"
   ]
 }

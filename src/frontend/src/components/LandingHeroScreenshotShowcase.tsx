@@ -1,10 +1,5 @@
 import { useState } from 'react';
-
-const screenshots = [
-  '/assets/IMG_1332.png',
-  '/assets/IMG_1320.png',
-  '/assets/IMG_1321.png',
-];
+import { landingScreenshots } from '../content/landingScreenshots';
 
 export function LandingHeroScreenshotShowcase() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -19,8 +14,8 @@ export function LandingHeroScreenshotShowcase() {
         {/* Screen */}
         <div className="relative bg-white dark:bg-gray-950 rounded-[2rem] overflow-hidden aspect-[390/844]">
           <img
-            src={screenshots[currentIndex]}
-            alt={`GrowInLove app screenshot ${currentIndex + 1}`}
+            src={landingScreenshots[currentIndex].image}
+            alt={landingScreenshots[currentIndex].caption}
             className="w-full h-full object-cover object-center"
           />
         </div>
@@ -28,7 +23,7 @@ export function LandingHeroScreenshotShowcase() {
 
       {/* Dot indicators */}
       <div className="flex justify-center gap-2 mt-4">
-        {screenshots.map((_, index) => (
+        {landingScreenshots.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}

@@ -1,43 +1,63 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Landing hero screenshot fix and post-Internet Identity loading recovery",
+  "title": "Restore frontend workspace to Version 66 snapshot and verify reset checklist (no redeploy)",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Replace the landing hero phone mockup screenshot with the user-selected image and ensure the hero uses the same crop/fit behavior as the landing carousel.",
+      "summary": "Restore/reset the draft frontend workspace to exactly match snapshot Version 66 without triggering any new build or deployment.",
       "acceptanceCriteria": [
-        "Landing hero phone mockup (component: frontend/src/components/LandingHeroScreenshotShowcase.tsx) no longer displays the FunnAI Game Nest screen.",
-        "The hero phone mockup displays the chosen replacement image (using the user-provided upload) and uses the same fit behavior as the carousel (object-cover / centered) so it looks consistent with the other carousel images.",
-        "Only the hero phone mockup screenshot content is changed; the phone frame, notch, sizing, and dot controls behavior remain intact."
+        "Workspace contents match Version 66 snapshot (no later-version code changes remain).",
+        "No new build artifacts or deployments are triggered as part of the restore operation.",
+        "No additional credits are consumed for performing the restore operation."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
+          "path": "frontend/src/config/draftBuildLabel.ts",
           "operation": "modify",
-          "description": "Update the hero mockup `screenshots` source list to use the selected replacement screenshot (matching one of the landing carousel images) and keep the same `object-cover object-center` presentation so the hero phone screen visually matches the carousel; do not change the phone frame/notch/dot control behavior."
+          "description": "Restore this file to the exact Version 66 snapshot contents (ensuring the draft build label matches Version 66) and discard any post–Version 66 draft-only changes."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Restore this file to the exact Version 66 snapshot contents (authenticated header draft label, navigation, gating, and layout) and discard any post–Version 66 draft-only changes."
+        },
+        {
+          "path": "frontend/src/pages/Landing.tsx",
+          "operation": "modify",
+          "description": "Restore this file to the exact Version 66 snapshot contents (unauthenticated header draft label and landing content) and discard any post–Version 66 draft-only changes."
+        },
+        {
+          "path": "frontend/src/components/BottomNav.tsx",
+          "operation": "modify",
+          "description": "Restore this file to the exact Version 66 snapshot contents (tab ordering/labels and navigation behavior) and discard any post–Version 66 draft-only changes."
+        },
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Restore this file to the exact Version 66 snapshot contents (including theme initialization and metadata) and discard any post–Version 66 draft-only changes."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Restore this file to the exact Version 66 snapshot contents (theme variables and base styles) and discard any post–Version 66 draft-only changes."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Prevent infinite post-login loading by making initialization/profile loading state finite and adding an error + retry UI when profile fetch fails.",
+      "summary": "Verify the restored frontend workspace against the existing “Version 66 Reset Verification” checklist and record pass/fail per section.",
       "acceptanceCriteria": [
-        "After completing Internet Identity login, the app transitions into a usable state (either main app UI or Profile Setup when no profile exists) rather than remaining on the loading screen indefinitely.",
-        "If loading the caller profile fails (e.g., query error), the UI does not remain stuck on the spinner; it renders an error message in English with a visible “Retry” action that re-attempts loading.",
-        "The loading screen in frontend/src/App.tsx only appears while initialization or profile fetch is actively in progress; it does not persist due to disabled/blocked queries (e.g., missing actor) without surfacing an actionable UI state.",
-        "Manual QA: login from the landing page header Login button and from the app-mode login screen both result in the app opening normally after authentication."
+        "Draft build label checks for Version 66 are validated per the checklist.",
+        "Basic app stability checks (no build/runtime errors) are validated per the checklist.",
+        "Core Version 66 functionality checks are validated per the checklist.",
+        "Confirmation is provided that no features from later drafts (e.g., Versions 77–80) are present, per the checklist."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Adjust `useGetCallerUserProfile` to expose explicit state for actor dependency readiness (e.g., actor-ready vs actor-unavailable) and ensure loading flags accurately reflect whether a profile fetch is actually in progress (not merely blocked by missing actor). Use the selected \"authorization\" component guidance for actor-dependent queries and profile setup gating; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Update initialization gating so the full-screen loading UI renders only when authentication initialization or the profile query is actively running; if profile loading fails (react-query error) or cannot start due to missing actor readiness, render a clear English error state with a visible Retry action that re-attempts loading (e.g., by calling the profile refetch and/or invalidating relevant queries) instead of leaving the user on an infinite spinner. Leverage the existing reusable error UI from frontend/src/components/DataStates.tsx for consistency."
+          "path": "frontend/QA_VERSION_66_RESET_REPORT.md",
+          "operation": "create",
+          "description": "Create a Version 66 reset verification report document that mirrors the sections in frontend/QA_ACCEPTANCE_CHECKLIST.md (\"Version 66 Reset Verification\") and records pass/fail outcomes in English for each checklist section."
         }
       ]
     }

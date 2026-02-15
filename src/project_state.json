@@ -1,25 +1,16 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "GrowInLove landing page and app: update phone mockup hero image to match carousel, and fix Internet Identity login returning to endless loading spinner so app opens normally.",
+  "summary": "New project",
   "architectural_notes": [],
   "known_issues": [
-    "Top phone mockup currently displays wrong (FunnAI Game Nest) image; should match a carousel image.",
-    "After Internet Identity login, app returns showing only a loading spinner instead of opening normally."
+    "Platform/workflow issue: Attempting to restore/revert workspace to an older snapshot (e.g., Version 66) may incorrectly trigger a build/deploy and consume credits, and may fail to actually restore the intended version."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-replace-the-incorrect-screenshot-shown-inside-the-landing-page-hero-phone-mockup-currently-showing-the-funnai-game-nest-screen-with-the-user-selected-image-and-ensure-it-visually-matches-the-other-landing-page-carousel-screenshots-same-crop-fit-behavior-and-consistent-phone-screen-presentation",
-      "title": "Replace the incorrect screenshot shown inside the landing-page hero phone mockup (currently showing the FunnAI Game Nest screen) with the user-selected image, and ensure it visually matches the other landing-page carousel screenshots (same crop/fit behavior and consistent phone-screen presentation).",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-fix-the-internet-identity-login-flow-so-that-after-a-successful-internet-identity-connection-the-growinlove-app-opens-normally-instead-of-getting-stuck-on-an-endless-loading-spinner-if-profile-loading-fails-show-a-clear-error-state-with-a-retry-action-instead-of-an-infinite-spinner",
-      "title": "Fix the Internet Identity login flow so that after a successful Internet Identity connection, the GrowInLove app opens normally instead of getting stuck on an endless loading spinner; if profile loading fails, show a clear error state with a retry action instead of an infinite spinner.",
+      "id": "feature-after-the-workspace-restore-completes-verify-the-restored-workspace-against-the-existing-version-66-reset-verification-checklist-in-frontend-qa-acceptance-checklist-md-and-report-pass-fail-for-each-checklist-section",
+      "title": "After the workspace restore completes, verify the restored workspace against the existing “Version 66 Reset Verification” checklist in frontend/QA_ACCEPTANCE_CHECKLIST.md and report pass/fail for each checklist section.",
       "reqIds": [
         "REQ-2"
       ],
@@ -29,18 +20,14 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Replace the incorrect FunnAI Game Nest image inside the top phone mockup with the specified carousel image, matching the style of the other carousel images.",
-      "reqIds": [],
-      "status": "in_progress"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Fix Internet Identity login flow so after connecting, the GrowInLove app opens normally (no infinite loading spinner).",
-      "reqIds": [],
+      "summary": "Restore/reset the current draft development workspace to exactly match snapshot Version 66, discarding any draft-only changes introduced after Version 66, and do so without triggering any new build or live deployment.",
+      "reqIds": [
+        "REQ-1"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "GrowInLove",
+  "projectName": "Restore draft workspace to snapshot Version 66 (no redeploy)",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

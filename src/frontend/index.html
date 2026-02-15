@@ -12,7 +12,7 @@
     <title>GrowInLove - Strengthen Your Relationship</title>
     <meta name="description" content="GrowInLove helps couples deepen their connection through daily rituals, love languages, and shared moments." />
     <script>
-      // Pre-React theme initialization to prevent flash
+      // Pre-React theme initialization to prevent flash (Tailwind-compatible)
       (function() {
         try {
           const savedTheme = localStorage.getItem('theme');
@@ -20,11 +20,15 @@
             ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
             : savedTheme;
           
-          document.documentElement.classList.remove('light', 'dark');
-          document.documentElement.classList.add(effectiveTheme);
+          // Only add 'dark' class if dark mode, otherwise remove it (light is default)
+          if (effectiveTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
         } catch (e) {
-          // Fallback to light if localStorage is unavailable
-          document.documentElement.classList.add('light');
+          // Fallback: ensure no dark class (light mode default)
+          document.documentElement.classList.remove('dark');
         }
       })();
     </script>

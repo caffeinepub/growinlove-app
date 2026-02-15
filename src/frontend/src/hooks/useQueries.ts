@@ -32,7 +32,15 @@ export function useGetCallerUserProfile() {
     queryKey: ['currentUserProfile'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      return actor.getCallerUserProfile();
+      
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Profile loading timed out after 15 seconds')), 15000);
+      });
+      
+      const profilePromise = actor.getCallerUserProfile();
+      
+      return Promise.race([profilePromise, timeoutPromise]);
     },
     enabled: !!actor && !actorFetching,
     retry: 2,
@@ -276,22 +284,20 @@ export function useGetRitualHistory(limit: number) {
     queryKey: ['ritualHistory', limit],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      const entries = await actor.getRitualHistory(BigInt(limit));
+      const history = await actor.getRitualHistory(BigInt(limit));
       
-      // Step 2A: Defensive client-side sort to ensure newest-first ordering
-      // Sort by entry.date descending (newest first)
-      return entries.sort((a, b) => {
-        if (a.date > b.date) return -1;
-        if (a.date < b.date) return 1;
-        return 0;
+      // Step 2A: Client-side defensive sort to ensure reverse-chronological order
+      return history.sort((a, b) => {
+        const dateA = Number(a.date);
+        const dateB = Number(b.date);
+        return dateB - dateA; // Descending order (newest first)
       });
     },
     enabled: !!actor && !actorFetching,
-    retry: 2,
   });
 }
 
-// Photo Upload Queries
+// Photo Queries
 export function useUploadPhoto() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
@@ -317,7 +323,6 @@ export function useGetPhoto(id: string | null) {
       return actor.getPhoto(id);
     },
     enabled: !!actor && !actorFetching && !!id,
-    staleTime: 60000, // Cache photos for 1 minute
   });
 }
 
@@ -331,7 +336,6 @@ export function useGetPhotosByUser(userId: UserId | null) {
       return actor.getPhotosByUser(userId);
     },
     enabled: !!actor && !actorFetching && !!userId,
-    staleTime: 30000, // Cache for 30 seconds
   });
 }
 
@@ -361,7 +365,6 @@ export function useGetLoveLanguageQuizResult() {
       return actor.getLoveLanguageQuizResult();
     },
     enabled: !!actor && !actorFetching,
-    staleTime: 60000, // Cache for 1 minute
   });
 }
 
@@ -408,8 +411,7 @@ export function useGetCombinedQuizResultState() {
       return actor.getCombinedQuizResultState();
     },
     enabled: !!actor && !actorFetching,
-    refetchInterval: 8000, // Poll every 8 seconds for partner completion
-    staleTime: 3000, // Consider data stale after 3 seconds
+    refetchInterval: 3000, // Poll every 3 seconds for partner completion
   });
 }
 
@@ -423,12 +425,11 @@ export function useGetPartnerQuizState(partnerId: UserId | null) {
       return actor.getPartnerQuizState(partnerId);
     },
     enabled: !!actor && !actorFetching && !!partnerId,
-    refetchInterval: 8000, // Poll every 8 seconds
-    staleTime: 3000,
+    refetchInterval: 3000, // Poll every 3 seconds for partner completion
   });
 }
 
-// Insights and Badge Queries
+// Insights Queries
 export function useGetInsightsData() {
   const { actor, isFetching: actorFetching } = useActor();
 
@@ -439,10 +440,6 @@ export function useGetInsightsData() {
       return actor.getInsightsData();
     },
     enabled: !!actor && !actorFetching,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
-    staleTime: 3000, // Consider data stale after 3 seconds
-    refetchInterval: 8000, // Poll every 8 seconds
   });
 }
 
@@ -456,35 +453,17 @@ export function useGetBadgeMilestones() {
       return actor.getBadgeMilestones();
     },
     enabled: !!actor && !actorFetching,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
-    staleTime: 3000,
-    refetchInterval: 8000,
   });
 }
 
 // Prompts Queries
-export function useFetchPrompts() {
-  const { actor, isFetching: actorFetching } = useActor();
-
-  return useQuery<RitualPrompt[]>({
-    queryKey: ['prompts'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.fetchPrompts();
-    },
-    enabled: !!actor && !actorFetching,
-    staleTime: 300000, // Cache for 5 minutes
-  });
-}
-
-export function useGetPromptsByLoveLanguage(language: string | null) {
+export function useGetPromptsByLoveLanguage(language: string) {
   const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<RitualPrompt[]>({
     queryKey: ['promptsByLoveLanguage', language],
     queryFn: async () => {
-      if (!actor || !language) return [];
+      if (!actor) throw new Error('Actor not available');
       // Convert string to LoveLanguage enum
       const loveLanguageMap: Record<string, any> = {
         'wordsOfAffirmation': { wordsOfAffirmation: null },
@@ -497,7 +476,19 @@ export function useGetPromptsByLoveLanguage(language: string | null) {
       if (!loveLanguage) return [];
       return actor.getPromptsByLoveLanguage(loveLanguage);
     },
-    enabled: !!actor && !actorFetching && !!language,
-    staleTime: 300000,
+    enabled: !!actor && !actorFetching,
+  });
+}
+
+export function useFetchPrompts() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<RitualPrompt[]>({
+    queryKey: ['prompts'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.fetchPrompts();
+    },
+    enabled: !!actor && !actorFetching,
   });
 }

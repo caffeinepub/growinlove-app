@@ -1030,6 +1030,9 @@ actor {
   };
 
   public query ({ caller }) func isAdmin() : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can check admin status");
+    };
     AccessControl.isAdmin(accessControlState, caller);
   };
 
@@ -1214,3 +1217,5 @@ actor {
     };
   };
 };
+
+

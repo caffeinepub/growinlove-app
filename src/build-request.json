@@ -1,58 +1,55 @@
 {
   "kind": "build_request",
-  "title": "Fix landing hero phone screenshot and resolve post-Internet Identity infinite loading",
+  "title": "Restore draft workspace to snapshot Version 66 (no redeploy)",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Replace the incorrect screenshot shown inside the landing-page hero phone mockup (currently showing the FunnAI Game Nest screen) with the user-selected image, and ensure it visually matches the other landing-page carousel screenshots (same crop/fit behavior and consistent phone-screen presentation).",
-      "target": "frontend",
+      "text": "Restore/reset the current draft development workspace to exactly match snapshot Version 66, discarding any draft-only changes introduced after Version 66, and do so without triggering any new build or live deployment.",
+      "target": "unknown",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-12"
         ],
         "quotes": [
-          "The wrong image was used within the phone image. We shouldn’t have used the FunnAI game nest photo.",
-          "the image that will replace the FunnAI game nest photo within the phone image at the top should match one of the images from the other 4 photos in the carousel.",
-          "Let’s use this one for now"
+          "Restore the workspace to version 66."
         ]
       },
       "acceptanceCriteria": [
-        "Landing hero phone mockup (component: frontend/src/components/LandingHeroScreenshotShowcase.tsx) no longer displays the FunnAI Game Nest screen.",
-        "The hero phone mockup displays the chosen replacement image (using the user-provided upload) and uses the same fit behavior as the carousel (object-cover / centered) so it looks consistent with the other carousel images.",
-        "Only the hero phone mockup screenshot content is changed; the phone frame, notch, sizing, and dot controls behavior remain intact."
+        "Workspace contents match Version 66 snapshot (no later-version code changes remain).",
+        "No new build artifacts or deployments are triggered as part of the restore operation.",
+        "No additional credits are consumed for performing the restore operation."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Fix the Internet Identity login flow so that after a successful Internet Identity connection, the GrowInLove app opens normally instead of getting stuck on an endless loading spinner; if profile loading fails, show a clear error state with a retry action instead of an infinite spinner.",
-      "target": "frontend",
+      "text": "After the workspace restore completes, verify the restored workspace against the existing “Version 66 Reset Verification” checklist in frontend/QA_ACCEPTANCE_CHECKLIST.md and report pass/fail for each checklist section.",
+      "target": "unknown",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-12"
         ],
         "quotes": [
-          "I also noticed that when trying to login to the app, after connecting with Internet identity, your brought back to the app but only a loading spinner appears.",
-          "The GrowInLove app should open normally"
+          "Restore the workspace to version 66."
         ]
       },
       "acceptanceCriteria": [
-        "After completing Internet Identity login, the app transitions into a usable state (either main app UI or Profile Setup when no profile exists) rather than remaining on the loading screen indefinitely.",
-        "If loading the caller profile fails (e.g., query error), the UI does not remain stuck on the spinner; it renders an error message in English with a visible “Retry” action that re-attempts loading.",
-        "The loading screen in frontend/src/App.tsx only appears while initialization or profile fetch is actively in progress; it does not persist due to disabled/blocked queries (e.g., missing actor) without surfacing an actionable UI state.",
-        "Manual QA: login from the landing page header Login button and from the app-mode login screen both result in the app opening normally after authentication."
+        "Draft build label checks for Version 66 are validated per the checklist.",
+        "Basic app stability checks (no build/runtime errors) are validated per the checklist.",
+        "Core Version 66 functionality checks are validated per the checklist.",
+        "Confirmation is provided that no features from later drafts (e.g., Versions 77–80) are present, per the checklist."
       ]
     }
   ],
   "constraints": [
-    "Do not edit any files under frontend/src/components/ui (read-only).",
-    "Do not edit immutable hook paths listed in SYSTEM_CONTEXT.frontend.immutablePaths.",
-    "Backend must remain a single Motoko actor (no additional backend services)."
+    "Do not trigger a new build or deployment while restoring the workspace to Version 66.",
+    "Do not modify application code as a substitute for restoring the workspace snapshot.",
+    "User-facing text in any status/confirmation output must be in English."
   ],
   "nonGoals": [
-    "Redesigning the entire landing page layout or changing copy beyond what is required to fix the issues.",
-    "Adding new authentication providers beyond Internet Identity.",
-    "Implementing new product features unrelated to the hero screenshot replacement or the post-login loading issue."
+    "Implementing new features or UI changes unrelated to restoring the workspace state.",
+    "Refactoring backend/frontend code.",
+    "Data/schema migrations in Motoko."
   ],
   "imageRequirements": {
     "required": [],

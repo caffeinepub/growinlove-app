@@ -31,15 +31,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return theme;
   });
 
-  // Single effect to apply theme class to DOM
+  // Single effect to apply theme class to DOM (Tailwind-compatible: only 'dark' class)
   useEffect(() => {
     const root = document.documentElement;
     
-    // Remove both classes first
-    root.classList.remove('light', 'dark');
-    
-    // Apply the effective theme
-    root.classList.add(effectiveTheme);
+    if (effectiveTheme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
   }, [effectiveTheme]);
 
   // Effect to watch system theme changes (only when theme is 'system')

@@ -1,51 +1,49 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T18:26:40.546Z",
+  "generatedAt": "2026-02-14T20:36:40.116Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 2,
-    "implemented": 2,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Replace the incorrect screenshot shown inside the landing-page hero phone mockup (currently showing the FunnAI Game Nest screen) with the user-selected image, and ensure it visually matches the other landing-page carousel screenshots (same crop/fit behavior and consistent phone-screen presentation).",
-        "status": "implemented",
+        "summary": "Restore/reset the current draft development workspace to exactly match snapshot Version 66, discarding any draft-only changes introduced after Version 66, and do so without triggering any new build or live deployment.",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/components/LandingHeroScreenshotShowcase.tsx"
+          "frontend/src/config/draftBuildLabel.ts",
+          "frontend/src/App.tsx",
+          "frontend/src/pages/Landing.tsx",
+          "frontend/src/components/BottomNav.tsx",
+          "frontend/index.html",
+          "frontend/src/index.css"
         ],
-        "matchedFiles": [
-          "frontend/src/components/LandingHeroScreenshotShowcase.tsx"
-        ]
+        "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Fix the Internet Identity login flow so that after a successful Internet Identity connection, the GrowInLove app opens normally instead of getting stuck on an endless loading spinner; if profile loading fails, show a clear error state with a retry action instead of an infinite spinner.",
+        "summary": "After the workspace restore completes, verify the restored workspace against the existing “Version 66 Reset Verification” checklist in frontend/QA_ACCEPTANCE_CHECKLIST.md and report pass/fail for each checklist section.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/App.tsx"
+          "frontend/QA_VERSION_66_RESET_REPORT.md"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/App.tsx"
+          "frontend/QA_VERSION_66_RESET_REPORT.md"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/components/LandingHeroScreenshotShowcase.tsx",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/LoveLanguages.tsx",
-    "frontend/src/utils/urlParams.ts",
+    "frontend/QA_VERSION_66_RESET_REPORT.md",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

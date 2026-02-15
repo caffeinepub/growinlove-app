@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Home } from './pages/Home';
 import { Insights } from './pages/Insights';
 import { LoveLanguages } from './pages/LoveLanguages';
@@ -15,14 +15,13 @@ import { Toaster } from '@/components/ui/sonner';
 import { Bell, Loader2 } from 'lucide-react';
 import { useInternetIdentity } from './hooks/useInternetIdentity';
 import { useGetCallerUserProfile } from './hooks/useQueries';
-import { getAppMode, setAppMode, listenToModeChanges } from './utils/urlParams';
 import { ErrorState } from './components/DataStates';
+import { getDraftBuildLabel } from './config/draftBuildLabel';
 
 export type TabId = 'home' | 'insights' | 'love-languages' | 'activities' | 'us' | 'memories';
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState<TabId>('home');
-  const [appMode, setAppModeState] = useState<'landing' | 'app'>(getAppMode());
   const { identity, isInitializing } = useInternetIdentity();
   const { 
     data: userProfile, 
@@ -34,14 +33,6 @@ function AppContent() {
   } = useGetCallerUserProfile();
 
   const isAuthenticated = !!identity;
-
-  // Listen to URL mode changes
-  useEffect(() => {
-    const cleanup = listenToModeChanges((mode) => {
-      setAppModeState(mode);
-    });
-    return cleanup;
-  }, []);
 
   // Show loading screen while initializing
   if (isInitializing) {
@@ -67,7 +58,7 @@ function AppContent() {
     );
   }
 
-  // Show error state if profile loading failed
+  // Show error state if profile loading failed (with retry)
   if (isAuthenticated && isProfileError && isFetched) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/10 to-peach/10 px-6">
@@ -105,10 +96,6 @@ function AppContent() {
     setActiveTab(tab);
   };
 
-  const handleEnterApp = () => {
-    setAppMode('app');
-  };
-
   if (showProfileSetup) {
     return (
       <>
@@ -118,40 +105,13 @@ function AppContent() {
     );
   }
 
-  // Show landing page if not authenticated and in landing mode
-  if (!isAuthenticated && appMode === 'landing') {
+  // Show landing page if not authenticated
+  if (!isAuthenticated) {
     return (
       <>
-        <Landing onEnterApp={handleEnterApp} />
+        <Landing />
         <Toaster />
       </>
-    );
-  }
-
-  // Show login screen if not authenticated and in app mode
-  if (!isAuthenticated && appMode === 'app') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/10 to-peach/10 px-6">
-        <div className="text-center space-y-6 max-w-md">
-          <img 
-            src="/assets/generated/growinlove-logo-transparent.dim_120x40.png" 
-            alt="GrowInLove" 
-            className="h-12 object-contain mx-auto mb-4"
-          />
-          <h1 className="text-4xl font-bold text-primary">Welcome to GrowInLove</h1>
-          <p className="text-lg text-muted-foreground">
-            Strengthen your relationship through daily rituals and shared moments
-          </p>
-          <LoginButton />
-          <button
-            onClick={() => setAppMode('landing')}
-            className="text-sm text-muted-foreground hover:text-primary transition-colors underline"
-          >
-            Back to home
-          </button>
-        </div>
-        <Toaster />
-      </div>
     );
   }
 
@@ -180,11 +140,16 @@ function AppContent() {
         {/* Top Bar */}
         <header className="flex-shrink-0 bg-card/50 backdrop-blur-sm border-b border-border/50">
           <div className="flex items-center justify-between px-6 py-4">
-            <img 
-              src="/assets/generated/growinlove-logo-transparent.dim_120x40.png" 
-              alt="GrowInLove" 
-              className="h-8 object-contain"
-            />
+            <div className="flex items-center gap-3">
+              <img 
+                src="/assets/generated/growinlove-logo-transparent.dim_120x40.png" 
+                alt="GrowInLove" 
+                className="h-8 object-contain"
+              />
+              <span className="text-xs text-muted-foreground/70 font-mono">
+                {getDraftBuildLabel()}
+              </span>
+            </div>
             <div className="flex items-center gap-3">
               <ThemeToggle />
               <button 
