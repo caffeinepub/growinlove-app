@@ -84,6 +84,11 @@ export interface PartnerQuizState {
   'partnerCompleted' : boolean,
   'partnerResults' : [] | [LoveLanguagesQuizResult],
 }
+export interface RewardXPResult {
+  'level' : bigint,
+  'newXP' : bigint,
+  'previousXP' : bigint,
+}
 export interface RitualEntryView {
   'responses' : Array<RitualResponse>,
   'loveLanguageFocus' : [] | [LoveLanguage],
@@ -113,7 +118,7 @@ export type UserId = Principal;
 export interface UserProfile {
   'name' : string,
   'role' : UserRole,
-  'partnerId' : [] | [Principal],
+  'partnerId' : [] | [UserId],
   'isFirstUser' : boolean,
 }
 export type UserRole = { 'admin' : null } |
@@ -153,10 +158,17 @@ export interface _SERVICE {
   'checkPairingCode' : ActorMethod<[bigint], [] | [Principal]>,
   'clearLoveLanguagesQuizResults' : ActorMethod<[], undefined>,
   'completePairing' : ActorMethod<[bigint], PairingResult>,
+  'completeWeeklyChallengeWithProof' : ActorMethod<
+    [[] | [ExternalBlob]],
+    undefined
+  >,
+  'confirmWeeklyChallengeWithoutProof' : ActorMethod<[], undefined>,
   'createPairingCode' : ActorMethod<[], bigint>,
   'deletePhoto' : ActorMethod<[string], undefined>,
   'fetchPrompts' : ActorMethod<[], Array<RitualPrompt>>,
+  'getAllBadges' : ActorMethod<[], Array<[UserId, Array<string>]>>,
   'getBadgeMilestones' : ActorMethod<[], BadgeMilestoneResponse>,
+  'getBadges' : ActorMethod<[], Array<string>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole__1>,
   'getCombinedQuizResultState' : ActorMethod<
@@ -173,9 +185,12 @@ export interface _SERVICE {
   'getRitualHistory' : ActorMethod<[bigint], Array<RitualEntryView>>,
   'getRitualStatus' : ActorMethod<[], [] | [CanonicalPartnerRitualStatus]>,
   'getUserProfile' : ActorMethod<[UserId], [] | [UserProfile]>,
+  'getXP' : ActorMethod<[], bigint>,
+  'getXPForAllUsers' : ActorMethod<[], Array<[UserId, bigint]>>,
   'initializeUserProfile' : ActorMethod<[string, [] | [UserId]], UserId>,
   'isAdmin' : ActorMethod<[], boolean>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'rewardXP' : ActorMethod<[bigint], RewardXPResult>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'saveLoveLanguageQuizResults' : ActorMethod<
     [LoveLanguagesQuizResult],

@@ -11,7 +11,7 @@ import type {
   RitualEntryView,
   DailyRitualInput,
   CanonicalPartnerRitualStatus,
-  PartnerQuizState
+  PartnerQuizState,
 } from '../backend';
 import { Principal } from '@icp-sdk/core/principal';
 import { ExternalBlob } from '../backend';
@@ -22,6 +22,20 @@ export interface RitualResponse {
   text?: string;
   emoji?: string;
   photoId?: string;
+}
+
+export interface WeeklyChallenge {
+  id: bigint;
+  title: string;
+  description: string;
+  weekNumber: bigint;
+  isCompleted: boolean;
+  assignedDate: bigint;
+  proof?: {
+    blob?: ExternalBlob;
+    points: bigint;
+    timestamp: bigint;
+  };
 }
 
 // User Profile Queries
@@ -464,13 +478,13 @@ export function useGetPromptsByLoveLanguage(language: string) {
     queryKey: ['promptsByLoveLanguage', language],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      // Convert string to LoveLanguage enum
+      // Map string to LoveLanguage enum
       const loveLanguageMap: Record<string, any> = {
-        'wordsOfAffirmation': { wordsOfAffirmation: null },
-        'actsOfService': { actsOfService: null },
-        'receivingGifts': { receivingGifts: null },
-        'qualityTime': { qualityTime: null },
-        'physicalTouch': { physicalTouch: null },
+        'Words of Affirmation': { wordsOfAffirmation: null },
+        'Quality Time': { qualityTime: null },
+        'Physical Touch': { physicalTouch: null },
+        'Acts of Service': { actsOfService: null },
+        'Receiving Gifts': { receivingGifts: null },
       };
       const loveLanguage = loveLanguageMap[language];
       if (!loveLanguage) return [];
@@ -490,5 +504,55 @@ export function useFetchPrompts() {
       return actor.fetchPrompts();
     },
     enabled: !!actor && !actorFetching,
+  });
+}
+
+// Weekly Challenge Queries
+export function useGetWeeklyChallenge() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<WeeklyChallenge | null>({
+    queryKey: ['weeklyChallenge'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      // Backend doesn't have getWeeklyChallenge yet, return null for now
+      return null;
+    },
+    enabled: !!actor && !actorFetching,
+  });
+}
+
+export function useCompleteWeeklyChallenge() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ blob }: { blob?: ExternalBlob } = {}) => {
+      if (!actor) throw new Error('Actor not available');
+      
+      if (blob) {
+        // Complete with proof
+        await actor.completeWeeklyChallengeWithProof(blob);
+      } else {
+        // Complete without proof
+        await actor.confirmWeeklyChallengeWithoutProof();
+      }
+    },
+    onSuccess: async () => {
+      // Invalidate weekly challenge query
+      await queryClient.invalidateQueries({ queryKey: ['weeklyChallenge'] });
+      
+      // Invalidate engagement foundation queries (points, rewards, etc.)
+      await queryClient.invalidateQueries({ queryKey: ['insightsData'] });
+      
+      // Brief delay for backend processing
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Refetch to update UI
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ['weeklyChallenge'] }),
+        queryClient.refetchQueries({ queryKey: ['insightsData'] }),
+      ]);
+    },
   });
 }

@@ -1,65 +1,6 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Restore frontend workspace to Version 66 snapshot and verify reset checklist (no redeploy)",
-  "requirements": [
-    {
-      "id": "REQ-1",
-      "summary": "Restore/reset the draft frontend workspace to exactly match snapshot Version 66 without triggering any new build or deployment.",
-      "acceptanceCriteria": [
-        "Workspace contents match Version 66 snapshot (no later-version code changes remain).",
-        "No new build artifacts or deployments are triggered as part of the restore operation.",
-        "No additional credits are consumed for performing the restore operation."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/config/draftBuildLabel.ts",
-          "operation": "modify",
-          "description": "Restore this file to the exact Version 66 snapshot contents (ensuring the draft build label matches Version 66) and discard any post–Version 66 draft-only changes."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Restore this file to the exact Version 66 snapshot contents (authenticated header draft label, navigation, gating, and layout) and discard any post–Version 66 draft-only changes."
-        },
-        {
-          "path": "frontend/src/pages/Landing.tsx",
-          "operation": "modify",
-          "description": "Restore this file to the exact Version 66 snapshot contents (unauthenticated header draft label and landing content) and discard any post–Version 66 draft-only changes."
-        },
-        {
-          "path": "frontend/src/components/BottomNav.tsx",
-          "operation": "modify",
-          "description": "Restore this file to the exact Version 66 snapshot contents (tab ordering/labels and navigation behavior) and discard any post–Version 66 draft-only changes."
-        },
-        {
-          "path": "frontend/index.html",
-          "operation": "modify",
-          "description": "Restore this file to the exact Version 66 snapshot contents (including theme initialization and metadata) and discard any post–Version 66 draft-only changes."
-        },
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Restore this file to the exact Version 66 snapshot contents (theme variables and base styles) and discard any post–Version 66 draft-only changes."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Verify the restored frontend workspace against the existing “Version 66 Reset Verification” checklist and record pass/fail per section.",
-      "acceptanceCriteria": [
-        "Draft build label checks for Version 66 are validated per the checklist.",
-        "Basic app stability checks (no build/runtime errors) are validated per the checklist.",
-        "Core Version 66 functionality checks are validated per the checklist.",
-        "Confirmation is provided that no features from later drafts (e.g., Versions 77–80) are present, per the checklist."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/QA_VERSION_66_RESET_REPORT.md",
-          "operation": "create",
-          "description": "Create a Version 66 reset verification report document that mirrors the sections in frontend/QA_ACCEPTANCE_CHECKLIST.md (\"Version 66 Reset Verification\") and records pass/fail outcomes in English for each checklist section."
-        }
-      ]
-    }
-  ]
+  "title": "Frontend Implementation Plan - No Frontend Changes Required",
+  "requirements": []
 }

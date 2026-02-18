@@ -1,55 +1,56 @@
 {
   "kind": "build_request",
-  "title": "Restore draft workspace to snapshot Version 66 (no redeploy)",
-  "priority": "high",
+  "title": "Persist XP values and store badges in backend",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Restore/reset the current draft development workspace to exactly match snapshot Version 66, discarding any draft-only changes introduced after Version 66, and do so without triggering any new build or live deployment.",
-      "target": "unknown",
+      "text": "Add stable storage for XP values in backend/main.mo, tracking XP per user with persistence across upgrades",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-12"
+          "msg-5"
         ],
         "quotes": [
-          "Restore the workspace to version 66."
+          "Persist XP values in backend"
         ]
       },
       "acceptanceCriteria": [
-        "Workspace contents match Version 66 snapshot (no later-version code changes remain).",
-        "No new build artifacts or deployments are triggered as part of the restore operation.",
-        "No additional credits are consumed for performing the restore operation."
+        "XP values are stored in stable storage in backend/main.mo",
+        "XP persists across canister upgrades",
+        "XP can be queried and updated via backend methods"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "After the workspace restore completes, verify the restored workspace against the existing “Version 66 Reset Verification” checklist in frontend/QA_ACCEPTANCE_CHECKLIST.md and report pass/fail for each checklist section.",
-      "target": "unknown",
+      "text": "Add stable storage for badges in backend/main.mo, tracking unlocked badges per user with persistence across upgrades",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-12"
+          "msg-5"
         ],
         "quotes": [
-          "Restore the workspace to version 66."
+          "Store badges in backend"
         ]
       },
       "acceptanceCriteria": [
-        "Draft build label checks for Version 66 are validated per the checklist.",
-        "Basic app stability checks (no build/runtime errors) are validated per the checklist.",
-        "Core Version 66 functionality checks are validated per the checklist.",
-        "Confirmation is provided that no features from later drafts (e.g., Versions 77–80) are present, per the checklist."
+        "Badge data is stored in stable storage in backend/main.mo",
+        "Badges persist across canister upgrades",
+        "Badges can be queried and updated via backend methods",
+        "Badge unlock state is preserved for each user"
       ]
     }
   ],
   "constraints": [
-    "Do not trigger a new build or deployment while restoring the workspace to Version 66.",
-    "Do not modify application code as a substitute for restoring the workspace snapshot.",
-    "User-facing text in any status/confirmation output must be in English."
+    "Maintain single-actor architecture in backend/main.mo",
+    "Use stable storage for persistence across upgrades",
+    "Do not modify frontend files"
   ],
   "nonGoals": [
-    "Implementing new features or UI changes unrelated to restoring the workspace state.",
-    "Refactoring backend/frontend code.",
-    "Data/schema migrations in Motoko."
+    "Frontend UI changes",
+    "XP calculation logic changes",
+    "Badge unlock condition changes",
+    "Migration of existing data"
   ],
   "imageRequirements": {
     "required": [],

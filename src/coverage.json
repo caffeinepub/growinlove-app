@@ -1,49 +1,43 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-14T20:36:40.116Z",
+  "generatedAt": "2026-02-18T20:45:50.869Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 2,
-    "implemented": 1,
+    "implemented": 0,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Restore/reset the current draft development workspace to exactly match snapshot Version 66, discarding any draft-only changes introduced after Version 66, and do so without triggering any new build or live deployment.",
-        "status": "missing",
-        "plannedFiles": [
-          "frontend/src/config/draftBuildLabel.ts",
-          "frontend/src/App.tsx",
-          "frontend/src/pages/Landing.tsx",
-          "frontend/src/components/BottomNav.tsx",
-          "frontend/index.html",
-          "frontend/src/index.css"
-        ],
+        "summary": "Add stable storage for XP values in backend/main.mo, tracking XP per user with persistence across upgrades",
+        "status": "unknown",
+        "plannedFiles": [],
         "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "After the workspace restore completes, verify the restored workspace against the existing “Version 66 Reset Verification” checklist in frontend/QA_ACCEPTANCE_CHECKLIST.md and report pass/fail for each checklist section.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/QA_VERSION_66_RESET_REPORT.md"
-        ],
-        "matchedFiles": [
-          "frontend/QA_VERSION_66_RESET_REPORT.md"
-        ]
+        "summary": "Add stable storage for badges in backend/main.mo, tracking unlocked badges per user with persistence across upgrades",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
     "build-request.json",
+    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/QA_VERSION_66_RESET_REPORT.md",
+    "frontend/src/App.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

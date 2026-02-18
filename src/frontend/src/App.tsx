@@ -16,7 +16,6 @@ import { Bell, Loader2 } from 'lucide-react';
 import { useInternetIdentity } from './hooks/useInternetIdentity';
 import { useGetCallerUserProfile } from './hooks/useQueries';
 import { ErrorState } from './components/DataStates';
-import { getDraftBuildLabel } from './config/draftBuildLabel';
 
 export type TabId = 'home' | 'insights' | 'love-languages' | 'activities' | 'us' | 'memories';
 
@@ -146,9 +145,6 @@ function AppContent() {
                 alt="GrowInLove" 
                 className="h-8 object-contain"
               />
-              <span className="text-xs text-muted-foreground/70 font-mono">
-                {getDraftBuildLabel()}
-              </span>
             </div>
             <div className="flex items-center gap-3">
               <ThemeToggle />

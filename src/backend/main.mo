@@ -14,23 +14,41 @@ import Storage "blob-storage/Storage";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
 
-
-
 actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
   include MixinStorage();
 
   public type UserId = Principal;
+  public type UserRole = { #admin; #user };
 
-  public type UserRole = {
-    #admin;
-    #user;
+  public type Points = Nat;
+  public type StreakMultiplier = { boost : Float };
+  public type RewardTierPoints = Nat;
+
+  // Engagement Foundation Types
+  public type WeeklyChallengeProof = {
+    blob : ?Storage.ExternalBlob;
+    points : Points;
+    timestamp : Time.Time;
+  };
+
+  public type RewardMilestone = {
+    pointsRequired : Points;
+    rewardType : Text;
+    description : Text;
+  };
+
+  public type MilestoneRewardTier = {
+    rewardTier : Text;
+    pointsRequired : Points;
+    congratulationsMessage : Text;
+    badge : Text;
   };
 
   public type UserProfile = {
     name : Text;
-    partnerId : ?Principal;
+    partnerId : ?UserId;
     role : UserRole;
     isFirstUser : Bool;
   };
@@ -86,10 +104,7 @@ actor {
     averageHarmony : Float;
   };
 
-  public type EntryStatus = {
-    #waitingForPartner;
-    #complete;
-  };
+  public type EntryStatus = { #waitingForPartner; #complete };
 
   public type GetDailyRitualResponse = {
     partnerId : ?UserId;
@@ -98,6 +113,16 @@ actor {
     status : EntryStatus;
     streakCount : Nat;
     harmonyMeter : Float;
+  };
+
+  public type WeeklyChallenge = {
+    id : Nat;
+    title : Text;
+    description : Text;
+    weekNumber : Nat;
+    isCompleted : Bool;
+    assignedDate : Time.Time;
+    proof : ?WeeklyChallengeProof;
   };
 
   public type SharedPhoto = {
@@ -119,10 +144,7 @@ actor {
     #PartnerNotFound;
   };
 
-  public type PairingResult = {
-    #ok;
-    #err : Text;
-  };
+  public type PairingResult = { #ok; #err : Text };
 
   public type StreakRecord = {
     currentStreak : Nat;
@@ -189,10 +211,7 @@ actor {
     completedChallenges : [LoveChallenge];
   };
 
-  public type ChallengeCompletionResponse = {
-    #success;
-    #err : Text;
-  };
+  public type ChallengeCompletionResponse = { #success; #err : Text };
 
   public type ChallengeStats = {
     totalChallenges : Nat;
@@ -258,31 +277,23 @@ actor {
     numCompletedByEither : Nat;
   };
 
-  public type BackendState = {
-    prompts : Map.Map<Nat, RitualPrompt>;
-    userProfiles : Map.Map<UserId, UserProfile>;
-    codeToPrincipal : Map.Map<Nat, Principal>;
-    ritualEntries : Map.Map<Text, Map.Map<DayNumber, RitualEntry>>;
-    photos : Map.Map<Text, SharedPhoto>;
-    currentStreaks : Map.Map<UserId, Nat>;
-    longestStreaks : Map.Map<UserId, Nat>;
-    coupleStats : Map.Map<UserId, CoupleStats>;
-    loveLanguagesResults : Map.Map<UserId, LoveLanguagesQuizResult>;
-    synchronizedLoveLanguagesResults : Map.Map<UserId, SynchronizedLoveLanguagesResults>;
-    dailyRitualStats : Map.Map<UserId, GetDailyRitualResponse>;
-    harmonyStatsMap : Map.Map<UserId, HarmonyStats>;
-    milestoneProgress : Map.Map<UserId, MilestoneProgress>;
-    milestoneBadges : Map.Map<UserId, [MilestoneBadge]>;
-    coupleChallenges : Map.Map<Text, CoupleChallenges>;
-    challengeStats : Map.Map<Text, ChallengeStats>;
-    completedDays : Map.Map<CoupleId, Map.Map<DayNumber, RitualCompletion>>;
-    completedDaysReviewStats : Map.Map<CoupleId, DayStats>;
+  // NEW XP/BADGE SYSTEM
+  public type RewardXPResult = {
+    previousXP : Nat;
+    newXP : Nat;
+    level : Nat;
   };
+
+  public type XP = Nat;
+  public type Badge = Text;
+
+  // STABLE XP SYSTEM (for now, more integration coming soon)
+  let xpMap = Map.empty<UserId, XP>();
+  let badgeMap = Map.empty<UserId, [Badge]>();
 
   func convertToRitualEntryView(entry : RitualEntry) : RitualEntryView {
     {
-      entry with
-      responses = entry.responses.toArray().map(func((_, response)) { response });
+      entry with responses = entry.responses.toArray().map(func((_, response)) { response });
     };
   };
 
@@ -319,11 +330,7 @@ actor {
   };
 
   func addPrompt(id : Nat, text : Text, loveLanguage : LoveLanguage) {
-    let prompt = {
-      id;
-      text;
-      loveLanguage = ?loveLanguage;
-    };
+    let prompt = { id; text; loveLanguage = ?loveLanguage };
     prompts.add(id, prompt);
   };
 
@@ -374,6 +381,26 @@ actor {
     if (callerCoupleId != coupleId) {
       Runtime.trap("Unauthorized: Cannot access data for a different couple");
     };
+  };
+
+  func getRewardTiers() : [(XP, ?RewardMilestone)] {
+    [
+      (50, ?{
+        pointsRequired = 50;
+        rewardType = "Beginner";
+        description = "Congratulations on reaching 50 points!";
+      }),
+      (100, ?{
+        pointsRequired = 100;
+        rewardType = "Advanced";
+        description = "Fantastic job. You have made it to 100 points!";
+      }),
+      (300, ?{
+        pointsRequired = 300;
+        rewardType = "Expert";
+        description = "You are a true relationship pro!";
+      }),
+    ];
   };
 
   func getChallengeTemplates() : [(LoveLanguage, Text, Text)] {
@@ -441,6 +468,7 @@ actor {
   let userProfiles = Map.empty<UserId, UserProfile>();
   let codeToPrincipal = Map.empty<Nat, Principal>();
   var ritualEntries = Map.empty<Text, Map.Map<DayNumber, RitualEntry>>();
+  let weeklyChallenges = Map.empty<Text, WeeklyChallenge>();
   let photos = Map.empty<Text, SharedPhoto>();
   var currentStreaks = Map.empty<UserId, Nat>();
   let longestStreaks = Map.empty<UserId, Nat>();
@@ -509,9 +537,7 @@ actor {
   };
 
   func internalInitPrompts() {
-    if (promptsInitialized) {
-      return;
-    };
+    if (promptsInitialized) { return };
 
     addPrompt(0, "Plan a special activity together for some quality time.", #qualityTime);
     addPrompt(1, "Spend uninterrupted time with your partner today.", #qualityTime);
@@ -554,9 +580,63 @@ actor {
     prompts.get(promptId);
   };
 
+  public shared ({ caller }) func completeWeeklyChallengeWithProof(blob : ?Storage.ExternalBlob) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can complete and submit weekly challenge proof");
+    };
+
+    mustBePairedWithPartner(caller);
+
+    let coupleId = mustGetCoupleId(caller);
+    switch (weeklyChallenges.get(coupleId)) {
+      case (null) {
+        Runtime.trap("No weekly challenge found to complete with proof");
+      };
+      case (?challenge) {
+        let points = 100;
+        let proof = {
+          blob;
+          points;
+          timestamp = Time.now();
+        };
+        let updatedChallenge = {
+          challenge with
+          isCompleted = true;
+          proof = ?proof;
+        };
+        weeklyChallenges.add(coupleId, updatedChallenge);
+      };
+    };
+  };
+
+  public shared ({ caller }) func confirmWeeklyChallengeWithoutProof() : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can confirm weekly challenge completion");
+    };
+
+    mustBePairedWithPartner(caller);
+
+    let coupleId = mustGetCoupleId(caller);
+    switch (weeklyChallenges.get(coupleId)) {
+      case (null) {
+        Runtime.trap("No weekly challenge found to confirm completion");
+      };
+      case (?challenge) {
+        let updatedChallenge = {
+          challenge with
+          isCompleted = true;
+          proof = null;
+        };
+        weeklyChallenges.add(coupleId, updatedChallenge);
+      };
+    };
+  };
+
   func mustBePairedWithPartner(caller : UserId) {
     let partnerId = switch (getPartnerId(caller)) {
-      case (null) { Runtime.trap("Cannot view ritual: No partner assigned. Please complete pairing first.") };
+      case (null) {
+        Runtime.trap("Cannot view ritual: No partner assigned. Please complete pairing first.");
+      };
       case (?(partnerId)) { partnerId };
     };
 
@@ -721,7 +801,9 @@ actor {
     };
 
     let partnerId = switch (getPartnerId(caller)) {
-      case (null) { Runtime.trap("Cannot upload photo: No partner assigned. Please complete pairing first.") };
+      case (null) {
+        Runtime.trap("Cannot upload photo: No partner assigned. Please complete pairing first.");
+      };
       case (?id) { id };
     };
 
@@ -868,7 +950,9 @@ actor {
 
     switch (userProfile.partnerId) {
       case (null) {};
-      case (?_) { Runtime.trap("Cannot create pairing code when already paired with a partner") };
+      case (?_) {
+        Runtime.trap("Cannot create pairing code when already paired with a partner");
+      };
     };
 
     let (code, _) = generateRandomCode();
@@ -1216,6 +1300,100 @@ actor {
       };
     };
   };
+
+  // NEW XP/REWARDS SYSTEM FUNCTIONS
+  public query ({ caller }) func getXP() : async Nat {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view XP");
+    };
+    switch (xpMap.get(caller)) {
+      case (?xp) { xp };
+      case (null) { 0 };
+    };
+  };
+
+  public query ({ caller }) func getBadges() : async [Text] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view badges");
+    };
+    switch (badgeMap.get(caller)) {
+      case (?badges) { badges };
+      case (null) { [] };
+    };
+  };
+
+  public query ({ caller }) func getAllBadges() : async [(UserId, [Text])] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can view all badges");
+    };
+    badgeMap.toArray();
+  };
+
+  public query ({ caller }) func getXPForAllUsers() : async [(UserId, Nat)] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can view all users' XP");
+    };
+    xpMap.toArray();
+  };
+
+  func calculateLevel(xp : Nat) : Nat {
+    let levelThresholds : [Nat] = [500, 300, 100, 0];
+
+    for ((index, threshold) in levelThresholds.enumerate()) {
+      if (xp >= threshold) { return 5 - index; };
+    };
+
+    1;
+  };
+
+  func calculateRewardXP(caller : UserId, earnedXP : Nat) : RewardXPResult {
+    let currentXP = switch (xpMap.get(caller)) {
+      case (?xp) { xp };
+      case (null) { 0 };
+    };
+
+    let newXP = currentXP + earnedXP;
+    let level = calculateLevel(newXP);
+
+    let exceededRewardTiers = getRewardTiers().filter(
+      func((tierXP, _)) { currentXP < tierXP and newXP >= tierXP }
+    );
+
+    switch (exceededRewardTiers.find(func(tier) { tier.1 != null })) {
+      case (?(_, ?rewardTier)) {
+        if (rewardTier.pointsRequired == newXP) {
+          let _ = addBadge(caller, rewardTier.rewardType);
+        };
+      };
+      case (_) {};
+    };
+
+    xpMap.add(caller, newXP);
+
+    { previousXP = currentXP; newXP; level };
+  };
+
+  public shared ({ caller }) func rewardXP(earnedXP : Nat) : async RewardXPResult {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can reward XP");
+    };
+    calculateRewardXP(caller, earnedXP);
+  };
+
+  func updateXP(caller : UserId, newXP : Nat) {
+    xpMap.add(caller, newXP);
+  };
+
+  func updateBadges(caller : UserId, newBadges : [Badge]) {
+    badgeMap.add(caller, newBadges);
+  };
+
+  func addBadge(caller : UserId, badge : Badge) {
+    let currentBadges = switch (badgeMap.get(caller)) {
+      case (?badges) { badges };
+      case (null) { [] };
+    };
+    let newBadges = currentBadges.concat([badge]);
+    badgeMap.add(caller, newBadges);
+  };
 };
-
-

@@ -3,31 +3,46 @@
   "projectStateVersion": 3,
   "summary": "New project",
   "architectural_notes": [],
-  "known_issues": [
-    "Platform/workflow issue: Attempting to restore/revert workspace to an older snapshot (e.g., Version 66) may incorrectly trigger a build/deploy and consume credits, and may fail to actually restore the intended version."
-  ],
-  "isFixRequest": true,
-  "existing_features": [
-    {
-      "id": "feature-after-the-workspace-restore-completes-verify-the-restored-workspace-against-the-existing-version-66-reset-verification-checklist-in-frontend-qa-acceptance-checklist-md-and-report-pass-fail-for-each-checklist-section",
-      "title": "After the workspace restore completes, verify the restored workspace against the existing “Version 66 Reset Verification” checklist in frontend/QA_ACCEPTANCE_CHECKLIST.md and report pass/fail for each checklist section.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    }
-  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Restore/reset the current draft development workspace to exactly match snapshot Version 66, discarding any draft-only changes introduced after Version 66, and do so without triggering any new build or live deployment.",
+      "summary": "Persist XP values in backend",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Store badges in backend",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Remove 'draft version 66' text from app header",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add stable storage for XP values in backend/main.mo, tracking XP per user with persistence across upgrades",
       "reqIds": [
         "REQ-1"
       ],
       "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Add stable storage for badges in backend/main.mo, tracking unlocked badges per user with persistence across upgrades",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
     }
   ],
-  "projectName": "Restore draft workspace to snapshot Version 66 (no redeploy)",
+  "projectName": "Persist XP values and store badges in backend",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

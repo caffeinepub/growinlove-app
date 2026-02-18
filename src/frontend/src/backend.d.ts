@@ -26,6 +26,19 @@ export interface LoveLanguagesQuizResult {
     completionTime: Time;
     userId: UserId;
 }
+export type Time = bigint;
+export interface RitualResponse {
+    userId: UserId;
+    text?: string;
+    emoji?: string;
+    photoId?: string;
+}
+export interface RitualEntryView {
+    responses: Array<RitualResponse>;
+    loveLanguageFocus?: LoveLanguage;
+    date: bigint;
+    prompt: RitualPrompt;
+}
 export interface InsighsDataExtendedResponse {
     challengeStats: ChallengeStats;
     mostFrequentLoveLanguage: string;
@@ -42,24 +55,6 @@ export interface InsighsDataExtendedResponse {
     currentStreak: bigint;
     milestones: MilestoneProgress;
 }
-export type Time = bigint;
-export interface RitualResponse {
-    userId: UserId;
-    text?: string;
-    emoji?: string;
-    photoId?: string;
-}
-export interface RitualEntryView {
-    responses: Array<RitualResponse>;
-    loveLanguageFocus?: LoveLanguage;
-    date: bigint;
-    prompt: RitualPrompt;
-}
-export interface DailyRitualInput {
-    text?: string;
-    emoji?: string;
-    photoId?: string;
-}
 export interface LoveLanguageRanking {
     score: number;
     language: LoveLanguage;
@@ -69,22 +64,27 @@ export interface RitualPrompt {
     text: string;
     loveLanguage?: LoveLanguage;
 }
+export interface DailyRitualInput {
+    text?: string;
+    emoji?: string;
+    photoId?: string;
+}
 export interface CombinedQuizResultState {
     callerResults?: LoveLanguagesQuizResult;
     partnerCompleted: boolean;
     partnerResults?: LoveLanguagesQuizResult;
     callerCompleted: boolean;
 }
-export interface ChallengeStats {
-    completedChallenges: bigint;
-    progressPercent: number;
-    totalChallenges: bigint;
-}
 export interface PartnerQuizState {
     partnerCompleted: boolean;
     partnerResults?: LoveLanguagesQuizResult;
 }
 export type UserId = Principal;
+export interface ChallengeStats {
+    completedChallenges: bigint;
+    progressPercent: number;
+    totalChallenges: bigint;
+}
 export interface CanonicalPartnerRitualStatus {
     partnerBComplete: boolean;
     partnerA: UserId;
@@ -113,10 +113,15 @@ export interface MilestoneProgress {
     sevenDayUnlocked: boolean;
     harmonyEliteUnlocked: boolean;
 }
+export interface RewardXPResult {
+    level: bigint;
+    newXP: bigint;
+    previousXP: bigint;
+}
 export interface UserProfile {
     name: string;
     role: UserRole;
-    partnerId?: Principal;
+    partnerId?: UserId;
     isFirstUser: boolean;
 }
 export enum LoveLanguage {
@@ -140,10 +145,14 @@ export interface backendInterface {
     checkPairingCode(code: bigint): Promise<Principal | null>;
     clearLoveLanguagesQuizResults(): Promise<void>;
     completePairing(code: bigint): Promise<PairingResult>;
+    completeWeeklyChallengeWithProof(blob: ExternalBlob | null): Promise<void>;
+    confirmWeeklyChallengeWithoutProof(): Promise<void>;
     createPairingCode(): Promise<bigint>;
     deletePhoto(id: string): Promise<void>;
     fetchPrompts(): Promise<Array<RitualPrompt>>;
+    getAllBadges(): Promise<Array<[UserId, Array<string>]>>;
     getBadgeMilestones(): Promise<BadgeMilestoneResponse>;
+    getBadges(): Promise<Array<string>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole__1>;
     getCombinedQuizResultState(): Promise<CombinedQuizResultState | null>;
@@ -157,9 +166,12 @@ export interface backendInterface {
     getRitualHistory(limit: bigint): Promise<Array<RitualEntryView>>;
     getRitualStatus(): Promise<CanonicalPartnerRitualStatus | null>;
     getUserProfile(user: UserId): Promise<UserProfile | null>;
+    getXP(): Promise<bigint>;
+    getXPForAllUsers(): Promise<Array<[UserId, bigint]>>;
     initializeUserProfile(name: string, partnerId: UserId | null): Promise<UserId>;
     isAdmin(): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
+    rewardXP(earnedXP: bigint): Promise<RewardXPResult>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     saveLoveLanguageQuizResults(result: LoveLanguagesQuizResult): Promise<void>;
     submitRitualResponse(input: DailyRitualInput): Promise<void>;

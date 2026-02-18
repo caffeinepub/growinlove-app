@@ -25,6 +25,7 @@ export const UserRole__1 = IDL.Variant({
   'guest' : IDL.Null,
 });
 export const PairingResult = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
+export const ExternalBlob = IDL.Vec(IDL.Nat8);
 export const LoveLanguage = IDL.Variant({
   'qualityTime' : IDL.Null,
   'receivingGifts' : IDL.Null,
@@ -37,6 +38,7 @@ export const RitualPrompt = IDL.Record({
   'text' : IDL.Text,
   'loveLanguage' : IDL.Opt(LoveLanguage),
 });
+export const UserId = IDL.Principal;
 export const Time = IDL.Int;
 export const MilestoneBadge = IDL.Record({
   'name' : IDL.Text,
@@ -57,14 +59,13 @@ export const UserRole = IDL.Variant({ 'admin' : IDL.Null, 'user' : IDL.Null });
 export const UserProfile = IDL.Record({
   'name' : IDL.Text,
   'role' : UserRole,
-  'partnerId' : IDL.Opt(IDL.Principal),
+  'partnerId' : IDL.Opt(UserId),
   'isFirstUser' : IDL.Bool,
 });
 export const LoveLanguageRanking = IDL.Record({
   'score' : IDL.Float64,
   'language' : LoveLanguage,
 });
-export const UserId = IDL.Principal;
 export const LoveLanguagesQuizResult = IDL.Record({
   'rankings' : IDL.Vec(LoveLanguageRanking),
   'completionTime' : Time,
@@ -101,7 +102,6 @@ export const PartnerQuizState = IDL.Record({
   'partnerCompleted' : IDL.Bool,
   'partnerResults' : IDL.Opt(LoveLanguagesQuizResult),
 });
-export const ExternalBlob = IDL.Vec(IDL.Nat8);
 export const SharedPhoto = IDL.Record({
   'id' : IDL.Text,
   'owner' : UserId,
@@ -126,6 +126,11 @@ export const CanonicalPartnerRitualStatus = IDL.Record({
   'partnerA' : UserId,
   'partnerB' : UserId,
   'partnerAComplete' : IDL.Bool,
+});
+export const RewardXPResult = IDL.Record({
+  'level' : IDL.Nat,
+  'newXP' : IDL.Nat,
+  'previousXP' : IDL.Nat,
 });
 export const DailyRitualInput = IDL.Record({
   'text' : IDL.Opt(IDL.Text),
@@ -165,10 +170,22 @@ export const idlService = IDL.Service({
   'checkPairingCode' : IDL.Func([IDL.Nat], [IDL.Opt(IDL.Principal)], []),
   'clearLoveLanguagesQuizResults' : IDL.Func([], [], []),
   'completePairing' : IDL.Func([IDL.Nat], [PairingResult], []),
+  'completeWeeklyChallengeWithProof' : IDL.Func(
+      [IDL.Opt(ExternalBlob)],
+      [],
+      [],
+    ),
+  'confirmWeeklyChallengeWithoutProof' : IDL.Func([], [], []),
   'createPairingCode' : IDL.Func([], [IDL.Nat], []),
   'deletePhoto' : IDL.Func([IDL.Text], [], []),
   'fetchPrompts' : IDL.Func([], [IDL.Vec(RitualPrompt)], ['query']),
+  'getAllBadges' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Tuple(UserId, IDL.Vec(IDL.Text)))],
+      ['query'],
+    ),
   'getBadgeMilestones' : IDL.Func([], [BadgeMilestoneResponse], ['query']),
+  'getBadges' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole__1], ['query']),
   'getCombinedQuizResultState' : IDL.Func(
@@ -202,9 +219,16 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getUserProfile' : IDL.Func([UserId], [IDL.Opt(UserProfile)], ['query']),
+  'getXP' : IDL.Func([], [IDL.Nat], ['query']),
+  'getXPForAllUsers' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Tuple(UserId, IDL.Nat))],
+      ['query'],
+    ),
   'initializeUserProfile' : IDL.Func([IDL.Text, IDL.Opt(UserId)], [UserId], []),
   'isAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'rewardXP' : IDL.Func([IDL.Nat], [RewardXPResult], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'saveLoveLanguageQuizResults' : IDL.Func([LoveLanguagesQuizResult], [], []),
   'submitRitualResponse' : IDL.Func([DailyRitualInput], [], []),
@@ -231,6 +255,7 @@ export const idlFactory = ({ IDL }) => {
     'guest' : IDL.Null,
   });
   const PairingResult = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
+  const ExternalBlob = IDL.Vec(IDL.Nat8);
   const LoveLanguage = IDL.Variant({
     'qualityTime' : IDL.Null,
     'receivingGifts' : IDL.Null,
@@ -243,6 +268,7 @@ export const idlFactory = ({ IDL }) => {
     'text' : IDL.Text,
     'loveLanguage' : IDL.Opt(LoveLanguage),
   });
+  const UserId = IDL.Principal;
   const Time = IDL.Int;
   const MilestoneBadge = IDL.Record({
     'name' : IDL.Text,
@@ -263,14 +289,13 @@ export const idlFactory = ({ IDL }) => {
   const UserProfile = IDL.Record({
     'name' : IDL.Text,
     'role' : UserRole,
-    'partnerId' : IDL.Opt(IDL.Principal),
+    'partnerId' : IDL.Opt(UserId),
     'isFirstUser' : IDL.Bool,
   });
   const LoveLanguageRanking = IDL.Record({
     'score' : IDL.Float64,
     'language' : LoveLanguage,
   });
-  const UserId = IDL.Principal;
   const LoveLanguagesQuizResult = IDL.Record({
     'rankings' : IDL.Vec(LoveLanguageRanking),
     'completionTime' : Time,
@@ -307,7 +332,6 @@ export const idlFactory = ({ IDL }) => {
     'partnerCompleted' : IDL.Bool,
     'partnerResults' : IDL.Opt(LoveLanguagesQuizResult),
   });
-  const ExternalBlob = IDL.Vec(IDL.Nat8);
   const SharedPhoto = IDL.Record({
     'id' : IDL.Text,
     'owner' : UserId,
@@ -332,6 +356,11 @@ export const idlFactory = ({ IDL }) => {
     'partnerA' : UserId,
     'partnerB' : UserId,
     'partnerAComplete' : IDL.Bool,
+  });
+  const RewardXPResult = IDL.Record({
+    'level' : IDL.Nat,
+    'newXP' : IDL.Nat,
+    'previousXP' : IDL.Nat,
   });
   const DailyRitualInput = IDL.Record({
     'text' : IDL.Opt(IDL.Text),
@@ -371,10 +400,22 @@ export const idlFactory = ({ IDL }) => {
     'checkPairingCode' : IDL.Func([IDL.Nat], [IDL.Opt(IDL.Principal)], []),
     'clearLoveLanguagesQuizResults' : IDL.Func([], [], []),
     'completePairing' : IDL.Func([IDL.Nat], [PairingResult], []),
+    'completeWeeklyChallengeWithProof' : IDL.Func(
+        [IDL.Opt(ExternalBlob)],
+        [],
+        [],
+      ),
+    'confirmWeeklyChallengeWithoutProof' : IDL.Func([], [], []),
     'createPairingCode' : IDL.Func([], [IDL.Nat], []),
     'deletePhoto' : IDL.Func([IDL.Text], [], []),
     'fetchPrompts' : IDL.Func([], [IDL.Vec(RitualPrompt)], ['query']),
+    'getAllBadges' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(UserId, IDL.Vec(IDL.Text)))],
+        ['query'],
+      ),
     'getBadgeMilestones' : IDL.Func([], [BadgeMilestoneResponse], ['query']),
+    'getBadges' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole__1], ['query']),
     'getCombinedQuizResultState' : IDL.Func(
@@ -408,6 +449,12 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getUserProfile' : IDL.Func([UserId], [IDL.Opt(UserProfile)], ['query']),
+    'getXP' : IDL.Func([], [IDL.Nat], ['query']),
+    'getXPForAllUsers' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(UserId, IDL.Nat))],
+        ['query'],
+      ),
     'initializeUserProfile' : IDL.Func(
         [IDL.Text, IDL.Opt(UserId)],
         [UserId],
@@ -415,6 +462,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'isAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'rewardXP' : IDL.Func([IDL.Nat], [RewardXPResult], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'saveLoveLanguageQuizResults' : IDL.Func([LoveLanguagesQuizResult], [], []),
     'submitRitualResponse' : IDL.Func([DailyRitualInput], [], []),

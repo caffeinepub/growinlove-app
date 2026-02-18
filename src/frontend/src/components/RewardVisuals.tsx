@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { Heart, Award, Star, Trophy } from 'lucide-react';
+import { Heart, Award, Star, Trophy, TrendingUp, Zap } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { useGetInsightsData } from '../hooks/useQueries';
+import { LoadingState } from './DataStates';
 
 interface RewardVisualsProps {
   isAdmin?: boolean;
@@ -15,10 +16,22 @@ interface Milestone {
 }
 
 export function RewardVisuals({ isAdmin = false }: RewardVisualsProps) {
-  // Placeholder progress for UI demonstration
-  const progress = 0;
-  const completedChallenges = 0;
-  const totalChallenges = 0;
+  const { data: insightsData, isLoading } = useGetInsightsData();
+
+  // Calculate progress from insights data
+  const totalChallenges = insightsData?.challengeStats?.totalChallenges 
+    ? Number(insightsData.challengeStats.totalChallenges) 
+    : 0;
+  const completedChallenges = insightsData?.challengeStats?.completedChallenges 
+    ? Number(insightsData.challengeStats.completedChallenges) 
+    : 0;
+  const progress = totalChallenges > 0 
+    ? Math.round((completedChallenges / totalChallenges) * 100) 
+    : 0;
+
+  // Get streak boost data
+  const currentStreak = insightsData?.currentStreak ? Number(insightsData.currentStreak) : 0;
+  const streakMultiplier = currentStreak >= 7 ? 2.0 : currentStreak >= 3 ? 1.5 : 1.0;
 
   // Define milestones
   const milestones: Milestone[] = [
@@ -28,8 +41,53 @@ export function RewardVisuals({ isAdmin = false }: RewardVisualsProps) {
     { threshold: 100, label: 'Love Master', icon: Trophy, achieved: progress >= 100 },
   ];
 
+  // Calculate next milestone
+  const nextMilestone = milestones.find(m => !m.achieved);
+  const nextThreshold = nextMilestone?.threshold || 100;
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card className="border-2 border-primary/20 shadow-lg">
+          <CardContent className="p-6">
+            <LoadingState message="Loading your rewards..." size="sm" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 gentle-entrance">
+      {/* Streak Boost Indicator */}
+      {currentStreak > 0 && (
+        <Card className="border-2 border-accent/30 shadow-lg bg-gradient-to-br from-accent/5 to-transparent">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-accent/20">
+                  <Zap className="w-5 h-5 text-accent fill-accent" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    Streak Boost Active!
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {streakMultiplier}x points multiplier
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-accent">
+                  {currentStreak}
+                </p>
+                <p className="text-xs text-muted-foreground">day streak</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Heart Progress Meter */}
       <Card className="border-2 border-primary/20 shadow-lg overflow-hidden relative">
         <CardContent className="p-6 space-y-4">
@@ -39,7 +97,7 @@ export function RewardVisuals({ isAdmin = false }: RewardVisualsProps) {
               Your Love Journey Progress
             </h3>
             <p className="text-sm text-muted-foreground">
-              Coming soon: Track your challenge progress here
+              {completedChallenges} of {totalChallenges} challenges completed
             </p>
           </div>
 
@@ -86,7 +144,7 @@ export function RewardVisuals({ isAdmin = false }: RewardVisualsProps) {
               {/* Progress percentage in center */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-3xl font-bold text-primary">
-                  {Math.round(progress)}%
+                  {progress}%
                 </span>
               </div>
             </div>
@@ -95,9 +153,14 @@ export function RewardVisuals({ isAdmin = false }: RewardVisualsProps) {
           {/* Progress bar as backup visualization */}
           <div className="space-y-2">
             <Progress value={progress} className="h-3" />
-            <p className="text-xs text-center text-muted-foreground">
-              Challenge system coming soon! 💞
-            </p>
+            {nextMilestone && (
+              <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                <TrendingUp className="w-3 h-3" />
+                <span>
+                  {nextThreshold - progress}% until {nextMilestone.label}
+                </span>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -166,11 +229,13 @@ export function RewardVisuals({ isAdmin = false }: RewardVisualsProps) {
           </div>
 
           {/* Next milestone indicator */}
-          <div className="pt-4 text-center">
-            <p className="text-sm text-muted-foreground">
-              Challenge badges will unlock as you complete activities together
-            </p>
-          </div>
+          {nextMilestone && (
+            <div className="pt-4 text-center">
+              <p className="text-sm text-muted-foreground">
+                Keep going! Next badge at {nextMilestone.threshold}%
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
