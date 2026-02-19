@@ -37,6 +37,16 @@ export interface DailyRitualInput {
   'photoId' : [] | [string],
 }
 export type ExternalBlob = Uint8Array;
+export interface GardenProgress {
+  'xp' : XP,
+  'unlockedPlant' : [] | [Plant],
+  'level' : bigint,
+  'hasAvailableRewards' : boolean,
+  'streakMilestones' : Array<Plant>,
+  'badgeAchievements' : Array<Plant>,
+  'isComplete' : boolean,
+  'levelProgress' : number,
+}
 export interface InsighsDataExtendedResponse {
   'challengeStats' : ChallengeStats,
   'mostFrequentLoveLanguage' : string,
@@ -52,6 +62,13 @@ export interface InsighsDataExtendedResponse {
   'averageHarmony' : number,
   'currentStreak' : bigint,
   'milestones' : MilestoneProgress,
+}
+export interface LoveGarden {
+  'xp' : XP,
+  'level' : bigint,
+  'streakMilestones' : Array<Plant>,
+  'badgeAchievements' : Array<Plant>,
+  'isComplete' : boolean,
 }
 export type LoveLanguage = { 'qualityTime' : null } |
   { 'receivingGifts' : null } |
@@ -84,6 +101,13 @@ export interface PartnerQuizState {
   'partnerCompleted' : boolean,
   'partnerResults' : [] | [LoveLanguagesQuizResult],
 }
+export interface Plant {
+  'name' : string,
+  'description' : string,
+  'milestone' : string,
+  'isUnlocked' : boolean,
+  'xpRequired' : XP,
+}
 export interface RewardXPResult {
   'level' : bigint,
   'newXP' : bigint,
@@ -115,17 +139,10 @@ export interface SharedPhoto {
 }
 export type Time = bigint;
 export type UserId = Principal;
-export interface UserProfile {
-  'name' : string,
-  'role' : UserRole,
-  'partnerId' : [] | [UserId],
-  'isFirstUser' : boolean,
-}
 export type UserRole = { 'admin' : null } |
-  { 'user' : null };
-export type UserRole__1 = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
+export type XP = bigint;
 export interface _CaffeineStorageCreateCertificateResult {
   'method' : string,
   'blob_hash' : string,
@@ -154,7 +171,7 @@ export interface _SERVICE {
   >,
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
-  'assignCallerUserRole' : ActorMethod<[Principal, UserRole__1], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'checkPairingCode' : ActorMethod<[bigint], [] | [Principal]>,
   'clearLoveLanguagesQuizResults' : ActorMethod<[], undefined>,
   'completePairing' : ActorMethod<[bigint], PairingResult>,
@@ -163,20 +180,22 @@ export interface _SERVICE {
     undefined
   >,
   'confirmWeeklyChallengeWithoutProof' : ActorMethod<[], undefined>,
+  'createGarden' : ActorMethod<[], undefined>,
   'createPairingCode' : ActorMethod<[], bigint>,
   'deletePhoto' : ActorMethod<[string], undefined>,
   'fetchPrompts' : ActorMethod<[], Array<RitualPrompt>>,
   'getAllBadges' : ActorMethod<[], Array<[UserId, Array<string>]>>,
   'getBadgeMilestones' : ActorMethod<[], BadgeMilestoneResponse>,
   'getBadges' : ActorMethod<[], Array<string>>,
-  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
-  'getCallerUserRole' : ActorMethod<[], UserRole__1>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getCombinedQuizResultState' : ActorMethod<
     [],
     [] | [CombinedQuizResultState]
   >,
   'getDailyRitual' : ActorMethod<[], [] | [RitualPrompt]>,
   'getInsightsData' : ActorMethod<[], InsighsDataExtendedResponse>,
+  'getLoveGarden' : ActorMethod<[], LoveGarden>,
+  'getLoveGardenProgress' : ActorMethod<[], GardenProgress>,
   'getLoveLanguageQuizResult' : ActorMethod<[], [] | [LoveLanguagesQuizResult]>,
   'getPartnerQuizState' : ActorMethod<[UserId], PartnerQuizState>,
   'getPhoto' : ActorMethod<[string], [] | [SharedPhoto]>,
@@ -184,19 +203,18 @@ export interface _SERVICE {
   'getPromptsByLoveLanguage' : ActorMethod<[LoveLanguage], Array<RitualPrompt>>,
   'getRitualHistory' : ActorMethod<[bigint], Array<RitualEntryView>>,
   'getRitualStatus' : ActorMethod<[], [] | [CanonicalPartnerRitualStatus]>,
-  'getUserProfile' : ActorMethod<[UserId], [] | [UserProfile]>,
   'getXP' : ActorMethod<[], bigint>,
   'getXPForAllUsers' : ActorMethod<[], Array<[UserId, bigint]>>,
   'initializeUserProfile' : ActorMethod<[string, [] | [UserId]], UserId>,
   'isAdmin' : ActorMethod<[], boolean>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'rewardXP' : ActorMethod<[bigint], RewardXPResult>,
-  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'saveLoveLanguageQuizResults' : ActorMethod<
     [LoveLanguagesQuizResult],
     undefined
   >,
   'submitRitualResponse' : ActorMethod<[DailyRitualInput], undefined>,
+  'unlockPlant' : ActorMethod<[string], undefined>,
   'uploadPhoto' : ActorMethod<[ExternalBlob, string], string>,
 }
 export declare const idlService: IDL.ServiceClass;

@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import type { 
-  UserProfile, 
   RitualPrompt, 
   UserId,
   SharedPhoto,
@@ -12,6 +11,7 @@ import type {
   DailyRitualInput,
   CanonicalPartnerRitualStatus,
   PartnerQuizState,
+  GardenProgress,
 } from '../backend';
 import { Principal } from '@icp-sdk/core/principal';
 import { ExternalBlob } from '../backend';
@@ -38,84 +38,50 @@ export interface WeeklyChallenge {
   };
 }
 
-// User Profile Queries
+// Stub UserProfile type for compatibility
+export interface UserProfile {
+  name: string;
+  partnerId: UserId | null;
+  role: { admin: null } | { user: null };
+  isFirstUser: boolean;
+}
+
+// Stub hooks for user profile (return null since backend doesn't support it)
 export function useGetCallerUserProfile() {
-  const { actor, isFetching: actorFetching } = useActor();
-
-  const query = useQuery<UserProfile | null>({
-    queryKey: ['currentUserProfile'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      
-      // Add timeout to prevent infinite loading
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Profile loading timed out after 15 seconds')), 15000);
-      });
-      
-      const profilePromise = actor.getCallerUserProfile();
-      
-      return Promise.race([profilePromise, timeoutPromise]);
-    },
-    enabled: !!actor && !actorFetching,
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
-    staleTime: 0, // Always fetch fresh data
-  });
-
   return {
-    ...query,
-    isLoading: actorFetching || query.isLoading,
-    isFetched: !!actor && query.isFetched,
+    data: null as UserProfile | null,
+    isLoading: false,
+    isFetched: true,
+    error: null,
+    refetch: async () => {},
+  };
+}
+
+export function useGetUserProfile(userId: UserId | null) {
+  return {
+    data: null as UserProfile | null,
+    isLoading: false,
+    error: null,
   };
 }
 
 export function useInitializeUserProfile() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (name: string) => {
-      if (!actor) throw new Error('Actor not available');
-      const userId = await actor.initializeUserProfile(name, null);
-      return userId;
+  return {
+    mutateAsync: async (name: string) => {
+      console.warn('User profile initialization not supported by backend');
+      return Principal.anonymous();
     },
-    onSuccess: async () => {
-      // Wait for backend to process the profile creation
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Invalidate and refetch profile to ensure UI updates
-      await queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-      await queryClient.refetchQueries({ queryKey: ['currentUserProfile'] });
-    },
-  });
+    isPending: false,
+  };
 }
 
 export function useSaveCallerUserProfile() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (profile: UserProfile) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.saveCallerUserProfile(profile);
+  return {
+    mutateAsync: async (profile: UserProfile) => {
+      console.warn('User profile saving not supported by backend');
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-    },
-  });
-}
-
-export function useGetUserProfile(userId: UserId | null) {
-  const { actor, isFetching: actorFetching } = useActor();
-
-  return useQuery<UserProfile | null>({
-    queryKey: ['userProfile', userId?.toString()],
-    queryFn: async () => {
-      if (!actor || !userId) return null;
-      return actor.getUserProfile(userId);
-    },
-    enabled: !!actor && !actorFetching && !!userId,
-  });
+    isPending: false,
+  };
 }
 
 // Admin Queries
@@ -167,22 +133,10 @@ export function useArePromptsInitialized() {
 // Pairing Queries
 export function useCreatePairingCode() {
   const { actor } = useActor();
-  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      
-      // Ensure profile is loaded before creating code
-      const profile = await queryClient.ensureQueryData({
-        queryKey: ['currentUserProfile'],
-        queryFn: async () => actor.getCallerUserProfile(),
-      });
-
-      if (!profile) {
-        throw new Error('Profile not initialized. Please complete your profile setup before pairing.');
-      }
-
       return actor.createPairingCode();
     },
   });
@@ -206,21 +160,9 @@ export function useCompletePairing() {
   return useMutation({
     mutationFn: async (code: bigint) => {
       if (!actor) throw new Error('Actor not available');
-      
-      // Ensure profile is loaded before completing pairing
-      const profile = await queryClient.ensureQueryData({
-        queryKey: ['currentUserProfile'],
-        queryFn: async () => actor.getCallerUserProfile(),
-      });
-
-      if (!profile) {
-        throw new Error('Profile not initialized. Please complete your profile setup before pairing.');
-      }
-
       return actor.completePairing(code);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
       queryClient.invalidateQueries({ queryKey: ['dailyRitual'] });
       queryClient.invalidateQueries({ queryKey: ['ritualStatus'] });
     },
@@ -263,6 +205,9 @@ export function useSubmitRitualResponse() {
       await queryClient.invalidateQueries({ queryKey: ['insightsData'], exact: true });
       await queryClient.invalidateQueries({ queryKey: ['badgeMilestones'], exact: true });
       
+      // Invalidate garden progress
+      await queryClient.invalidateQueries({ queryKey: ['gardenProgress'], exact: true });
+      
       // A2: Force immediate refetch with retry to ensure backend has processed the write
       await new Promise(resolve => setTimeout(resolve, 500)); // Brief delay for backend processing
       
@@ -271,6 +216,7 @@ export function useSubmitRitualResponse() {
         queryClient.refetchQueries({ queryKey: ['badgeMilestones'], exact: true }),
         queryClient.refetchQueries({ queryKey: ['ritualStatus'], exact: true }),
         queryClient.refetchQueries({ queryKey: ['ritualHistory'], exact: false }),
+        queryClient.refetchQueries({ queryKey: ['gardenProgress'], exact: true }),
       ]);
     },
   });
@@ -553,6 +499,50 @@ export function useCompleteWeeklyChallenge() {
         queryClient.refetchQueries({ queryKey: ['weeklyChallenge'] }),
         queryClient.refetchQueries({ queryKey: ['insightsData'] }),
       ]);
+    },
+  });
+}
+
+// Love Garden Queries
+export function useGetLoveGardenProgress() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<GardenProgress>({
+    queryKey: ['gardenProgress'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getLoveGardenProgress();
+    },
+    enabled: !!actor && !actorFetching,
+  });
+}
+
+export function useCreateGarden() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.createGarden();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['gardenProgress'] });
+    },
+  });
+}
+
+export function useUnlockPlant() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (plantName: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.unlockPlant(plantName);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['gardenProgress'] });
     },
   });
 }

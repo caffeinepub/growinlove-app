@@ -1,48 +1,65 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
-  "architectural_notes": [],
+  "summary": "Couple's relationship app with XP system, streaks, badges, memories/scrapbook feature, and shared rituals tracking. Currently implementing Love Garden feature - a visual representation of relationship growth that evolves with completed rituals and activities.",
+  "architectural_notes": [
+    "XP and badge system already implemented and persisting correctly",
+    "Existing features: XP system, streaks, badges, memories/scrapbook, shared rituals tracking"
+  ],
   "known_issues": [],
   "isFixRequest": false,
-  "existing_features": [],
-  "new_feature_requests": [
+  "imageRequirements": "## Required Images\n- Garden seed/sprout illustration for initial stage (garden-seed.dim_200x200.png)\n- Young sapling illustration for early growth stage (garden-sapling.dim_300x300.png)\n- Small garden with flowers illustration for mid-level stage (garden-flowers.dim_400x400.png)\n- Lush garden with multiple plants and trees illustration for advanced stage (garden-lush.dim_500x500.png)\n- Blooming rose bush illustration for milestone unlock (rose-bush.dim_150x150.png)\n- Cherry blossom tree illustration for high streak milestone (cherry-blossom.dim_200x250.png)",
+  "existing_features": [
     {
-      "id": "AR-1",
-      "summary": "Persist XP values in backend",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Store badges in backend",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Remove 'draft version 66' text from app header",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Add stable storage for XP values in backend/main.mo, tracking XP per user with persistence across upgrades",
+      "id": "feature-create-a-love-garden-visualization-component-that-displays-a-progressive-garden-scene-starting-as-a-small-seed-sapling-and-evolving-into-a-lush-garden-based-on-relationship-milestones",
+      "title": "Create a Love Garden visualization component that displays a progressive garden scene starting as a small seed/sapling and evolving into a lush garden based on relationship milestones",
       "reqIds": [
         "REQ-1"
       ],
+      "version": 1
+    },
+    {
+      "id": "feature-tie-love-garden-growth-progression-to-the-existing-xp-system-streak-milestones-and-badge-achievements-so-that-completing-rituals-and-activities-visibly-advances-the-garden",
+      "title": "Tie Love Garden growth progression to the existing XP system, streak milestones, and badge achievements so that completing rituals and activities visibly advances the garden",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-dedicated-love-garden-page-accessible-from-the-main-navigation-that-displays-the-full-garden-visualization-with-current-growth-status",
+      "title": "Add a dedicated Love Garden page accessible from the main navigation that displays the full garden visualization with current growth status",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-gentle-rewarding-animations-when-garden-elements-grow-or-new-plants-appear-to-make-progress-feel-magical-and-emotionally-resonant",
+      "title": "Create gentle, rewarding animations when garden elements grow or new plants appear to make progress feel magical and emotionally resonant",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Shared Love Garden feature - visual representation of relationship growth tied to XP/streaks/milestones",
+      "reqIds": [],
       "status": "pending"
     },
     {
-      "id": "AR-5",
-      "summary": "Add stable storage for badges in backend/main.mo, tracking unlocked badges per user with persistence across upgrades",
+      "id": "AR-6",
+      "summary": "Store and persist Love Garden state in the backend including current garden level, unlocked plants, and milestone tracking",
       "reqIds": [
-        "REQ-2"
+        "REQ-5"
       ],
       "status": "pending"
     }
   ],
-  "projectName": "Persist XP values and store badges in backend",
+  "projectName": "GrowInLove",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

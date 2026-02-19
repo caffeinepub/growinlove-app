@@ -1,185 +1,86 @@
 import { useState } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { InternetIdentityProvider, useInternetIdentity } from './hooks/useInternetIdentity';
+import { LoginButton } from './components/LoginButton';
+import BottomNav from './components/BottomNav';
 import { Home } from './pages/Home';
 import { Insights } from './pages/Insights';
-import { LoveLanguages } from './pages/LoveLanguages';
+import { Memories } from './pages/Memories';
+import Garden from './pages/Garden';
 import { Activities } from './pages/Activities';
 import { Us } from './pages/Us';
-import { Memories } from './pages/Memories';
 import { Landing } from './pages/Landing';
-import { BottomNav } from './components/BottomNav';
-import { LoginButton } from './components/LoginButton';
-import { ProfileSetup } from './components/ProfileSetup';
-import { ThemeToggle } from './components/ThemeToggle';
-import { ThemeProvider } from './contexts/ThemeContext';
-import { Toaster } from '@/components/ui/sonner';
-import { Bell, Loader2 } from 'lucide-react';
-import { useInternetIdentity } from './hooks/useInternetIdentity';
-import { useGetCallerUserProfile } from './hooks/useQueries';
-import { ErrorState } from './components/DataStates';
+import { getDraftBuildLabel } from './config/draftBuildLabel';
 
-export type TabId = 'home' | 'insights' | 'love-languages' | 'activities' | 'us' | 'memories';
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
+
+export type TabId = 'home' | 'insights' | 'memories' | 'garden' | 'activities' | 'us';
 
 function AppContent() {
+  const { identity, loginStatus } = useInternetIdentity();
+  const isAuthenticated = !!identity && loginStatus === 'success';
+
   const [activeTab, setActiveTab] = useState<TabId>('home');
-  const { identity, isInitializing } = useInternetIdentity();
-  const { 
-    data: userProfile, 
-    isLoading: profileLoading, 
-    isFetched, 
-    refetch,
-    error: profileError,
-    isError: isProfileError
-  } = useGetCallerUserProfile();
 
-  const isAuthenticated = !!identity;
-
-  // Show loading screen while initializing
-  if (isInitializing) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/10 to-peach/10">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
-          <p className="text-lg text-muted-foreground">Initializing...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show loading screen while profile is actively loading (only when authenticated)
-  if (isAuthenticated && profileLoading && !isFetched) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/10 to-peach/10">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
-          <p className="text-lg text-muted-foreground">Loading your profile...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error state if profile loading failed (with retry)
-  if (isAuthenticated && isProfileError && isFetched) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/10 to-peach/10 px-6">
-        <div className="max-w-md w-full">
-          <ErrorState
-            title="Unable to load profile"
-            message="We couldn't load your profile. This might be a temporary connection issue."
-            details={profileError instanceof Error ? profileError.message : 'Unknown error'}
-            onRetry={() => refetch()}
-            retryLabel="Retry"
-          />
-        </div>
-        <Toaster />
-      </div>
-    );
-  }
-
-  // Show ProfileSetup modal if authenticated but no profile exists
-  const showProfileSetup = isAuthenticated && isFetched && userProfile === null;
-
-  const handleProfileSetupSuccess = async () => {
-    // Refetch profile to ensure it's loaded
-    await refetch();
-    // Navigate to Us tab after successful profile setup
-    setActiveTab('us');
-  };
-
-  // Phase 3: Navigation callback for Home → Insights
-  const handleNavigateToInsights = () => {
-    setActiveTab('insights');
-  };
-
-  // Phase 3: Navigation callback for Us → Love Languages / Insights
-  const handleNavigateFromUs = (tab: 'love-languages' | 'insights') => {
-    setActiveTab(tab);
-  };
-
-  if (showProfileSetup) {
-    return (
-      <>
-        <ProfileSetup onSuccess={handleProfileSetupSuccess} />
-        <Toaster />
-      </>
-    );
-  }
-
-  // Show landing page if not authenticated
+  // Show landing page when not authenticated
   if (!isAuthenticated) {
-    return (
-      <>
-        <Landing />
-        <Toaster />
-      </>
-    );
+    return <Landing />;
   }
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'home':
-        return <Home onNavigateToInsights={handleNavigateToInsights} />;
-      case 'insights':
-        return <Insights />;
-      case 'love-languages':
-        return <LoveLanguages />;
-      case 'activities':
-        return <Activities />;
-      case 'us':
-        return <Us onNavigate={handleNavigateFromUs} />;
-      case 'memories':
-        return <Memories />;
-      default:
-        return <Home onNavigateToInsights={handleNavigateToInsights} />;
-    }
-  };
-
+  // Main app content
   return (
-    <>
-      <div className="flex flex-col h-screen bg-background overflow-hidden">
-        {/* Top Bar */}
-        <header className="flex-shrink-0 bg-card/50 backdrop-blur-sm border-b border-border/50">
-          <div className="flex items-center justify-between px-6 py-4">
-            <div className="flex items-center gap-3">
-              <img 
-                src="/assets/generated/growinlove-logo-transparent.dim_120x40.png" 
-                alt="GrowInLove" 
-                className="h-8 object-contain"
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              <ThemeToggle />
-              <button 
-                className="p-2 rounded-full hover:bg-secondary/50 transition-colors"
-                aria-label="Notifications"
-              >
-                <Bell className="w-5 h-5 text-muted-foreground" />
-              </button>
-              <LoginButton />
+    <div className="min-h-screen bg-gradient-to-b from-background to-romantic-light/10">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-lg border-b border-border">
+        <div className="flex items-center justify-between px-6 py-4 max-w-4xl mx-auto">
+          <div className="flex items-center gap-3">
+            <img
+              src="/assets/generated/growinlove-tree-logo-transparent.dim_256x256.png"
+              alt="GrowInLove"
+              className="w-10 h-10"
+            />
+            <div>
+              <h1 className="text-xl font-bold gradient-text">GrowInLove</h1>
+              <p className="text-xs text-muted-foreground">{getDraftBuildLabel()}</p>
             </div>
           </div>
-        </header>
+          <LoginButton />
+        </div>
+      </header>
 
-        {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto pb-20">
-          <div className="fade-in">
-            {renderContent()}
-          </div>
-        </main>
+      {/* Main Content */}
+      <main className="max-w-4xl mx-auto">
+        {activeTab === 'home' && <Home />}
+        {activeTab === 'insights' && <Insights />}
+        {activeTab === 'memories' && <Memories />}
+        {activeTab === 'garden' && <Garden />}
+        {activeTab === 'activities' && <Activities />}
+        {activeTab === 'us' && <Us />}
+      </main>
 
-        {/* Bottom Navigation */}
-        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-      </div>
-      <Toaster />
-    </>
+      {/* Bottom Navigation */}
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+    </div>
   );
 }
 
-function App() {
+export default function App() {
   return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <InternetIdentityProvider>
+          <AppContent />
+        </InternetIdentityProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
-
-export default App;

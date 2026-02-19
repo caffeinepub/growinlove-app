@@ -1,59 +1,130 @@
 {
   "kind": "build_request",
-  "title": "Persist XP values and store badges in backend",
-  "priority": "normal",
+  "title": "Implement Shared Love Garden visualization feature",
+  "projectName": "GrowInLove",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add stable storage for XP values in backend/main.mo, tracking XP per user with persistence across upgrades",
-      "target": "backend",
+      "text": "Create a Love Garden visualization component that displays a progressive garden scene starting as a small seed/sapling and evolving into a lush garden based on relationship milestones",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-user-love-garden-request"
         ],
         "quotes": [
-          "Persist XP values in backend"
+          "Proceed with the love garden feature",
+          "a visual representation of your relationship's growth that evolves with every ritual and activity completed",
+          "Start as a small seed/sapling and grow into a lush garden"
         ]
       },
       "acceptanceCriteria": [
-        "XP values are stored in stable storage in backend/main.mo",
-        "XP persists across canister upgrades",
-        "XP can be queried and updated via backend methods"
+        "Garden component renders a visual scene that changes appearance based on progression level",
+        "Visual progression includes multiple growth stages from seed to full garden",
+        "Component integrates with existing romantic theme and color scheme"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add stable storage for badges in backend/main.mo, tracking unlocked badges per user with persistence across upgrades",
-      "target": "backend",
+      "text": "Tie Love Garden growth progression to the existing XP system, streak milestones, and badge achievements so that completing rituals and activities visibly advances the garden",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-user-love-garden-request"
         ],
         "quotes": [
-          "Store badges in backend"
+          "evolves with every ritual and activity completed",
+          "Tie directly to your XP and streak systems",
+          "Add new plants, flowers, or trees based on milestones"
         ]
       },
       "acceptanceCriteria": [
-        "Badge data is stored in stable storage in backend/main.mo",
-        "Badges persist across canister upgrades",
-        "Badges can be queried and updated via backend methods",
-        "Badge unlock state is preserved for each user"
+        "Garden visual updates when XP increases from ritual completions",
+        "New plants or garden elements appear at specific streak milestones (3, 7, 14, 30, 60, 100 days)",
+        "Badge achievements trigger visible changes in the garden",
+        "Garden state persists across sessions and page refreshes"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add a dedicated Love Garden page accessible from the main navigation that displays the full garden visualization with current growth status",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-love-garden-request"
+        ],
+        "quotes": [
+          "Shared Love Garden",
+          "a visual representation of your relationship's growth"
+        ]
+      },
+      "acceptanceCriteria": [
+        "New navigation tab added to BottomNav component for Love Garden",
+        "Garden page is accessible to authenticated and paired users",
+        "Page displays the garden visualization prominently",
+        "Page shows current progress indicators (XP, streak, level)"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Create gentle, rewarding animations when garden elements grow or new plants appear to make progress feel magical and emotionally resonant",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-love-garden-request"
+        ],
+        "quotes": [
+          "Feel gentle, rewarding, and emotionally resonant",
+          "make that progress feel magical"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Smooth transition animations when garden progresses to next stage",
+        "New plant appearances include celebration animations",
+        "Animations respect prefers-reduced-motion accessibility setting",
+        "Animation timing feels gentle and not jarring"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Store and persist Love Garden state in the backend including current garden level, unlocked plants, and milestone tracking",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-user-love-garden-request"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend stores garden progression data for each couple",
+        "Garden state can be queried via backend API",
+        "Garden progression updates when rituals/challenges are completed",
+        "State persists correctly across backend upgrades"
       ]
     }
   ],
   "constraints": [
-    "Maintain single-actor architecture in backend/main.mo",
-    "Use stable storage for persistence across upgrades",
-    "Do not modify frontend files"
+    "Must integrate with existing XP, streak, and badge systems without modifying their core logic",
+    "Garden visualization must fit within the existing romantic theme and color palette",
+    "Must work with current authentication and pairing requirements",
+    "Must respect accessibility preferences including reduced motion",
+    "Backend must follow single-actor architecture in main.mo"
   ],
   "nonGoals": [
-    "Frontend UI changes",
-    "XP calculation logic changes",
-    "Badge unlock condition changes",
-    "Migration of existing data"
+    "Multiplayer or social sharing features for the garden",
+    "Customization options for garden appearance or themes",
+    "Mini-games or interactive elements within the garden",
+    "Garden comparison features between different couples",
+    "External integrations or third-party garden templates"
   ],
   "imageRequirements": {
-    "required": [],
+    "required": [
+      "Garden seed/sprout illustration for initial stage (garden-seed.dim_200x200.png)",
+      "Young sapling illustration for early growth stage (garden-sapling.dim_300x300.png)",
+      "Small garden with flowers illustration for mid-level stage (garden-flowers.dim_400x400.png)",
+      "Lush garden with multiple plants and trees illustration for advanced stage (garden-lush.dim_500x500.png)",
+      "Blooming rose bush illustration for milestone unlock (rose-bush.dim_150x150.png)",
+      "Cherry blossom tree illustration for high streak milestone (cherry-blossom.dim_200x250.png)"
+    ],
     "edits": []
   }
 }

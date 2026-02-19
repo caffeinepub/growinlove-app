@@ -19,7 +19,7 @@ export const _CaffeineStorageRefillResult = IDL.Record({
   'success' : IDL.Opt(IDL.Bool),
   'topped_up_amount' : IDL.Opt(IDL.Nat),
 });
-export const UserRole__1 = IDL.Variant({
+export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
   'guest' : IDL.Null,
@@ -54,13 +54,6 @@ export const MilestoneProgress = IDL.Record({
 export const BadgeMilestoneResponse = IDL.Record({
   'badges' : IDL.Vec(MilestoneBadge),
   'milestones' : MilestoneProgress,
-});
-export const UserRole = IDL.Variant({ 'admin' : IDL.Null, 'user' : IDL.Null });
-export const UserProfile = IDL.Record({
-  'name' : IDL.Text,
-  'role' : UserRole,
-  'partnerId' : IDL.Opt(UserId),
-  'isFirstUser' : IDL.Bool,
 });
 export const LoveLanguageRanking = IDL.Record({
   'score' : IDL.Float64,
@@ -97,6 +90,31 @@ export const InsighsDataExtendedResponse = IDL.Record({
   'averageHarmony' : IDL.Float64,
   'currentStreak' : IDL.Nat,
   'milestones' : MilestoneProgress,
+});
+export const XP = IDL.Nat;
+export const Plant = IDL.Record({
+  'name' : IDL.Text,
+  'description' : IDL.Text,
+  'milestone' : IDL.Text,
+  'isUnlocked' : IDL.Bool,
+  'xpRequired' : XP,
+});
+export const LoveGarden = IDL.Record({
+  'xp' : XP,
+  'level' : IDL.Nat,
+  'streakMilestones' : IDL.Vec(Plant),
+  'badgeAchievements' : IDL.Vec(Plant),
+  'isComplete' : IDL.Bool,
+});
+export const GardenProgress = IDL.Record({
+  'xp' : XP,
+  'unlockedPlant' : IDL.Opt(Plant),
+  'level' : IDL.Nat,
+  'hasAvailableRewards' : IDL.Bool,
+  'streakMilestones' : IDL.Vec(Plant),
+  'badgeAchievements' : IDL.Vec(Plant),
+  'isComplete' : IDL.Bool,
+  'levelProgress' : IDL.Float64,
 });
 export const PartnerQuizState = IDL.Record({
   'partnerCompleted' : IDL.Bool,
@@ -166,7 +184,7 @@ export const idlService = IDL.Service({
     ),
   '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
-  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole__1], [], []),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'checkPairingCode' : IDL.Func([IDL.Nat], [IDL.Opt(IDL.Principal)], []),
   'clearLoveLanguagesQuizResults' : IDL.Func([], [], []),
   'completePairing' : IDL.Func([IDL.Nat], [PairingResult], []),
@@ -176,6 +194,7 @@ export const idlService = IDL.Service({
       [],
     ),
   'confirmWeeklyChallengeWithoutProof' : IDL.Func([], [], []),
+  'createGarden' : IDL.Func([], [], []),
   'createPairingCode' : IDL.Func([], [IDL.Nat], []),
   'deletePhoto' : IDL.Func([IDL.Text], [], []),
   'fetchPrompts' : IDL.Func([], [IDL.Vec(RitualPrompt)], ['query']),
@@ -186,8 +205,7 @@ export const idlService = IDL.Service({
     ),
   'getBadgeMilestones' : IDL.Func([], [BadgeMilestoneResponse], ['query']),
   'getBadges' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
-  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
-  'getCallerUserRole' : IDL.Func([], [UserRole__1], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getCombinedQuizResultState' : IDL.Func(
       [],
       [IDL.Opt(CombinedQuizResultState)],
@@ -195,6 +213,8 @@ export const idlService = IDL.Service({
     ),
   'getDailyRitual' : IDL.Func([], [IDL.Opt(RitualPrompt)], []),
   'getInsightsData' : IDL.Func([], [InsighsDataExtendedResponse], ['query']),
+  'getLoveGarden' : IDL.Func([], [LoveGarden], ['query']),
+  'getLoveGardenProgress' : IDL.Func([], [GardenProgress], ['query']),
   'getLoveLanguageQuizResult' : IDL.Func(
       [],
       [IDL.Opt(LoveLanguagesQuizResult)],
@@ -218,7 +238,6 @@ export const idlService = IDL.Service({
       [IDL.Opt(CanonicalPartnerRitualStatus)],
       ['query'],
     ),
-  'getUserProfile' : IDL.Func([UserId], [IDL.Opt(UserProfile)], ['query']),
   'getXP' : IDL.Func([], [IDL.Nat], ['query']),
   'getXPForAllUsers' : IDL.Func(
       [],
@@ -229,9 +248,9 @@ export const idlService = IDL.Service({
   'isAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'rewardXP' : IDL.Func([IDL.Nat], [RewardXPResult], []),
-  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'saveLoveLanguageQuizResults' : IDL.Func([LoveLanguagesQuizResult], [], []),
   'submitRitualResponse' : IDL.Func([DailyRitualInput], [], []),
+  'unlockPlant' : IDL.Func([IDL.Text], [], []),
   'uploadPhoto' : IDL.Func([ExternalBlob, IDL.Text], [IDL.Text], []),
 });
 
@@ -249,7 +268,7 @@ export const idlFactory = ({ IDL }) => {
     'success' : IDL.Opt(IDL.Bool),
     'topped_up_amount' : IDL.Opt(IDL.Nat),
   });
-  const UserRole__1 = IDL.Variant({
+  const UserRole = IDL.Variant({
     'admin' : IDL.Null,
     'user' : IDL.Null,
     'guest' : IDL.Null,
@@ -284,13 +303,6 @@ export const idlFactory = ({ IDL }) => {
   const BadgeMilestoneResponse = IDL.Record({
     'badges' : IDL.Vec(MilestoneBadge),
     'milestones' : MilestoneProgress,
-  });
-  const UserRole = IDL.Variant({ 'admin' : IDL.Null, 'user' : IDL.Null });
-  const UserProfile = IDL.Record({
-    'name' : IDL.Text,
-    'role' : UserRole,
-    'partnerId' : IDL.Opt(UserId),
-    'isFirstUser' : IDL.Bool,
   });
   const LoveLanguageRanking = IDL.Record({
     'score' : IDL.Float64,
@@ -327,6 +339,31 @@ export const idlFactory = ({ IDL }) => {
     'averageHarmony' : IDL.Float64,
     'currentStreak' : IDL.Nat,
     'milestones' : MilestoneProgress,
+  });
+  const XP = IDL.Nat;
+  const Plant = IDL.Record({
+    'name' : IDL.Text,
+    'description' : IDL.Text,
+    'milestone' : IDL.Text,
+    'isUnlocked' : IDL.Bool,
+    'xpRequired' : XP,
+  });
+  const LoveGarden = IDL.Record({
+    'xp' : XP,
+    'level' : IDL.Nat,
+    'streakMilestones' : IDL.Vec(Plant),
+    'badgeAchievements' : IDL.Vec(Plant),
+    'isComplete' : IDL.Bool,
+  });
+  const GardenProgress = IDL.Record({
+    'xp' : XP,
+    'unlockedPlant' : IDL.Opt(Plant),
+    'level' : IDL.Nat,
+    'hasAvailableRewards' : IDL.Bool,
+    'streakMilestones' : IDL.Vec(Plant),
+    'badgeAchievements' : IDL.Vec(Plant),
+    'isComplete' : IDL.Bool,
+    'levelProgress' : IDL.Float64,
   });
   const PartnerQuizState = IDL.Record({
     'partnerCompleted' : IDL.Bool,
@@ -396,7 +433,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
-    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole__1], [], []),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'checkPairingCode' : IDL.Func([IDL.Nat], [IDL.Opt(IDL.Principal)], []),
     'clearLoveLanguagesQuizResults' : IDL.Func([], [], []),
     'completePairing' : IDL.Func([IDL.Nat], [PairingResult], []),
@@ -406,6 +443,7 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'confirmWeeklyChallengeWithoutProof' : IDL.Func([], [], []),
+    'createGarden' : IDL.Func([], [], []),
     'createPairingCode' : IDL.Func([], [IDL.Nat], []),
     'deletePhoto' : IDL.Func([IDL.Text], [], []),
     'fetchPrompts' : IDL.Func([], [IDL.Vec(RitualPrompt)], ['query']),
@@ -416,8 +454,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getBadgeMilestones' : IDL.Func([], [BadgeMilestoneResponse], ['query']),
     'getBadges' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
-    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
-    'getCallerUserRole' : IDL.Func([], [UserRole__1], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getCombinedQuizResultState' : IDL.Func(
         [],
         [IDL.Opt(CombinedQuizResultState)],
@@ -425,6 +462,8 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getDailyRitual' : IDL.Func([], [IDL.Opt(RitualPrompt)], []),
     'getInsightsData' : IDL.Func([], [InsighsDataExtendedResponse], ['query']),
+    'getLoveGarden' : IDL.Func([], [LoveGarden], ['query']),
+    'getLoveGardenProgress' : IDL.Func([], [GardenProgress], ['query']),
     'getLoveLanguageQuizResult' : IDL.Func(
         [],
         [IDL.Opt(LoveLanguagesQuizResult)],
@@ -448,7 +487,6 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(CanonicalPartnerRitualStatus)],
         ['query'],
       ),
-    'getUserProfile' : IDL.Func([UserId], [IDL.Opt(UserProfile)], ['query']),
     'getXP' : IDL.Func([], [IDL.Nat], ['query']),
     'getXPForAllUsers' : IDL.Func(
         [],
@@ -463,9 +501,9 @@ export const idlFactory = ({ IDL }) => {
     'isAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'rewardXP' : IDL.Func([IDL.Nat], [RewardXPResult], []),
-    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'saveLoveLanguageQuizResults' : IDL.Func([LoveLanguagesQuizResult], [], []),
     'submitRitualResponse' : IDL.Func([DailyRitualInput], [], []),
+    'unlockPlant' : IDL.Func([IDL.Text], [], []),
     'uploadPhoto' : IDL.Func([ExternalBlob, IDL.Text], [IDL.Text], []),
   });
 };

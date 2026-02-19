@@ -1,6 +1,104 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Frontend Implementation Plan - No Frontend Changes Required",
-  "requirements": []
+  "title": "Implement Shared Love Garden visualization feature",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Create a Love Garden visualization component that displays a progressive garden scene starting as a small seed/sapling and evolving into a lush garden based on relationship milestones",
+      "acceptanceCriteria": [
+        "Garden component renders a visual scene that changes appearance based on progression level",
+        "Visual progression includes multiple growth stages from seed to full garden",
+        "Component integrates with existing romantic theme and color scheme"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/LoveGardenVisualization.tsx",
+          "operation": "create",
+          "description": "Create the main Love Garden visualization component that renders the progressive garden scene. The component receives gardenLevel (number) and unlockedPlants (array) as props and displays the appropriate garden stage image from frontend/public/assets/generated/. Use garden-seed.dim_200x200.png for level 0-1, garden-sapling.dim_300x300.png for level 2-4, garden-flowers.dim_400x400.png for level 5-7, and garden-lush.dim_500x500.png for level 8+. Overlay unlocked plant images (rose-bush.dim_150x150.png, cherry-blossom.dim_200x250.png) as decorative elements when present. Apply romantic theme colors from Tailwind config and ensure responsive sizing. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/GardenPlantCard.tsx",
+          "operation": "create",
+          "description": "Create a card component to display individual plant information including name, description, milestone requirement, unlock status, and XP required. Show locked plants with reduced opacity and a lock icon. Use the Plant type from backend interface. Apply romantic theme styling consistent with existing card components like HarmonyBreakdownTrendCard."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Tie Love Garden growth progression to the existing XP system, streak milestones, and badge achievements so that completing rituals and activities visibly advances the garden",
+      "acceptanceCriteria": [
+        "Garden visual updates when XP increases from ritual completions",
+        "New plants or garden elements appear at specific streak milestones (3, 7, 14, 30, 60, 100 days)",
+        "Badge achievements trigger visible changes in the garden",
+        "Garden state persists across sessions and page refreshes"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add useGetLoveGardenProgress query hook that calls actor.getLoveGardenProgress() to fetch GardenProgress data including level, XP, unlockedPlants, streakMilestones, badgeAchievements, levelProgress, and hasAvailableRewards. Enable the query only when actor is available and user is authenticated. Include proper error handling and cache invalidation keys."
+        },
+        {
+          "path": "frontend/src/components/LoveGardenVisualization.tsx",
+          "operation": "modify",
+          "description": "Update the LoveGardenVisualization component to accept GardenProgress data and reactively update the garden visualization when XP, level, or unlocked plants change. Map streakMilestones and badgeAchievements arrays to visual plant overlays. Ensure the component re-renders smoothly when progress data updates after ritual completions or challenge completions."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Add a dedicated Love Garden page accessible from the main navigation that displays the full garden visualization with current growth status",
+      "acceptanceCriteria": [
+        "New navigation tab added to BottomNav component for Love Garden",
+        "Garden page is accessible to authenticated and paired users",
+        "Page displays the garden visualization prominently",
+        "Page shows current progress indicators (XP, streak, level)"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Garden.tsx",
+          "operation": "create",
+          "description": "Create the Garden page component that fetches garden progress using useGetLoveGardenProgress hook and displays the LoveGardenVisualization component prominently. Include progress indicators showing current XP, garden level, level progress percentage bar, and current streak. Display lists of unlocked streakMilestones and badgeAchievements using GardenPlantCard components. Show loading, error, and empty states using DataStates components. Require authentication and pairing (or admin override) similar to Activities page pattern."
+        },
+        {
+          "path": "frontend/src/components/BottomNav.tsx",
+          "operation": "modify",
+          "description": "Add a new navigation tab for 'Garden' between 'Memories' and 'Activities' tabs. Use a flower or plant icon (Lucide React icons) and label it 'Garden'. Update the active state logic to highlight the Garden tab when pathname is '/garden'. Maintain consistent styling with existing tabs."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add a new route case for 'garden' in the activeTab state management logic. Import and render the Garden page component when activeTab is 'garden'. Ensure the Garden page follows the same authentication and loading patterns as other protected pages."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Create gentle, rewarding animations when garden elements grow or new plants appear to make progress feel magical and emotionally resonant",
+      "acceptanceCriteria": [
+        "Smooth transition animations when garden progresses to next stage",
+        "New plant appearances include celebration animations",
+        "Animations respect prefers-reduced-motion accessibility setting",
+        "Animation timing feels gentle and not jarring"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/LoveGardenVisualization.tsx",
+          "operation": "modify",
+          "description": "Add smooth fade-in and scale-up animations when the garden stage image changes or new plants unlock. Use Framer Motion for animations with spring physics for gentle, organic motion. Detect newly unlocked plants by comparing previous and current unlockedPlants arrays. Apply celebration animations (gentle bounce, glow effect) to newly appeared plants. Use usePrefersReducedMotion hook to disable animations when user prefers reduced motion. Keep animation durations between 600-1000ms for gentle pacing."
+        },
+        {
+          "path": "frontend/src/components/GardenPlantCard.tsx",
+          "operation": "modify",
+          "description": "Add a subtle scale-in animation when a plant card transitions from locked to unlocked state. Use Framer Motion with gentle spring animation. Include an optional highlight prop that triggers a brief glow animation for newly unlocked plants. Respect prefers-reduced-motion setting using usePrefersReducedMotion hook."
+        },
+        {
+          "path": "frontend/src/pages/Garden.tsx",
+          "operation": "modify",
+          "description": "Add celebration animation when hasAvailableRewards flag is true in GardenProgress data, indicating new unlocks are available. Reuse the CompletionAnimation component pattern from Home page for floating hearts. Show a brief congratulatory message overlay when new milestones are reached. Ensure animations are subtle and don't obstruct the garden visualization."
+        }
+      ]
+    }
+  ]
 }
