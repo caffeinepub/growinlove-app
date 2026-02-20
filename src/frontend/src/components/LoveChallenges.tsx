@@ -1,239 +1,182 @@
-import { useState, useRef } from 'react';
-import { Heart, CheckCircle2, Loader2, Camera, Image as ImageIcon, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Heart, CheckCircle2, Sparkles, Target } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useGetWeeklyChallenge, useCompleteWeeklyChallenge } from '../hooks/useQueries';
-import { LoadingState, ErrorState, InlineEmpty } from './DataStates';
-import { CompletionAnimation } from './CompletionAnimation';
-import { ExternalBlob } from '../backend';
+import { Badge } from '@/components/ui/badge';
+import { useGetCompletedChallengeIds, useMarkChallengeComplete } from '../hooks/useQueries';
+import { LoadingState } from './DataStates';
+import { LoveLanguage } from '../backend';
+
+interface LoveChallenge {
+  id: number;
+  title: string;
+  description: string;
+  loveLanguage: LoveLanguage;
+}
+
+const challengeTemplates: LoveChallenge[] = [
+  { id: 1, title: 'Daily Affirmation', description: 'Share three things you appreciate about your partner today', loveLanguage: LoveLanguage.wordsOfAffirmation },
+  { id: 2, title: 'Love Letter', description: 'Write a heartfelt note expressing your feelings', loveLanguage: LoveLanguage.wordsOfAffirmation },
+  { id: 3, title: 'Compliment Challenge', description: 'Give your partner five genuine compliments throughout the day', loveLanguage: LoveLanguage.wordsOfAffirmation },
+  { id: 4, title: 'Uninterrupted Time', description: 'Spend 30 minutes together without phones or distractions', loveLanguage: LoveLanguage.qualityTime },
+  { id: 5, title: 'Shared Activity', description: 'Plan and do a fun activity together that you both enjoy', loveLanguage: LoveLanguage.qualityTime },
+  { id: 6, title: 'Deep Conversation', description: 'Have a meaningful conversation about your dreams and goals', loveLanguage: LoveLanguage.qualityTime },
+  { id: 7, title: 'Cuddle Time', description: 'Spend 15 minutes cuddling and being close', loveLanguage: LoveLanguage.physicalTouch },
+  { id: 8, title: 'Massage Exchange', description: 'Give each other relaxing shoulder or foot massages', loveLanguage: LoveLanguage.physicalTouch },
+  { id: 9, title: 'Hand Holding', description: 'Hold hands during a walk or while watching something together', loveLanguage: LoveLanguage.physicalTouch },
+  { id: 10, title: 'Helpful Gesture', description: 'Do a chore or task your partner usually handles', loveLanguage: LoveLanguage.actsOfService },
+  { id: 11, title: 'Surprise Help', description: 'Complete something on your partner\'s to-do list without being asked', loveLanguage: LoveLanguage.actsOfService },
+  { id: 12, title: 'Breakfast in Bed', description: 'Prepare a special meal or treat for your partner', loveLanguage: LoveLanguage.actsOfService },
+  { id: 13, title: 'Thoughtful Surprise', description: 'Give your partner a small, meaningful gift', loveLanguage: LoveLanguage.receivingGifts },
+  { id: 14, title: 'Love Token', description: 'Create or find something that represents your relationship', loveLanguage: LoveLanguage.receivingGifts },
+  { id: 15, title: 'Favorite Treat', description: 'Surprise your partner with their favorite snack or item', loveLanguage: LoveLanguage.receivingGifts },
+];
+
+const loveLanguageColors: Record<LoveLanguage, { bg: string; text: string; border: string }> = {
+  [LoveLanguage.wordsOfAffirmation]: { bg: 'bg-amber-500/10', text: 'text-amber-700 dark:text-amber-400', border: 'border-amber-500/20' },
+  [LoveLanguage.qualityTime]: { bg: 'bg-purple-500/10', text: 'text-purple-700 dark:text-purple-400', border: 'border-purple-500/20' },
+  [LoveLanguage.physicalTouch]: { bg: 'bg-rose-500/10', text: 'text-rose-700 dark:text-rose-400', border: 'border-rose-500/20' },
+  [LoveLanguage.actsOfService]: { bg: 'bg-green-500/10', text: 'text-green-700 dark:text-green-400', border: 'border-green-500/20' },
+  [LoveLanguage.receivingGifts]: { bg: 'bg-pink-500/10', text: 'text-pink-700 dark:text-pink-400', border: 'border-pink-500/20' },
+};
+
+const loveLanguageLabels: Record<LoveLanguage, string> = {
+  [LoveLanguage.wordsOfAffirmation]: 'Words of Affirmation',
+  [LoveLanguage.qualityTime]: 'Quality Time',
+  [LoveLanguage.physicalTouch]: 'Physical Touch',
+  [LoveLanguage.actsOfService]: 'Acts of Service',
+  [LoveLanguage.receivingGifts]: 'Receiving Gifts',
+};
 
 export function LoveChallenges() {
-  const { data: challenge, isLoading, error, refetch } = useGetWeeklyChallenge();
-  const completeChallenge = useCompleteWeeklyChallenge();
-  const [showAnimation, setShowAnimation] = useState(false);
-  const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { data: completedIds, isLoading } = useGetCompletedChallengeIds();
+  const markComplete = useMarkChallengeComplete();
+  const [animatingId, setAnimatingId] = useState<number | null>(null);
 
-  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedPhoto(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhotoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const completedSet = new Set(completedIds?.map(id => Number(id)) || []);
 
-  const handleRemovePhoto = () => {
-    setSelectedPhoto(null);
-    setPhotoPreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const handleComplete = async (withProof: boolean) => {
+  const handleComplete = async (challengeId: number) => {
     try {
-      setIsUploading(true);
-      
-      let blob: ExternalBlob | undefined;
-      
-      if (withProof && selectedPhoto) {
-        // Convert File to Uint8Array
-        const arrayBuffer = await selectedPhoto.arrayBuffer();
-        const uint8Array = new Uint8Array(arrayBuffer);
-        blob = ExternalBlob.fromBytes(uint8Array);
-      }
-      
-      await completeChallenge.mutateAsync({ blob });
-      setShowAnimation(true);
-      setTimeout(() => setShowAnimation(false), 2000);
-      
-      // Clear photo after successful completion
-      handleRemovePhoto();
+      setAnimatingId(challengeId);
+      await markComplete.mutateAsync(challengeId);
+      setTimeout(() => setAnimatingId(null), 1500);
     } catch (err) {
-      console.error('Failed to complete challenge:', err);
-    } finally {
-      setIsUploading(false);
+      console.error('Failed to mark challenge complete:', err);
+      setAnimatingId(null);
     }
   };
 
-  const hasProof = challenge?.proof?.blob;
-  const proofUrl = hasProof ? challenge.proof!.blob!.getDirectURL() : null;
+  if (isLoading) {
+    return (
+      <Card className="border-2 border-primary/20 shadow-lg">
+        <CardContent className="p-6">
+          <LoadingState message="Loading love challenges..." size="sm" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const completedCount = completedSet.size;
+  const totalCount = challengeTemplates.length;
+  const progressPercent = (completedCount / totalCount) * 100;
 
   return (
-    <Card className="border-2 border-primary/20 shadow-lg gentle-entrance relative overflow-hidden">
-      {showAnimation && <CompletionAnimation />}
-      
+    <Card className="border-2 border-primary/20 shadow-lg gentle-entrance">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-2xl text-primary">
           <Heart className="w-6 h-6" fill="currentColor" />
-          💞 Weekly Challenge
+          💞 Love Challenges
         </CardTitle>
+        <div className="space-y-2 pt-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Progress</span>
+            <span className="font-semibold text-primary">
+              {completedCount} / {totalCount}
+            </span>
+          </div>
+          <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-accent to-primary transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+        </div>
       </CardHeader>
       
-      <CardContent className="space-y-4">
-        {isLoading && (
-          <LoadingState message="Loading your weekly challenge..." size="sm" />
-        )}
+      <CardContent className="space-y-3">
+        <p className="text-sm text-muted-foreground pb-2">
+          Complete these challenges to strengthen your bond and explore different love languages together!
+        </p>
 
-        {error && (
-          <ErrorState
-            title="Unable to load challenge"
-            message="We couldn't fetch your weekly challenge. Please try again."
-            details={error instanceof Error ? error.message : 'Unknown error'}
-            onRetry={() => refetch()}
-            retryLabel="Retry"
-          />
-        )}
+        <div className="space-y-2">
+          {challengeTemplates.map((challenge) => {
+            const isCompleted = completedSet.has(challenge.id);
+            const isAnimating = animatingId === challenge.id;
+            const colors = loveLanguageColors[challenge.loveLanguage];
 
-        {!isLoading && !error && !challenge && (
-          <InlineEmpty
-            message="No weekly challenge available right now. Check back soon!"
-            icon={<Heart className="w-10 h-10 text-primary/30 fill-primary/30" />}
-          />
-        )}
-
-        {!isLoading && !error && challenge && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-foreground">
-                {challenge.title}
-              </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                {challenge.description}
-              </p>
-            </div>
-
-            {challenge.isCompleted ? (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 p-4 rounded-lg bg-primary/10 border border-primary/20">
-                  <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                  <span className="text-sm font-medium text-primary">
-                    Challenge completed! 🎉
-                  </span>
-                </div>
-                
-                {/* Show proof if available */}
-                {proofUrl && (
-                  <div className="rounded-lg overflow-hidden border-2 border-primary/20">
-                    <img 
-                      src={proofUrl} 
-                      alt="Challenge proof" 
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="p-2 bg-primary/5 text-xs text-center text-muted-foreground">
-                      Your proof photo
+            return (
+              <div
+                key={challenge.id}
+                className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                  isCompleted
+                    ? 'bg-primary/5 border-primary/20 opacity-75'
+                    : `${colors.bg} ${colors.border}`
+                } ${isAnimating ? 'scale-105 shadow-lg' : ''}`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-base font-semibold text-foreground">
+                        {challenge.title}
+                      </h3>
+                      <Badge variant="outline" className={`text-xs ${colors.text} ${colors.border}`}>
+                        {loveLanguageLabels[challenge.loveLanguage]}
+                      </Badge>
                     </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {challenge.description}
+                    </p>
+                  </div>
+
+                  {isCompleted ? (
+                    <div className="flex-shrink-0">
+                      <CheckCircle2 className="w-6 h-6 text-primary" />
+                    </div>
+                  ) : (
+                    <Button
+                      size="sm"
+                      onClick={() => handleComplete(challenge.id)}
+                      disabled={markComplete.isPending}
+                      className="flex-shrink-0 bg-accent hover:bg-accent/90"
+                    >
+                      {markComplete.isPending && animatingId === challenge.id ? (
+                        <Sparkles className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Target className="w-4 h-4" />
+                      )}
+                    </Button>
+                  )}
+                </div>
+
+                {isAnimating && (
+                  <div className="mt-2 text-center">
+                    <span className="text-xs font-semibold text-primary animate-pulse">
+                      ✨ Challenge completed! ✨
+                    </span>
                   </div>
                 )}
               </div>
-            ) : (
-              <div className="space-y-4">
-                {/* Photo proof section */}
-                <div className="p-4 rounded-lg bg-muted/30 border border-muted space-y-3">
-                  <div className="flex items-start gap-2">
-                    <Camera className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium text-foreground">
-                        Add a photo (optional but encouraged!)
-                      </p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        Capture the moment to help you both remember and celebrate this special time together. Photos make your journey more memorable! 💕
-                      </p>
-                    </div>
-                  </div>
+            );
+          })}
+        </div>
 
-                  {/* Photo preview or upload button */}
-                  {photoPreview ? (
-                    <div className="relative rounded-lg overflow-hidden border-2 border-primary/20">
-                      <img 
-                        src={photoPreview} 
-                        alt="Preview" 
-                        className="w-full h-48 object-cover"
-                      />
-                      <button
-                        onClick={handleRemovePhoto}
-                        className="absolute top-2 right-2 p-1.5 rounded-full bg-destructive/90 hover:bg-destructive text-white transition-colors"
-                        aria-label="Remove photo"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handlePhotoSelect}
-                        className="hidden"
-                        id="photo-upload"
-                      />
-                      <label htmlFor="photo-upload">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-full gap-2"
-                          onClick={() => fileInputRef.current?.click()}
-                          asChild
-                        >
-                          <span>
-                            <ImageIcon className="w-4 h-4" />
-                            Choose photo
-                          </span>
-                        </Button>
-                      </label>
-                    </div>
-                  )}
-                </div>
-
-                {/* Completion buttons */}
-                <div className="flex flex-col gap-2">
-                  {selectedPhoto ? (
-                    <Button
-                      onClick={() => handleComplete(true)}
-                      disabled={isUploading || completeChallenge.isPending}
-                      className="w-full rounded-2xl gap-2"
-                    >
-                      {isUploading || completeChallenge.isPending ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Completing with photo...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle2 className="w-4 h-4" />
-                          Complete with photo
-                        </>
-                      )}
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => handleComplete(false)}
-                      disabled={isUploading || completeChallenge.isPending}
-                      className="w-full rounded-2xl gap-2"
-                    >
-                      {isUploading || completeChallenge.isPending ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Marking as done...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle2 className="w-4 h-4" />
-                          Mark as done
-                        </>
-                      )}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
+        {completedCount === totalCount && (
+          <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-accent/20 to-primary/20 border-2 border-primary/30 text-center">
+            <p className="text-sm font-semibold text-primary flex items-center justify-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              Amazing! You've completed all love challenges!
+              <Sparkles className="w-4 h-4" />
+            </p>
           </div>
         )}
       </CardContent>

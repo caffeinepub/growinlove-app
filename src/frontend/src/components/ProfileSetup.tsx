@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Heart, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { useInitializeUserProfile } from '../hooks/useQueries';
 
 interface ProfileSetupProps {
   onSuccess: () => void;
@@ -13,7 +14,7 @@ export function ProfileSetup({ onSuccess }: ProfileSetupProps) {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const initializeProfile = useInitializeUserProfile();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,12 +25,12 @@ export function ProfileSetup({ onSuccess }: ProfileSetupProps) {
 
     try {
       setError('');
-      setIsSubmitting(true);
+      await initializeProfile.mutateAsync(name.trim());
       
       // Show success state briefly
       setIsSuccess(true);
       
-      // Wait a moment and then trigger success callback
+      // Wait a moment for the backend to process and then trigger success callback
       setTimeout(() => {
         onSuccess();
       }, 800);
@@ -37,7 +38,6 @@ export function ProfileSetup({ onSuccess }: ProfileSetupProps) {
       console.error('Failed to initialize profile:', err);
       setError(err.message || 'Failed to set up profile. Please try again.');
       setIsSuccess(false);
-      setIsSubmitting(false);
     }
   };
 
@@ -82,7 +82,7 @@ export function ProfileSetup({ onSuccess }: ProfileSetupProps) {
                   className="h-12 text-base rounded-xl focus:ring-2 focus:ring-primary/50"
                   required
                   autoFocus
-                  disabled={isSubmitting}
+                  disabled={initializeProfile.isPending}
                 />
               </div>
 
@@ -96,9 +96,9 @@ export function ProfileSetup({ onSuccess }: ProfileSetupProps) {
               <Button
                 type="submit"
                 className="w-full h-12 text-lg font-semibold rounded-xl"
-                disabled={!name.trim() || isSubmitting}
+                disabled={!name.trim() || initializeProfile.isPending}
               >
-                {isSubmitting ? (
+                {initializeProfile.isPending ? (
                   <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                     Setting up...

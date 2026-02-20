@@ -1,13 +1,14 @@
 # Specification
 
 ## Summary
-**Goal:** Add a Shared Love Garden feature that visualizes relationship growth through a progressive garden scene that evolves with completed rituals, activities, and milestones.
+**Goal:** Fix Activities tab badge filtering, add challenge persistence, implement Love Wheel spin physics, and add real-time data sync.
 
 **Planned changes:**
-- Create a Love Garden visualization component with multiple growth stages (seed → sapling → flowers → lush garden)
-- Tie garden progression to existing XP system, streak milestones, and badge achievements
-- Add a dedicated Love Garden page accessible from main navigation
-- Implement gentle animations for garden growth and new plant appearances
-- Store and persist garden state in backend including current level, unlocked plants, and milestones
+- Fix badge display logic in Activities tab to show only unlocked badges that meet streak conditions
+- Add backend persistence for Love Challenges completion tracking in stable storage
+- Connect frontend Love Challenges to use backend persistence instead of local state
+- Implement Spin the Love Wheel with smooth deceleration physics (ease-out cubic, 3-5 second duration, randomized stopping angle with offset to avoid landing on dividing lines)
+- Add real-time polling mechanism for Activities tab to auto-refresh badges, streaks, and challenge data
+- Add visual feedback showing progress toward next badge unlock (e.g., "3 days until next badge!")
 
-**User-visible outcome:** Users will see a dedicated Love Garden page showing a visual garden that starts as a seed and grows progressively more lush as they complete rituals and activities together, with new plants appearing at streak milestones and gentle animations celebrating their progress.
+**User-visible outcome:** Users will see only their unlocked badges in Activities, completed Love Challenges will persist across sessions, the Love Wheel will spin smoothly with realistic physics, Activities data will automatically sync when their partner completes rituals, and they'll see how close they are to unlocking the next badge.

@@ -1,130 +1,129 @@
 {
   "kind": "build_request",
-  "title": "Implement Shared Love Garden visualization feature",
-  "projectName": "GrowInLove",
-  "priority": "high",
+  "title": "Fix Activities tab badge filtering, add challenge persistence, implement Love Wheel physics, and add real-time sync",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Create a Love Garden visualization component that displays a progressive garden scene starting as a small seed/sapling and evolving into a lush garden based on relationship milestones",
+      "text": "Fix badge display logic in Activities tab to properly filter and show only unlocked badges by verifying the filtering logic matches backend unlock conditions from getBadgeMilestones",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-love-garden-request"
+          "msg-5"
         ],
         "quotes": [
-          "Proceed with the love garden feature",
-          "a visual representation of your relationship's growth that evolves with every ritual and activity completed",
-          "Start as a small seed/sapling and grow into a lush garden"
+          "Badge Display Logic Problem: The Activities tab filters badges by isUnlocked status, but the backend returns ALL milestone badges (locked and unlocked)"
         ]
       },
       "acceptanceCriteria": [
-        "Garden component renders a visual scene that changes appearance based on progression level",
-        "Visual progression includes multiple growth stages from seed to full garden",
-        "Component integrates with existing romantic theme and color scheme"
+        "Only badges that meet unlock conditions (7-day, 30-day, 100-day streaks) are displayed",
+        "Locked badges do not appear in the badges list",
+        "Badge unlock status correctly reflects current streak data"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Tie Love Garden growth progression to the existing XP system, streak milestones, and badge achievements so that completing rituals and activities visibly advances the garden",
-      "target": "both",
+      "text": "Add backend persistence for Love Challenges completion tracking so completed challenges are stored on-chain and persist across page refreshes",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-user-love-garden-request"
+          "msg-5"
         ],
         "quotes": [
-          "evolves with every ritual and activity completed",
-          "Tie directly to your XP and streak systems",
-          "Add new plants, flowers, or trees based on milestones"
+          "Challenge Completion Tracking: Love Challenges use local state (completedChallenges) but don't persist to backend"
         ]
       },
       "acceptanceCriteria": [
-        "Garden visual updates when XP increases from ritual completions",
-        "New plants or garden elements appear at specific streak milestones (3, 7, 14, 30, 60, 100 days)",
-        "Badge achievements trigger visible changes in the garden",
-        "Garden state persists across sessions and page refreshes"
+        "Completed Love Challenges are stored in stable storage",
+        "Challenge completion state persists after page refresh",
+        "Backend provides endpoint to fetch user's completed challenges"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add a dedicated Love Garden page accessible from the main navigation that displays the full garden visualization with current growth status",
+      "text": "Connect frontend Love Challenges component to use backend persistence instead of local state for tracking completed challenges",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-love-garden-request"
-        ],
-        "quotes": [
-          "Shared Love Garden",
-          "a visual representation of your relationship's growth"
+          "msg-5"
         ]
       },
       "acceptanceCriteria": [
-        "New navigation tab added to BottomNav component for Love Garden",
-        "Garden page is accessible to authenticated and paired users",
-        "Page displays the garden visualization prominently",
-        "Page shows current progress indicators (XP, streak, level)"
+        "LoveChallenges component fetches completed challenges from backend",
+        "Challenge completion submits to backend endpoint",
+        "Completed challenges persist across sessions"
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Create gentle, rewarding animations when garden elements grow or new plants appear to make progress feel magical and emotionally resonant",
+      "text": "Implement Spin the Love Wheel with smooth deceleration physics using ease-out cubic easing, 3-5 second spin duration, and randomized final stopping angle with slight offset to avoid landing exactly on dividing lines between sections",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-love-garden-request"
+          "msg-6",
+          "msg-7"
         ],
         "quotes": [
-          "Feel gentle, rewarding, and emotionally resonant",
-          "make that progress feel magical"
+          "We'd also need to make sure the Love Wheel slowly comes to a stop and doesn't always land right on a line in between two",
+          "Add a realistic 'spin down' animation using easing functions (ease-out cubic)"
         ]
       },
       "acceptanceCriteria": [
-        "Smooth transition animations when garden progresses to next stage",
-        "New plant appearances include celebration animations",
-        "Animations respect prefers-reduced-motion accessibility setting",
-        "Animation timing feels gentle and not jarring"
+        "Wheel spins with gradual deceleration over 3-5 seconds",
+        "Final stopping position uses randomized offset to avoid landing on dividing lines",
+        "Animation uses ease-out cubic easing for natural feel",
+        "Slight bounce effect occurs when wheel stops"
       ]
     },
     {
       "id": "REQ-5",
-      "text": "Store and persist Love Garden state in the backend including current garden level, unlocked plants, and milestone tracking",
-      "target": "backend",
+      "text": "Add real-time polling or data refresh mechanism for Activities tab to automatically sync badges, streaks, and challenge data when partner completes rituals without requiring manual page refresh",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-love-garden-request"
+          "msg-5"
+        ],
+        "quotes": [
+          "Missing Real-Time Sync: Activities tab doesn't auto-refresh when partner completes a ritual"
         ]
       },
       "acceptanceCriteria": [
-        "Backend stores garden progression data for each couple",
-        "Garden state can be queried via backend API",
-        "Garden progression updates when rituals/challenges are completed",
-        "State persists correctly across backend upgrades"
+        "Activities tab automatically refreshes data at regular intervals",
+        "Streak counter updates when partner completes rituals",
+        "Badge unlocks appear without manual refresh",
+        "Challenge progress reflects partner activity in real-time"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Add visual feedback in Activities tab showing progress toward next badge unlock with message like '3 days until next badge!'",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-5"
+        ],
+        "quotes": [
+          "Add visual feedback when badges are close to unlocking ('3 days until next badge!')"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Display shows days remaining until next badge milestone",
+        "Message updates dynamically based on current streak",
+        "Visual indicator is prominent and easy to understand"
       ]
     }
   ],
   "constraints": [
-    "Must integrate with existing XP, streak, and badge systems without modifying their core logic",
-    "Garden visualization must fit within the existing romantic theme and color palette",
-    "Must work with current authentication and pairing requirements",
-    "Must respect accessibility preferences including reduced motion",
-    "Backend must follow single-actor architecture in main.mo"
+    "All backend logic must remain in the single main actor file (backend/main.mo)",
+    "Do not modify immutable frontend paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui"
   ],
   "nonGoals": [
-    "Multiplayer or social sharing features for the garden",
-    "Customization options for garden appearance or themes",
-    "Mini-games or interactive elements within the garden",
-    "Garden comparison features between different couples",
-    "External integrations or third-party garden templates"
+    "Implementing push notifications for partner activity",
+    "Adding WebSocket support for real-time updates",
+    "Removing the Spin the Love Wheel feature"
   ],
   "imageRequirements": {
-    "required": [
-      "Garden seed/sprout illustration for initial stage (garden-seed.dim_200x200.png)",
-      "Young sapling illustration for early growth stage (garden-sapling.dim_300x300.png)",
-      "Small garden with flowers illustration for mid-level stage (garden-flowers.dim_400x400.png)",
-      "Lush garden with multiple plants and trees illustration for advanced stage (garden-lush.dim_500x500.png)",
-      "Blooming rose bush illustration for milestone unlock (rose-bush.dim_150x150.png)",
-      "Cherry blossom tree illustration for high streak milestone (cherry-blossom.dim_200x250.png)"
-    ],
+    "required": [],
     "edits": []
   }
 }

@@ -1,8 +1,9 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Flame, Lock, Star } from 'lucide-react';
+import { Flame, Lock, Star, TrendingUp } from 'lucide-react';
 import { useGetInsightsData } from '../hooks/useQueries';
 import { LoadingState } from './DataStates';
+import { Progress } from '@/components/ui/progress';
 
 interface StreakMilestone {
   days: number;
@@ -27,6 +28,10 @@ export function StreakMilestoneBadges() {
 
   // Find next milestone
   const nextMilestone = milestones.find(m => !m.unlocked);
+  const daysUntilNext = nextMilestone ? nextMilestone.days - currentStreak : 0;
+  const progressToNext = nextMilestone 
+    ? (currentStreak / nextMilestone.days) * 100 
+    : 100;
 
   if (isLoading) {
     return (
@@ -60,6 +65,25 @@ export function StreakMilestoneBadges() {
           </span>
           <span className="text-sm text-muted-foreground">Current Streak</span>
         </div>
+
+        {/* Progress to Next Milestone */}
+        {nextMilestone && (
+          <div className="space-y-2 p-4 rounded-xl bg-primary/5 border border-primary/20">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-medium text-foreground flex items-center gap-1">
+                <TrendingUp className="w-4 h-4 text-primary" />
+                Next Badge
+              </span>
+              <span className="font-semibold text-primary">
+                {daysUntilNext} day{daysUntilNext !== 1 ? 's' : ''} to go!
+              </span>
+            </div>
+            <Progress value={progressToNext} className="h-2" />
+            <p className="text-xs text-muted-foreground text-center">
+              {currentStreak} / {nextMilestone.days} days until <span className="font-semibold">{nextMilestone.label}</span>
+            </p>
+          </div>
+        )}
 
         {/* Milestones Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
@@ -119,18 +143,6 @@ export function StreakMilestoneBadges() {
             );
           })}
         </div>
-
-        {/* Next Milestone Indicator */}
-        {nextMilestone && (
-          <div className="pt-2 text-center">
-            <p className="text-sm text-muted-foreground">
-              <span className="font-semibold text-primary">
-                {nextMilestone.days - currentStreak} more day{nextMilestone.days - currentStreak !== 1 ? 's' : ''}
-              </span>{' '}
-              until {nextMilestone.label}!
-            </p>
-          </div>
-        )}
 
         {/* All Unlocked Message */}
         {!nextMilestone && currentStreak >= 100 && (

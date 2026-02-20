@@ -13,6 +13,8 @@ export function Activities() {
   const { identity } = useInternetIdentity();
   const { data: userProfile } = useGetCallerUserProfile();
   const { data: combinedQuizState } = useGetCombinedQuizResultState();
+  
+  // Add real-time polling for insights data (30 second interval)
   const { data: insightsData } = useGetInsightsData();
   const { data: isAdmin = false } = useIsAdmin();
 
@@ -54,7 +56,7 @@ export function Activities() {
         </div>
       )}
 
-      {/* Weekly Challenge Section */}
+      {/* Love Challenges Section */}
       <section className="space-y-4">
         <LoveChallenges />
       </section>
@@ -98,10 +100,6 @@ export function Activities() {
                 </p>
               </div>
             )}
-            
-            <p className="text-xs text-muted-foreground/70 text-center italic">
-              Note: Smoother slow-stop/deceleration polish coming soon
-            </p>
           </CardContent>
         </Card>
       </section>

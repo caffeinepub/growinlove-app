@@ -291,42 +291,10 @@ actor {
   let xpMap = Map.empty<UserId, XP>();
   let badgeMap = Map.empty<UserId, [Badge]>();
 
-  // Love Garden (NEW)
-  public type LoveGardenLevel = {
-    name : Text;
-    xpRequired : XP;
-    description : Text;
-    milestone : Text;
-  };
+  // Storage for completed challenges
+  var completedChallenges : Map.Map<UserId, Map.Map<Nat, Bool>> = Map.empty();
+  var lastCompletedChallengesCache : ?(UserId, Map.Map<Nat, Bool>) = null;
 
-  public type Plant = {
-    name : Text;
-    description : Text;
-    xpRequired : XP;
-    isUnlocked : Bool;
-    milestone : Text;
-  };
-
-  public type LoveGarden = {
-    level : Nat;
-    xp : XP;
-    streakMilestones : [Plant];
-    badgeAchievements : [Plant];
-    isComplete : Bool;
-  };
-
-  public type GardenProgress = {
-    level : Nat;
-    xp : XP;
-    levelProgress : Float;
-    streakMilestones : [Plant];
-    badgeAchievements : [Plant];
-    hasAvailableRewards : Bool;
-    isComplete : Bool;
-    unlockedPlant : ?Plant;
-  };
-
-  // CONVERTING EXISTING RESPONSE TO EXTENDED RESPONSE FOR NEW LOVE GARDEN
   func convertToRitualEntryView(entry : RitualEntry) : RitualEntryView {
     {
       entry with responses = entry.responses.toArray().map(func((_, response)) { response });
@@ -524,162 +492,52 @@ actor {
   let recentWindowSize = 14;
   let fullHistoryWindow = 30;
 
-  // Love Garden Backend State
-  var loveGardens = Map.empty<UserId, LoveGarden>();
-
-  public query ({ caller }) func getLoveGarden() : async LoveGarden {
+  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can view Love Garden");
+      Runtime.trap("Unauthorized: Only users can view profiles");
     };
-
-    switch (loveGardens.get(caller)) {
-      case (?loveGarden) { loveGarden };
-      case (null) {
-        Runtime.trap("Love Garden not initialized for user");
-      };
-    };
+    userProfiles.get(caller);
   };
 
-  public query ({ caller }) func getLoveGardenProgress() : async GardenProgress {
+  public query ({ caller }) func getUserProfile(user : UserId) : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can view Love Garden progress");
+      Runtime.trap("Unauthorized: Only users can view profiles");
     };
 
-    switch (loveGardens.get(caller)) {
-      case (?garden) {
-        {
-          garden with
-          levelProgress = 0.0;
-          hasAvailableRewards = false;
-          unlockedPlant = null;
+    if (caller == user) {
+      return userProfiles.get(user);
+    };
+
+    if (not verifyMutualPartnership(caller, user)) {
+      if (not AccessControl.isAdmin(accessControlState, caller)) {
+        Runtime.trap("Unauthorized: Can only view your own profile or your partner`s profile");
+      };
+    };
+
+    userProfiles.get(user);
+  };
+
+  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can save profiles");
+    };
+
+    let existingProfile = userProfiles.get(caller);
+    switch (existingProfile) {
+      case (null) {
+        Runtime.trap("Cannot save profile: Profile must be initialized first");
+      };
+      case (?existing) {
+        if (existing.role != profile.role or existing.isFirstUser != profile.isFirstUser) {
+          Runtime.trap("Unauthorized: Cannot modify role or isFirstUser flag");
         };
-      };
-      case (null) {
-        Runtime.trap("Love Garden not found for user " # caller.toText());
-      };
-    };
-  };
-
-  public shared ({ caller }) func createGarden() : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can create Love Garden");
-    };
-
-    if (loveGardens.get(caller) != null) {
-      Runtime.trap("Love Garden already exists");
-    };
-
-    let initialGarden : LoveGarden = {
-      level = 1;
-      xp = 0;
-      streakMilestones = [
-        {
-          name = "Floribunda Rose";
-          description = "Beautiful roses that thrive with daily care after a 7-day devotion streak.";
-          xpRequired = 70;
-          isUnlocked = false;
-          milestone = "7-Day Streak";
-        },
-        {
-          name = "Bonsai Maple";
-          description = "After a month of daily rituals, this tree symbolizes your relationship. It thrives with 30 day devotion.";
-          xpRequired = 90;
-          isUnlocked = false;
-          milestone = "30-Day Streak";
-        },
-        {
-          name = "Orchid Harmony";
-          description = "Beautiful orchids appear in the love garden after 100 day devotion";
-          xpRequired = 120;
-          isUnlocked = false;
-          milestone = "100-Day Streak";
-        },
-      ];
-      badgeAchievements = [
-        {
-          name = "Sunflower Harmony";
-          description = "Awarded for consistent rituals when harmony rating is high. Needs baseline of 95% for two consecutive weeks.";
-          xpRequired = 130;
-          isUnlocked = false;
-          milestone = "Harmony Elite";
-        },
-      ];
-      isComplete = false;
-    };
-    loveGardens.add(caller, initialGarden);
-  };
-
-  func findPlantInGarden(loveGarden : LoveGarden, plantName : Text) : ?Plant {
-    switch (
-      loveGarden.streakMilestones.find(func(p) { p.name == plantName }),
-      loveGarden.badgeAchievements.find(func(p) { p.name == plantName }),
-    ) {
-      case (?streak, _) { ?streak };
-      case (null, ?badge) { ?badge };
-      case (null, null) { null };
-    };
-  };
-
-  public shared ({ caller }) func unlockPlant(plantName : Text) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can unlock plants");
-    };
-
-    switch (loveGardens.get(caller)) {
-      case (null) {
-        Runtime.trap("Love Garden not found for user " # caller.toText());
-      };
-      case (?garden) {
-        switch (findPlantInGarden(garden, plantName)) {
-          case (null) {
-            Runtime.trap("Plant " # plantName # " not found in Love Garden");
-          };
-          case (?plant) {
-            if (garden.xp >= plant.xpRequired) {
-              if (isPlantUnlocked(garden, plantName)) {
-                Runtime.trap("Plant " # plantName # " is already unlocked");
-              } else {
-                activatePlantInGarden(caller, plant);
-              };
-            } else {
-              Runtime.trap("Insufficient XP to unlock plant " # plantName);
-            };
-          };
+        if (profile.partnerId != existing.partnerId) {
+          Runtime.trap("Unauthorized: Cannot modify partnerId directly. Use pairing flow instead.");
         };
       };
     };
-  };
 
-  func isPlantUnlocked(loveGarden : LoveGarden, plantName : Text) : Bool {
-    loveGarden.streakMilestones.find(func(p) { p.name == plantName and p.isUnlocked }) != null
-    or loveGarden.badgeAchievements.find(func(p) { p.name == plantName and p.isUnlocked }) != null;
-  };
-
-  func activatePlantInGarden(caller : UserId, plant : Plant) {
-    switch (loveGardens.get(caller)) {
-      case (null) {
-        Runtime.trap("Love Garden not found for user " # caller.toText());
-      };
-      case (?garden) {
-        let updatedStreaks = garden.streakMilestones.map(
-          func(p) {
-            if (p.name == plant.name) { { p with isUnlocked = true } } else { p };
-          }
-        );
-        let updatedBadges = garden.badgeAchievements.map(
-          func(p) {
-            if (p.name == plant.name) { { p with isUnlocked = true } } else { p };
-          }
-        );
-
-        let updatedGarden = {
-          garden with
-          streakMilestones = updatedStreaks;
-          badgeAchievements = updatedBadges;
-        };
-        loveGardens.add(caller, updatedGarden);
-      };
-    };
+    userProfiles.add(caller, profile);
   };
 
   func internalInitPrompts() {
@@ -1508,7 +1366,7 @@ actor {
     switch (exceededRewardTiers.find(func(tier) { tier.1 != null })) {
       case (?(_, ?rewardTier)) {
         if (rewardTier.pointsRequired == newXP) {
-          addBadge(caller, rewardTier.rewardType);
+          let _ = addBadge(caller, rewardTier.rewardType);
         };
       };
       case (_) {};
@@ -1541,5 +1399,88 @@ actor {
     };
     let newBadges = currentBadges.concat([badge]);
     badgeMap.add(caller, newBadges);
+  };
+
+  // LOVE CHALLENGES COMPLETION TRACKING
+  func getCompletedChallenges(user : UserId) : Map.Map<Nat, Bool> {
+    switch (lastCompletedChallengesCache) {
+      case (?(cachedUser, cachedChallenges)) {
+        if (cachedUser == user) {
+          return cachedChallenges;
+        };
+      };
+      case (null) {};
+    };
+
+    let found = completedChallenges.get(user);
+    let challenges = switch (found) {
+      case (?challenges) { challenges };
+      case (null) {
+        let newChallengesStore = Map.empty<Nat, Bool>();
+        completedChallenges.add(user, newChallengesStore);
+        newChallengesStore;
+      };
+    };
+    lastCompletedChallengesCache := ?(user, challenges);
+    challenges;
+  };
+
+  public shared ({ caller }) func markChallengeComplete(challengeId : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can mark challenges as complete");
+    };
+
+    let userChallenges = getCompletedChallenges(caller);
+    userChallenges.add(challengeId, true);
+    lastCompletedChallengesCache := ?(caller, userChallenges);
+  };
+
+  public query ({ caller }) func isChallengeCompleted(challengeId : Nat) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can check challenge completion status");
+    };
+
+    let userChallenges = getCompletedChallenges(caller);
+    switch (userChallenges.get(challengeId)) {
+      case (?completed) { completed };
+      case (null) { false };
+    };
+  };
+
+  public query ({ caller }) func getCompletedChallengeIds() : async [Nat] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view their completed challenges");
+    };
+
+    let userChallenges = getCompletedChallenges(caller);
+    userChallenges.toArray().filter(func((_, completed)) { completed }).map(func((id, _)) { id });
+  };
+
+  public query ({ caller }) func getChallengeCompletionCount() : async Nat {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view their challenge completion count");
+    };
+
+    let userChallenges = getCompletedChallenges(caller);
+    userChallenges.toArray().filter(func((_, completed)) { completed }).size();
+  };
+
+  public shared ({ caller }) func resetChallengeCompletion(challengeId : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can reset their challenge completion");
+    };
+
+    let userChallenges = getCompletedChallenges(caller);
+    userChallenges.remove(challengeId);
+    lastCompletedChallengesCache := ?(caller, userChallenges);
+  };
+
+  public shared ({ caller }) func clearAllCompletedChallenges() : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can clear their completed challenges");
+    };
+
+    completedChallenges.remove(caller);
+    lastCompletedChallengesCache := null;
   };
 };

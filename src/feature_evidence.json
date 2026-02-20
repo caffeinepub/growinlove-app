@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-create-a-love-garden-visualization-component-that-displays-a-progressive-garden-scene-starting-as-a-small-seed-sapling-and-evolving-into-a-lush-garden-based-on-relationship-milestones",
-      "featureTitle": "Create a Love Garden visualization component that displays a progressive garden scene starting as a small seed/sapling and evolving into a lush garden based on relationship milestones",
+      "featureId": "feature-fix-badge-display-logic-in-activities-tab-to-properly-filter-and-show-only-unlocked-badges-by-verifying-the-filtering-logic-matches-backend-unlock-conditions-from-getbadgemilestones",
+      "featureTitle": "Fix badge display logic in Activities tab to properly filter and show only unlocked badges by verifying the filtering logic matches backend unlock conditions from getBadgeMilestones",
       "files": [
-        "frontend/src/components/GardenPlantCard.tsx",
-        "frontend/src/components/LoveGardenVisualization.tsx"
+        "frontend/src/components/StreakMilestoneBadges.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -23,33 +22,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-tie-love-garden-growth-progression-to-the-existing-xp-system-streak-milestones-and-badge-achievements-so-that-completing-rituals-and-activities-visibly-advances-the-garden",
-      "featureTitle": "Tie Love Garden growth progression to the existing XP system, streak milestones, and badge achievements so that completing rituals and activities visibly advances the garden",
+      "featureId": "feature-connect-frontend-love-challenges-component-to-use-backend-persistence-instead-of-local-state-for-tracking-completed-challenges",
+      "featureTitle": "Connect frontend Love Challenges component to use backend persistence instead of local state for tracking completed challenges",
       "files": [
-        "frontend/src/components/LoveGardenVisualization.tsx",
+        "frontend/src/components/LoveChallenges.tsx",
         "frontend/src/hooks/useQueries.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "authorization@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-dedicated-love-garden-page-accessible-from-the-main-navigation-that-displays-the-full-garden-visualization-with-current-growth-status",
-      "featureTitle": "Add a dedicated Love Garden page accessible from the main navigation that displays the full garden visualization with current growth status",
-      "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/BottomNav.tsx",
-        "frontend/src/pages/Garden.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -66,12 +43,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-create-gentle-rewarding-animations-when-garden-elements-grow-or-new-plants-appear-to-make-progress-feel-magical-and-emotionally-resonant",
-      "featureTitle": "Create gentle, rewarding animations when garden elements grow or new plants appear to make progress feel magical and emotionally resonant",
+      "featureId": "feature-implement-spin-the-love-wheel-with-smooth-deceleration-physics-using-ease-out-cubic-easing-3-5-second-spin-duration-and-randomized-final-stopping-angle-with-slight-offset-to-avoid-landing-exactly-on-dividing-lines-between-sections",
+      "featureTitle": "Implement Spin the Love Wheel with smooth deceleration physics using ease-out cubic easing, 3-5 second spin duration, and randomized final stopping angle with slight offset to avoid landing exactly on dividing lines between sections",
       "files": [
-        "frontend/src/components/GardenPlantCard.tsx",
-        "frontend/src/components/LoveGardenVisualization.tsx",
-        "frontend/src/pages/Garden.tsx"
+        "frontend/src/components/SpinWheel.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -84,6 +59,46 @@
       ],
       "testIds": [
         "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-real-time-polling-or-data-refresh-mechanism-for-activities-tab-to-automatically-sync-badges-streaks-and-challenge-data-when-partner-completes-rituals-without-requiring-manual-page-refresh",
+      "featureTitle": "Add real-time polling or data refresh mechanism for Activities tab to automatically sync badges, streaks, and challenge data when partner completes rituals without requiring manual page refresh",
+      "files": [
+        "frontend/src/pages/Activities.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-visual-feedback-in-activities-tab-showing-progress-toward-next-badge-unlock-with-message-like-3-days-until-next-badge",
+      "featureTitle": "Add visual feedback in Activities tab showing progress toward next badge unlock with message like '3 days until next badge!'",
+      "files": [
+        "frontend/src/components/StreakMilestoneBadges.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
       ],
       "confidence": "high"
     }

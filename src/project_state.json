@@ -1,44 +1,56 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Couple's relationship app with XP system, streaks, badges, memories/scrapbook feature, and shared rituals tracking. Currently implementing Love Garden feature - a visual representation of relationship growth that evolves with completed rituals and activities.",
+  "summary": "New project",
   "architectural_notes": [
-    "XP and badge system already implemented and persisting correctly",
-    "Existing features: XP system, streaks, badges, memories/scrapbook, shared rituals tracking"
+    "Activities tab combines badge filtering, challenge persistence, wheel physics, and real-time sync in one cohesive update",
+    "Spin the Love Wheel uses ease-out cubic easing with 3-5 second duration and randomized final angle offset to avoid landing on dividing lines"
   ],
-  "known_issues": [],
-  "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- Garden seed/sprout illustration for initial stage (garden-seed.dim_200x200.png)\n- Young sapling illustration for early growth stage (garden-sapling.dim_300x300.png)\n- Small garden with flowers illustration for mid-level stage (garden-flowers.dim_400x400.png)\n- Lush garden with multiple plants and trees illustration for advanced stage (garden-lush.dim_500x500.png)\n- Blooming rose bush illustration for milestone unlock (rose-bush.dim_150x150.png)\n- Cherry blossom tree illustration for high streak milestone (cherry-blossom.dim_200x250.png)",
+  "known_issues": [
+    "Badge display logic in Activities tab may show locked badges due to improper filtering against backend unlock conditions",
+    "Love Challenges completion state uses local storage only and is lost on page refresh",
+    "Activities tab does not auto-refresh when partner completes rituals, requiring manual refresh",
+    "Spin the Love Wheel is currently a placeholder with no backend integration"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-create-a-love-garden-visualization-component-that-displays-a-progressive-garden-scene-starting-as-a-small-seed-sapling-and-evolving-into-a-lush-garden-based-on-relationship-milestones",
-      "title": "Create a Love Garden visualization component that displays a progressive garden scene starting as a small seed/sapling and evolving into a lush garden based on relationship milestones",
+      "id": "feature-fix-badge-display-logic-in-activities-tab-to-properly-filter-and-show-only-unlocked-badges-by-verifying-the-filtering-logic-matches-backend-unlock-conditions-from-getbadgemilestones",
+      "title": "Fix badge display logic in Activities tab to properly filter and show only unlocked badges by verifying the filtering logic matches backend unlock conditions from getBadgeMilestones",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-tie-love-garden-growth-progression-to-the-existing-xp-system-streak-milestones-and-badge-achievements-so-that-completing-rituals-and-activities-visibly-advances-the-garden",
-      "title": "Tie Love Garden growth progression to the existing XP system, streak milestones, and badge achievements so that completing rituals and activities visibly advances the garden",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-dedicated-love-garden-page-accessible-from-the-main-navigation-that-displays-the-full-garden-visualization-with-current-growth-status",
-      "title": "Add a dedicated Love Garden page accessible from the main navigation that displays the full garden visualization with current growth status",
+      "id": "feature-connect-frontend-love-challenges-component-to-use-backend-persistence-instead-of-local-state-for-tracking-completed-challenges",
+      "title": "Connect frontend Love Challenges component to use backend persistence instead of local state for tracking completed challenges",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-create-gentle-rewarding-animations-when-garden-elements-grow-or-new-plants-appear-to-make-progress-feel-magical-and-emotionally-resonant",
-      "title": "Create gentle, rewarding animations when garden elements grow or new plants appear to make progress feel magical and emotionally resonant",
+      "id": "feature-implement-spin-the-love-wheel-with-smooth-deceleration-physics-using-ease-out-cubic-easing-3-5-second-spin-duration-and-randomized-final-stopping-angle-with-slight-offset-to-avoid-landing-exactly-on-dividing-lines-between-sections",
+      "title": "Implement Spin the Love Wheel with smooth deceleration physics using ease-out cubic easing, 3-5 second spin duration, and randomized final stopping angle with slight offset to avoid landing exactly on dividing lines between sections",
       "reqIds": [
         "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-real-time-polling-or-data-refresh-mechanism-for-activities-tab-to-automatically-sync-badges-streaks-and-challenge-data-when-partner-completes-rituals-without-requiring-manual-page-refresh",
+      "title": "Add real-time polling or data refresh mechanism for Activities tab to automatically sync badges, streaks, and challenge data when partner completes rituals without requiring manual page refresh",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-visual-feedback-in-activities-tab-showing-progress-toward-next-badge-unlock-with-message-like-3-days-until-next-badge",
+      "title": "Add visual feedback in Activities tab showing progress toward next badge unlock with message like '3 days until next badge!'",
+      "reqIds": [
+        "REQ-6"
       ],
       "version": 1
     }
@@ -46,20 +58,38 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Shared Love Garden feature - visual representation of relationship growth tied to XP/streaks/milestones",
+      "summary": "Fix badge display logic in Activities tab to properly filter unlocked badges",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add backend persistence for Love Challenges completion tracking",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Implement Spin the Love Wheel with smooth deceleration physics and random landing offset",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add real-time sync/polling for Activities data to reflect partner's ritual completions",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-6",
-      "summary": "Store and persist Love Garden state in the backend including current garden level, unlocked plants, and milestone tracking",
+      "summary": "Add backend persistence for Love Challenges completion tracking so completed challenges are stored on-chain and persist across page refreshes",
       "reqIds": [
-        "REQ-5"
+        "REQ-2"
       ],
       "status": "pending"
     }
   ],
-  "projectName": "GrowInLove",
+  "projectName": "Fix Activities tab badge filtering, add challenge persistence, implement Love Wheel physics, and add real-time sync",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

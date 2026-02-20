@@ -4,61 +4,101 @@
 
 @layer base {
   :root {
-    /* Deep berry/wine primary - vibrant romantic love theme */
-    --background: oklch(98% 0.01 350);
-    --foreground: oklch(20% 0.02 350);
+    /* Vibrant romantic love theme with deep colors and pastel softness */
+    --background: oklch(98% 0.01 280);
+    --foreground: oklch(20% 0.02 280);
     --card: oklch(100% 0 0);
-    --card-foreground: oklch(20% 0.02 350);
+    --card-foreground: oklch(20% 0.02 280);
     --popover: oklch(100% 0 0);
-    --popover-foreground: oklch(20% 0.02 350);
+    --popover-foreground: oklch(20% 0.02 280);
+    
+    /* Deep romantic primary (rich berry/wine) */
     --primary: oklch(48% 0.18 350);
     --primary-foreground: oklch(98% 0.01 350);
-    --secondary: oklch(88% 0.08 320);
-    --secondary-foreground: oklch(25% 0.02 350);
-    --muted: oklch(94% 0.02 350);
-    --muted-foreground: oklch(50% 0.02 350);
+    
+    /* Romantic accent (warm rose gold) */
     --accent: oklch(68% 0.14 25);
-    --accent-foreground: oklch(20% 0.02 350);
+    --accent-foreground: oklch(20% 0.02 25);
+    
+    /* Secondary with pastel softness (soft lavender) */
+    --secondary: oklch(88% 0.08 300);
+    --secondary-foreground: oklch(25% 0.03 300);
+    
+    /* Muted tones */
+    --muted: oklch(94% 0.02 280);
+    --muted-foreground: oklch(50% 0.02 280);
+    
+    /* Destructive */
     --destructive: oklch(55% 0.22 25);
-    --destructive-foreground: oklch(98% 0.01 350);
-    --border: oklch(88% 0.02 350);
-    --input: oklch(88% 0.02 350);
+    --destructive-foreground: oklch(98% 0.01 25);
+    
+    /* Border and input */
+    --border: oklch(88% 0.02 280);
+    --input: oklch(88% 0.02 280);
     --ring: oklch(48% 0.18 350);
-    --radius: 0.75rem;
-
-    /* Romantic color extensions */
+    
+    /* Success and warning */
+    --success: oklch(60% 0.15 145);
+    --success-foreground: oklch(98% 0.01 145);
+    --warning: oklch(70% 0.15 60);
+    --warning-foreground: oklch(20% 0.02 60);
+    
+    /* Romantic theme extensions */
     --romantic-primary: oklch(48% 0.18 350);
     --romantic-accent: oklch(68% 0.14 25);
-    --romantic-deep: oklch(35% 0.15 350);
-    --romantic-light: oklch(92% 0.06 340);
+    --romantic-deep: oklch(38% 0.16 340);
+    --romantic-light: oklch(92% 0.06 350);
+    
+    /* Peach tones for warmth */
+    --peach: oklch(82% 0.10 40);
+    --cream: oklch(95% 0.03 60);
+    
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: oklch(15% 0.02 350);
-    --foreground: oklch(95% 0.01 350);
-    --card: oklch(18% 0.02 350);
-    --card-foreground: oklch(95% 0.01 350);
-    --popover: oklch(18% 0.02 350);
-    --popover-foreground: oklch(95% 0.01 350);
-    --primary: oklch(58% 0.20 350);
-    --primary-foreground: oklch(15% 0.02 350);
-    --secondary: oklch(28% 0.08 320);
-    --secondary-foreground: oklch(95% 0.01 350);
-    --muted: oklch(25% 0.02 350);
-    --muted-foreground: oklch(70% 0.02 350);
-    --accent: oklch(75% 0.16 25);
-    --accent-foreground: oklch(15% 0.02 350);
-    --destructive: oklch(60% 0.24 25);
-    --destructive-foreground: oklch(95% 0.01 350);
-    --border: oklch(28% 0.02 350);
-    --input: oklch(28% 0.02 350);
-    --ring: oklch(58% 0.20 350);
-
-    /* Romantic color extensions for dark mode */
-    --romantic-primary: oklch(58% 0.20 350);
-    --romantic-accent: oklch(75% 0.16 25);
-    --romantic-deep: oklch(45% 0.18 350);
-    --romantic-light: oklch(30% 0.08 340);
+    --background: oklch(18% 0.02 280);
+    --foreground: oklch(95% 0.01 280);
+    --card: oklch(22% 0.02 280);
+    --card-foreground: oklch(95% 0.01 280);
+    --popover: oklch(22% 0.02 280);
+    --popover-foreground: oklch(95% 0.01 280);
+    
+    /* Deep romantic primary (brighter in dark mode) */
+    --primary: oklch(62% 0.20 350);
+    --primary-foreground: oklch(18% 0.02 350);
+    
+    /* Romantic accent (warm peachy rose) */
+    --accent: oklch(72% 0.16 30);
+    --accent-foreground: oklch(18% 0.02 30);
+    
+    /* Secondary with pastel softness */
+    --secondary: oklch(32% 0.06 300);
+    --secondary-foreground: oklch(95% 0.01 300);
+    
+    --muted: oklch(28% 0.02 280);
+    --muted-foreground: oklch(65% 0.02 280);
+    
+    --destructive: oklch(58% 0.24 25);
+    --destructive-foreground: oklch(95% 0.01 25);
+    
+    --border: oklch(32% 0.02 280);
+    --input: oklch(32% 0.02 280);
+    --ring: oklch(62% 0.20 350);
+    
+    --success: oklch(65% 0.16 145);
+    --success-foreground: oklch(18% 0.02 145);
+    --warning: oklch(75% 0.16 60);
+    --warning-foreground: oklch(18% 0.02 60);
+    
+    /* Romantic theme extensions for dark mode */
+    --romantic-primary: oklch(62% 0.20 350);
+    --romantic-accent: oklch(72% 0.16 30);
+    --romantic-deep: oklch(52% 0.18 340);
+    --romantic-light: oklch(35% 0.08 350);
+    
+    --peach: oklch(70% 0.12 40);
+    --cream: oklch(40% 0.04 60);
   }
 }
 
@@ -73,100 +113,44 @@
 }
 
 @layer utilities {
-  .gradient-text {
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-romantic {
     @apply bg-gradient-to-r from-romantic-primary via-romantic-accent to-romantic-deep bg-clip-text text-transparent;
   }
-
-  .glow-pulse {
-    animation: glow-pulse 2s ease-in-out infinite;
+  
+  .text-overlay-light {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
   }
-
-  @keyframes glow-pulse {
-    0%,
-    100% {
-      filter: drop-shadow(0 0 4px oklch(48% 0.18 350 / 0.3));
-    }
-    50% {
-      filter: drop-shadow(0 0 12px oklch(48% 0.18 350 / 0.6));
-    }
+  
+  .text-overlay-dark {
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.3), 0 2px 8px rgba(255, 255, 255, 0.2);
   }
+}
 
-  .fade-in-up {
-    animation: fade-in-up 0.6s ease-out;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
   }
-
-  @keyframes fade-in-up {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
 
-  /* Garden-specific animations */
-  .garden-stage-enter {
-    animation: garden-stage-enter 1s ease-out;
+@media (prefers-reduced-motion: no-preference) {
+  .animate-fade-in-up {
+    animation: fadeInUp 0.7s ease-out forwards;
   }
+}
 
-  @keyframes garden-stage-enter {
-    from {
-      opacity: 0;
-      transform: scale(0.9);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  .plant-unlock-animation {
-    animation: plant-unlock 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  @keyframes plant-unlock {
-    0% {
-      opacity: 0;
-      transform: scale(0) translateY(20px);
-    }
-    50% {
-      opacity: 1;
-      transform: scale(1.1) translateY(-5px);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-
-  .plant-card-highlight {
-    animation: plant-card-highlight 1.5s ease-in-out;
-  }
-
-  @keyframes plant-card-highlight {
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 oklch(48% 0.18 350 / 0);
-    }
-    50% {
-      box-shadow: 0 0 20px 5px oklch(48% 0.18 350 / 0.4);
-    }
-  }
-
-  /* Respect reduced motion preferences */
-  @media (prefers-reduced-motion: reduce) {
-    .glow-pulse,
-    .fade-in-up,
-    .garden-stage-enter,
-    .plant-unlock-animation,
-    .plant-card-highlight {
-      animation: none;
-    }
-  }
-
-  .safe-area-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up {
+    animation: none;
+    opacity: 1;
+    transform: translateY(0);
   }
 }

@@ -1,102 +1,92 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Implement Shared Love Garden visualization feature",
+  "title": "Fix Activities tab badge filtering, add challenge persistence, implement Love Wheel physics, and add real-time sync",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Create a Love Garden visualization component that displays a progressive garden scene starting as a small seed/sapling and evolving into a lush garden based on relationship milestones",
+      "summary": "Fix badge display logic in Activities tab to properly filter and show only unlocked badges by verifying the filtering logic matches backend unlock conditions from getBadgeMilestones",
       "acceptanceCriteria": [
-        "Garden component renders a visual scene that changes appearance based on progression level",
-        "Visual progression includes multiple growth stages from seed to full garden",
-        "Component integrates with existing romantic theme and color scheme"
+        "Only badges that meet unlock conditions (7-day, 30-day, 100-day streaks) are displayed",
+        "Locked badges do not appear in the badges list",
+        "Badge unlock status correctly reflects current streak data"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/LoveGardenVisualization.tsx",
-          "operation": "create",
-          "description": "Create the main Love Garden visualization component that renders the progressive garden scene. The component receives gardenLevel (number) and unlockedPlants (array) as props and displays the appropriate garden stage image from frontend/public/assets/generated/. Use garden-seed.dim_200x200.png for level 0-1, garden-sapling.dim_300x300.png for level 2-4, garden-flowers.dim_400x400.png for level 5-7, and garden-lush.dim_500x500.png for level 8+. Overlay unlocked plant images (rose-bush.dim_150x150.png, cherry-blossom.dim_200x250.png) as decorative elements when present. Apply romantic theme colors from Tailwind config and ensure responsive sizing. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/GardenPlantCard.tsx",
-          "operation": "create",
-          "description": "Create a card component to display individual plant information including name, description, milestone requirement, unlock status, and XP required. Show locked plants with reduced opacity and a lock icon. Use the Plant type from backend interface. Apply romantic theme styling consistent with existing card components like HarmonyBreakdownTrendCard."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Tie Love Garden growth progression to the existing XP system, streak milestones, and badge achievements so that completing rituals and activities visibly advances the garden",
-      "acceptanceCriteria": [
-        "Garden visual updates when XP increases from ritual completions",
-        "New plants or garden elements appear at specific streak milestones (3, 7, 14, 30, 60, 100 days)",
-        "Badge achievements trigger visible changes in the garden",
-        "Garden state persists across sessions and page refreshes"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/components/StreakMilestoneBadges.tsx",
           "operation": "modify",
-          "description": "Add useGetLoveGardenProgress query hook that calls actor.getLoveGardenProgress() to fetch GardenProgress data including level, XP, unlockedPlants, streakMilestones, badgeAchievements, levelProgress, and hasAvailableRewards. Enable the query only when actor is available and user is authenticated. Include proper error handling and cache invalidation keys."
-        },
-        {
-          "path": "frontend/src/components/LoveGardenVisualization.tsx",
-          "operation": "modify",
-          "description": "Update the LoveGardenVisualization component to accept GardenProgress data and reactively update the garden visualization when XP, level, or unlocked plants change. Map streakMilestones and badgeAchievements arrays to visual plant overlays. Ensure the component re-renders smoothly when progress data updates after ritual completions or challenge completions."
+          "description": "Update badge filtering logic to exclude badges where isUnlocked is false, ensuring only unlocked badges are displayed in the badges list. Add filtering step to remove locked badges from the rendered output based on the isUnlocked property from getBadgeMilestones backend data."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Add a dedicated Love Garden page accessible from the main navigation that displays the full garden visualization with current growth status",
+      "summary": "Connect frontend Love Challenges component to use backend persistence instead of local state for tracking completed challenges",
       "acceptanceCriteria": [
-        "New navigation tab added to BottomNav component for Love Garden",
-        "Garden page is accessible to authenticated and paired users",
-        "Page displays the garden visualization prominently",
-        "Page shows current progress indicators (XP, streak, level)"
+        "LoveChallenges component fetches completed challenges from backend",
+        "Challenge completion submits to backend endpoint",
+        "Completed challenges persist across sessions"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/Garden.tsx",
-          "operation": "create",
-          "description": "Create the Garden page component that fetches garden progress using useGetLoveGardenProgress hook and displays the LoveGardenVisualization component prominently. Include progress indicators showing current XP, garden level, level progress percentage bar, and current streak. Display lists of unlocked streakMilestones and badgeAchievements using GardenPlantCard components. Show loading, error, and empty states using DataStates components. Require authentication and pairing (or admin override) similar to Activities page pattern."
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add React Query hooks for fetching completed challenge IDs (useGetCompletedChallengeIds) using actor.getCompletedChallengeIds() and for marking challenges complete (useMarkChallengeComplete) using actor.markChallengeComplete(challengeId). Both hooks should integrate with the existing actor from useActor."
         },
         {
-          "path": "frontend/src/components/BottomNav.tsx",
+          "path": "frontend/src/components/LoveChallenges.tsx",
           "operation": "modify",
-          "description": "Add a new navigation tab for 'Garden' between 'Memories' and 'Activities' tabs. Use a flower or plant icon (Lucide React icons) and label it 'Garden'. Update the active state logic to highlight the Garden tab when pathname is '/garden'. Maintain consistent styling with existing tabs."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Add a new route case for 'garden' in the activeTab state management logic. Import and render the Garden page component when activeTab is 'garden'. Ensure the Garden page follows the same authentication and loading patterns as other protected pages."
+          "description": "Replace local state completedChallenges with backend data fetched via useGetCompletedChallengeIds hook. Update completion submission logic to call the useMarkChallengeComplete mutation instead of updating local state. Ensure the component refetches completed challenges after successful submission to reflect persistence across sessions."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Create gentle, rewarding animations when garden elements grow or new plants appear to make progress feel magical and emotionally resonant",
+      "summary": "Implement Spin the Love Wheel with smooth deceleration physics using ease-out cubic easing, 3-5 second spin duration, and randomized final stopping angle with slight offset to avoid landing exactly on dividing lines between sections",
       "acceptanceCriteria": [
-        "Smooth transition animations when garden progresses to next stage",
-        "New plant appearances include celebration animations",
-        "Animations respect prefers-reduced-motion accessibility setting",
-        "Animation timing feels gentle and not jarring"
+        "Wheel spins with gradual deceleration over 3-5 seconds",
+        "Final stopping position uses randomized offset to avoid landing on dividing lines",
+        "Animation uses ease-out cubic easing for natural feel",
+        "Slight bounce effect occurs when wheel stops"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/LoveGardenVisualization.tsx",
+          "path": "frontend/src/components/SpinWheel.tsx",
           "operation": "modify",
-          "description": "Add smooth fade-in and scale-up animations when the garden stage image changes or new plants unlock. Use Framer Motion for animations with spring physics for gentle, organic motion. Detect newly unlocked plants by comparing previous and current unlockedPlants arrays. Apply celebration animations (gentle bounce, glow effect) to newly appeared plants. Use usePrefersReducedMotion hook to disable animations when user prefers reduced motion. Keep animation durations between 600-1000ms for gentle pacing."
-        },
+          "description": "Replace existing spin animation with physics-based implementation using ease-out cubic easing (CSS cubic-bezier(0.215, 0.61, 0.355, 1)) with 3-5 second duration. Add randomized final stopping angle calculation that includes a +5 to +10 degree offset from section center points to avoid landing on dividing lines. Implement slight bounce effect at spin end using a secondary animation phase with reduced rotation in opposite direction. Update the rotation calculation to use multiple full rotations (3-5 spins) plus the randomized final angle for realistic deceleration."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Add real-time polling or data refresh mechanism for Activities tab to automatically sync badges, streaks, and challenge data when partner completes rituals without requiring manual page refresh",
+      "acceptanceCriteria": [
+        "Activities tab automatically refreshes data at regular intervals",
+        "Streak counter updates when partner completes rituals",
+        "Badge unlocks appear without manual refresh",
+        "Challenge progress reflects partner activity in real-time"
+      ],
+      "file_operations": [
         {
-          "path": "frontend/src/components/GardenPlantCard.tsx",
+          "path": "frontend/src/pages/Activities.tsx",
           "operation": "modify",
-          "description": "Add a subtle scale-in animation when a plant card transitions from locked to unlocked state. Use Framer Motion with gentle spring animation. Include an optional highlight prop that triggers a brief glow animation for newly unlocked plants. Respect prefers-reduced-motion setting using usePrefersReducedMotion hook."
-        },
+          "description": "Implement automatic data refresh using React Query's refetchInterval option for insights data query (useGetInsightsData). Set polling interval to 30 seconds to check for updates from partner activity. Configure refetchInterval on the query to automatically sync badges, streaks, and challenge data without manual refresh. Ensure the polling respects component mount state and pauses when tab is not visible using refetchIntervalInBackground: false."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add visual feedback in Activities tab showing progress toward next badge unlock with message like '3 days until next badge!'",
+      "acceptanceCriteria": [
+        "Display shows days remaining until next badge milestone",
+        "Message updates dynamically based on current streak",
+        "Visual indicator is prominent and easy to understand"
+      ],
+      "file_operations": [
         {
-          "path": "frontend/src/pages/Garden.tsx",
+          "path": "frontend/src/components/StreakMilestoneBadges.tsx",
           "operation": "modify",
-          "description": "Add celebration animation when hasAvailableRewards flag is true in GardenProgress data, indicating new unlocks are available. Reuse the CompletionAnimation component pattern from Home page for floating hearts. Show a brief congratulatory message overlay when new milestones are reached. Ensure animations are subtle and don't obstruct the garden visualization."
+          "description": "Add progress indicator below the current streak display that calculates days remaining until the next locked badge milestone. Determine the next uncompleted milestone (7, 30, or 100 days) based on milestones data from insights and current streak, then display a message like '{X} days until next badge!' where X is the difference. Include a small progress bar showing percentage toward the next milestone for enhanced visual feedback."
         }
       ]
     }
