@@ -1,0 +1,108 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-implement-animated-level-up-celebration-overlay-that-triggers-when-couple-level-increases-displaying-the-new-level-number-level-label-e-g-flourishing-thriving-and-celebratory-animation-effects",
+      "featureTitle": "Implement animated level-up celebration overlay that triggers when couple level increases, displaying the new level number, level label (e.g., 'Flourishing', 'Thriving'), and celebratory animation effects",
+      "files": [
+        "frontend/src/components/LevelUpCelebration.tsx",
+        "frontend/src/index.css"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-enhance-couplelevelxpmodule-progress-bar-with-smooth-animated-transitions-when-xp-increases-showing-fill-animation-from-previous-to-new-xp-value",
+      "featureTitle": "Enhance CoupleLevelXPModule progress bar with smooth animated transitions when XP increases, showing fill animation from previous to new XP value",
+      "files": [
+        "frontend/src/components/CoupleLevelXPModule.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-create-badge-showcase-component-that-displays-all-earned-milestone-badges-with-entrance-animations-and-highlighting-effects-for-newly-unlocked-badges",
+      "featureTitle": "Create badge showcase component that displays all earned milestone badges with entrance animations and highlighting effects for newly unlocked badges",
+      "files": [
+        "frontend/src/components/BadgeShowcase.tsx",
+        "frontend/src/index.css"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-micro-interactions-and-celebratory-animations-to-streakmilestonebadges-component-when-badges-unlock-with-particle-effects-and-badge-scale-animations",
+      "featureTitle": "Add micro-interactions and celebratory animations to StreakMilestoneBadges component when badges unlock, with particle effects and badge scale animations",
+      "files": [
+        "frontend/src/components/StreakMilestoneBadges.tsx",
+        "frontend/src/index.css"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-integrate-level-up-celebration-trigger-into-insights-page-to-detect-level-increases-by-comparing-current-level-with-previous-level-from-query-data",
+      "featureTitle": "Integrate level-up celebration trigger into Insights page to detect level increases by comparing current level with previous level from query data",
+      "files": [
+        "frontend/src/pages/Insights.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

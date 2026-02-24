@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/generated/favicon-32.dim_32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/generated/favicon-16.dim_16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/generated/apple-touch-icon.dim_180x180.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/generated/android-chrome.dim_192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/generated/android-chrome.dim_512x512.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#f4a5a5" />
+    <title>GrowInLove - Strengthen Your Relationship</title>
+    <meta name="description" content="GrowInLove helps couples deepen their connection through daily rituals, love languages, and shared moments." />
+    <script>
+      // Pre-React theme initialization to prevent flash (Tailwind-compatible)
+      (function() {
+        try {
+          const savedTheme = localStorage.getItem('theme');
+          const effectiveTheme = savedTheme === 'system' || !savedTheme
+            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+            : savedTheme;
+          
+          // Only add 'dark' class if dark mode, otherwise remove it (light is default)
+          if (effectiveTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {
+          // Fallback: ensure no dark class (light mode default)
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

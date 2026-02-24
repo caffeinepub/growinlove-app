@@ -1,0 +1,124 @@
+{
+  "kind": "build_request",
+  "title": "Add level-up celebrations, progress bars, and badge showcase animations",
+  "projectName": "GrowIn Love",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Implement animated level-up celebration overlay that triggers when couple level increases, displaying the new level number, level label (e.g., 'Flourishing', 'Thriving'), and celebratory animation effects",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-5"
+        ],
+        "quotes": [
+          "level-up celebrations"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Level-up animation displays when couple level increases",
+        "Animation shows new level number and corresponding label",
+        "Animation includes celebratory visual effects (confetti, hearts, or particles)",
+        "Animation dismisses automatically after a few seconds or on user interaction",
+        "Animation respects prefers-reduced-motion accessibility setting"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Enhance CoupleLevelXPModule progress bar with smooth animated transitions when XP increases, showing fill animation from previous to new XP value",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-5"
+        ],
+        "quotes": [
+          "progress bars"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Progress bar animates smoothly when XP value changes",
+        "Animation duration is perceptible but not distracting (0.5-1 second)",
+        "Progress bar respects prefers-reduced-motion setting by using instant updates",
+        "XP number displays with counting animation or smooth transition"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Create badge showcase component that displays all earned milestone badges with entrance animations and highlighting effects for newly unlocked badges",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-5"
+        ],
+        "quotes": [
+          "badge showcase"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Showcase displays all earned badges in an organized grid or carousel layout",
+        "Newly unlocked badges appear with special entrance animation",
+        "Locked badges show as dimmed or outlined placeholders with requirements",
+        "Each badge displays its milestone requirement when tapped or hovered",
+        "Animation effects respect prefers-reduced-motion preferences"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Add micro-interactions and celebratory animations to StreakMilestoneBadges component when badges unlock, with particle effects and badge scale animations",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-5"
+        ],
+        "quotes": [
+          "level-up celebrations",
+          "badge showcase"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Badges animate with scale or bounce effect when transitioning from locked to unlocked",
+        "Particle effects (sparkles, confetti, or hearts) appear around newly unlocked badges",
+        "Progress indicators toward next badge animate smoothly",
+        "All animations are performant and respect reduced motion preferences"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Integrate level-up celebration trigger into Insights page to detect level increases by comparing current level with previous level from query data",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-5"
+        ],
+        "quotes": [
+          "level-up celebrations"
+        ]
+      },
+      "acceptanceCriteria": [
+        "System detects when couple level has increased since last render",
+        "Level-up celebration triggers automatically on detection",
+        "Celebration only triggers once per level increase",
+        "Previous level state is tracked using React state or ref to prevent repeated animations"
+      ]
+    }
+  ],
+  "constraints": [
+    "All animations must respect the usePrefersReducedMotion hook for accessibility",
+    "Use existing CompletionAnimation component patterns for consistency",
+    "Maintain existing CoupleLevelXPModule component structure and API",
+    "Leverage existing StreakMilestoneBadges component without breaking current functionality",
+    "Do not modify backend logic or data structures"
+  ],
+  "nonGoals": [
+    "Creating new backend endpoints or modifying XP calculation logic",
+    "Adding sound effects or audio feedback",
+    "Implementing social sharing features for achievements",
+    "Creating a dedicated achievements history page",
+    "Modifying the existing level calculation algorithm"
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

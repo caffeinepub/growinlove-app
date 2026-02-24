@@ -1,0 +1,109 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Add level-up celebrations, progress bars, and badge showcase animations",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Implement animated level-up celebration overlay that triggers when couple level increases",
+      "acceptanceCriteria": [
+        "Level-up animation displays when couple level increases",
+        "Animation shows new level number and corresponding label",
+        "Animation includes celebratory visual effects (confetti, hearts, or particles)",
+        "Animation dismisses automatically after a few seconds or on user interaction",
+        "Animation respects prefers-reduced-motion accessibility setting"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/LevelUpCelebration.tsx",
+          "operation": "create",
+          "description": "Create new LevelUpCelebration component that displays an animated overlay when a level increase is detected. The component should accept props for newLevel (number), levelLabel (string), and onComplete callback. Include confetti/heart particle effects using CSS animations or a lightweight animation approach. Support automatic dismissal after 3-4 seconds or on user tap/click. Use the usePrefersReducedMotion hook to disable animations for users with reduced motion preferences. Follow the pattern established in CompletionAnimation.tsx for overlay structure and animation timing."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Add CSS keyframe animations for level-up celebration effects including particle animations (confetti/hearts floating up and fading), scale/bounce animations for the level number display, and fade-in/fade-out transitions for the overlay. Include @media (prefers-reduced-motion: reduce) rules that disable or simplify animations for accessibility."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Enhance CoupleLevelXPModule progress bar with smooth animated transitions when XP increases",
+      "acceptanceCriteria": [
+        "Progress bar animates smoothly when XP value changes",
+        "Animation duration is perceptible but not distracting (0.5-1 second)",
+        "Progress bar respects prefers-reduced-motion setting by using instant updates",
+        "XP number displays with counting animation or smooth transition"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/CoupleLevelXPModule.tsx",
+          "operation": "modify",
+          "description": "Enhance the existing progress bar with CSS transition animations on the width property. Add a transition duration of 0.7s with an ease-out timing function. Use React useEffect to track previous XP values and trigger smooth transitions when the value changes. Implement a counting animation for the XP number display using requestAnimationFrame or a simple interval-based counter. Use the usePrefersReducedMotion hook to conditionally disable transitions and use instant updates when reduced motion is preferred. Maintain the existing component API and structure without breaking changes."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Create badge showcase component that displays all earned milestone badges with entrance animations",
+      "acceptanceCriteria": [
+        "Showcase displays all earned badges in an organized grid or carousel layout",
+        "Newly unlocked badges appear with special entrance animation",
+        "Locked badges show as dimmed or outlined placeholders with requirements",
+        "Each badge displays its milestone requirement when tapped or hovered",
+        "Animation effects respect prefers-reduced-motion preferences"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/BadgeShowcase.tsx",
+          "operation": "create",
+          "description": "Create new BadgeShowcase component that displays milestone badges in a responsive grid layout. Accept props for badges data (array of badge objects with id, unlocked status, requirement text, and icon/label). Render unlocked badges with full opacity and locked badges with dimmed styling and outline borders. Implement entrance animations for newly unlocked badges using scale/fade-in effects with staggered delays. Add tooltip or expandable detail on hover/tap showing badge requirements. Use the usePrefersReducedMotion hook to conditionally apply animations. Style consistently with the app's romantic theme using Tailwind classes."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Add CSS keyframe animations for badge entrance effects including scale-up with bounce, fade-in, and optional glow/pulse effects for newly unlocked badges. Include stagger delay utilities for sequential badge animations. Add @media (prefers-reduced-motion: reduce) rules to disable animations."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Add micro-interactions and celebratory animations to StreakMilestoneBadges component when badges unlock",
+      "acceptanceCriteria": [
+        "Badges animate with scale or bounce effect when transitioning from locked to unlocked",
+        "Particle effects (sparkles, confetti, or hearts) appear around newly unlocked badges",
+        "Progress indicators toward next badge animate smoothly",
+        "All animations are performant and respect reduced motion preferences"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/StreakMilestoneBadges.tsx",
+          "operation": "modify",
+          "description": "Enhance the existing StreakMilestoneBadges component with unlock animations. Add React state to track previously unlocked badges and detect new unlocks by comparing with current data. When a badge transitions from locked to unlocked, trigger a scale/bounce animation on the badge element and spawn particle effects (hearts/sparkles) around it using CSS animations. Enhance progress indicators with smooth CSS transitions on width changes. Use the usePrefersReducedMotion hook to conditionally disable animations. Maintain the existing component structure and data flow without breaking current functionality."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Add CSS keyframe animations for badge unlock micro-interactions including scale-bounce effects, particle burst animations (small hearts or sparkles radiating outward), and smooth progress bar transitions. Include @media (prefers-reduced-motion: reduce) rules for accessibility."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Integrate level-up celebration trigger into Insights page to detect level increases",
+      "acceptanceCriteria": [
+        "System detects when couple level has increased since last render",
+        "Level-up celebration triggers automatically on detection",
+        "Celebration only triggers once per level increase",
+        "Previous level state is tracked using React state or ref to prevent repeated animations"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Insights.tsx",
+          "operation": "modify",
+          "description": "Integrate level-up detection logic into the Insights page component. Add React useRef or useState to track the previous couple level value. In a useEffect that depends on the current level data, compare the current level with the previous level. When a level increase is detected (currentLevel > previousLevel), trigger the LevelUpCelebration component by setting a state flag. After the celebration completes, update the previous level ref to the current level to prevent re-triggering. Import and render the LevelUpCelebration component conditionally when the celebration flag is true, passing the new level number and label as props. Ensure the celebration only triggers once per actual level increase, not on initial page load or data refetch."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Couple relationship app with gamification features including levels, progress tracking, and celebration animations",
+  "architectural_notes": [
+    "App includes gamification system with couple levels and progress tracking",
+    "Frontend uses animations for user engagement (level-up celebrations, progress bars)"
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-implement-animated-level-up-celebration-overlay-that-triggers-when-couple-level-increases-displaying-the-new-level-number-level-label-e-g-flourishing-thriving-and-celebratory-animation-effects",
+      "title": "Implement animated level-up celebration overlay that triggers when couple level increases, displaying the new level number, level label (e.g., 'Flourishing', 'Thriving'), and celebratory animation effects",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enhance-couplelevelxpmodule-progress-bar-with-smooth-animated-transitions-when-xp-increases-showing-fill-animation-from-previous-to-new-xp-value",
+      "title": "Enhance CoupleLevelXPModule progress bar with smooth animated transitions when XP increases, showing fill animation from previous to new XP value",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-badge-showcase-component-that-displays-all-earned-milestone-badges-with-entrance-animations-and-highlighting-effects-for-newly-unlocked-badges",
+      "title": "Create badge showcase component that displays all earned milestone badges with entrance animations and highlighting effects for newly unlocked badges",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-micro-interactions-and-celebratory-animations-to-streakmilestonebadges-component-when-badges-unlock-with-particle-effects-and-badge-scale-animations",
+      "title": "Add micro-interactions and celebratory animations to StreakMilestoneBadges component when badges unlock, with particle effects and badge scale animations",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-integrate-level-up-celebration-trigger-into-insights-page-to-detect-level-increases-by-comparing-current-level-with-previous-level-from-query-data",
+      "title": "Integrate level-up celebration trigger into Insights page to detect level increases by comparing current level with previous level from query data",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Frontend animations and progress displays (level-up celebrations, progress bars, badge showcase)",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "GrowIn Love",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}
